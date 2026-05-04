@@ -28,6 +28,9 @@ void register_free_pointer(std::function<void()> f) {
 } // namespace detail
 
 int finalize() {
+	if(!runtime_ptr()) {
+		return EXIT_SUCCESS;
+	}
     auto &rt = runtime();
     rt.call_shutdown_functions(true);
     EINSUMS_LOG_INFO("ran pre-shutdown functions");
