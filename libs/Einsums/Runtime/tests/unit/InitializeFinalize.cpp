@@ -18,10 +18,12 @@ TEST_CASE("Initialize-Finalize", "[runtime]") {
     SECTION("Normal finalize") {
         REQUIRE_NOTHROW(finalize());
     }
-	
-	SECTION("Double initialize/finalize") {
-		REQUIRE_NOTHROW(initialize(std::vector<std::string>{"einsums"}));
-		REQUIRE_NOTHROW(finalize());
-		REQUIRE_NOTHROW(finalize());
-	}
+
+    SECTION("Double initialize/finalize") {
+        REQUIRE_NOTHROW(initialize(std::vector<std::string>{"einsums"}));
+        REQUIRE_NOTHROW(finalize());
+        REQUIRE_NOTHROW(finalize());
+        REQUIRE_NOTHROW(initialize(std::vector<std::string>{"einsums"}));
+        REQUIRE_NOTHROW(finalize());
+    }
 }
