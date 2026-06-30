@@ -115,7 +115,7 @@ void set_signal_handlers() {
 }
 
 Runtime::Runtime(RuntimeConfiguration &&rtcfg, bool initialize) : _rtcfg(std::move(rtcfg)) {
-	if(!runtime_ptr) {
+	if(!runtime_ptr()) {
 	    init_global_data();
 	}
 
