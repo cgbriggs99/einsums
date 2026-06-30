@@ -143,6 +143,8 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
 
     # adds some RPATH and link flags
     einsums_extend_with_python(${lib})
+    
+    target_link_libraries(${lib} PUBLIC atomic)
 
     install(
       TARGETS ${lib}
