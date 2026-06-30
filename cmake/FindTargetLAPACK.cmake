@@ -56,7 +56,7 @@ if(LAPACK_LIBRARIES)
   set_property(TARGET tgt::lapack PROPERTY INTERFACE_LINK_LIBRARIES ${LAPACK_LIBRARIES})
   set_property(TARGET tgt::lapack PROPERTY VENDOR ${_VENDOR})
   set_property(TARGET tgt::lapack PROPERTY INT_INTERFACE lp64) # TODO assumption!
-  target_link_libraries(tgt::lapack PUBLIC atomic)
+  target_link_libraries(tgt::lapack INTERFACE atomic)
 else()
   # 2nd precedence - target already prepared and findable in TargetLAPACKConfig.cmake
   if(NOT "${CMAKE_DISABLE_FIND_PACKAGE_${PN}}")
@@ -76,7 +76,7 @@ else()
       set_property(TARGET tgt::lapack PROPERTY INTERFACE_LINK_LIBRARIES MKL::MKL)
       set_property(TARGET tgt::lapack PROPERTY VENDOR "MKL")
       set_property(TARGET tgt::lapack PROPERTY INT_INTERFACE ${MKL_INTERFACE})
-      target_link_libraries(tgt::lapack PUBLIC atomic)
+      target_link_libraries(tgt::lapack INTERFACE atomic)
 
     else()
       set(BLA_VENDOR OpenBLAS)
