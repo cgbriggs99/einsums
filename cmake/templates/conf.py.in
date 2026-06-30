@@ -38,7 +38,7 @@ sys.path.insert(-1, "@EINSUMS_BINARY_DIR@/lib")
 
 try :
 	import einsums as ein
-except ImportError :
+except ModuleNotFoundError :
 	import pyeinsums as ein
 
 # Add any Sphinx extension module names here, as strings. They can be
