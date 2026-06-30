@@ -64,6 +64,8 @@ endif()
 foreach(lib ${EINSUMS_LIBS})
   add_library(${lib} ${einsums_libs_public_static} src/dummy.cpp)
   einsums_append_coverage_compiler_flags_to_target(${lib} PUBLIC)
+  
+  target_link_libraries(${lib} PUBLIC atomic)
 
   # Add underscores before uppercase letters, except the first one
   string(REGEX REPLACE "([A-Z])" "_\\1" transformed_string ${lib})
