@@ -354,6 +354,8 @@ void initialize_Einsums_Tensor() {
     auto fname = std::filesystem::path(global_config.get_string("scratch-dir"));
     fname /= global_config.get_string("hdf5-file-name");
 
+    singleton.global_file_name = fname.string();
+
     auto err = H5open();
 
     if (err < 0) {
@@ -372,13 +374,10 @@ void finalize_Einsums_Tensor() {
     auto &singleton     = einsums::detail::Einsums_Tensor_vars::get_singleton();
     auto &global_config = GlobalConfigMap::get_singleton();
 
-    auto fname = std::filesystem::path(global_config.get_string("scratch-dir"));
-    fname /= global_config.get_string("hdf5-file-name");
-
     H5Fclose(singleton.hdf5_file);
 
     if (singleton.hdf5_file != H5I_INVALID_HID && global_config.get_bool("delete-hdf5-files", true)) {
-        H5Fdelete(fname.c_str(), H5P_DEFAULT);
+        H5Fdelete(singleton.global_file_name.c_str(), H5P_DEFAULT);
     }
 
     if (singleton.link_property_list != H5I_INVALID_HID) {

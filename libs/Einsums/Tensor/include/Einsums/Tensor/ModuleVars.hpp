@@ -31,7 +31,9 @@ class EINSUMS_EXPORT Einsums_Tensor_vars final : public design_pats::Lockable<st
     hid_t float_complex_type{H5I_INVALID_HID};
 
     // Used for making temporary disk tensors.
-    std::atomic_int64_t volatile temp_counter;
+    std::atomic_uint64_t volatile temp_counter{0};
+
+    std::string global_file_name{};
 
   private:
     explicit Einsums_Tensor_vars() = default;
