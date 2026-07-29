@@ -39,7 +39,6 @@ namespace detail {
 EINSUMS_EXPORT bool verify_exists(hid_t loc_id, std::string const &path, hid_t lapl_id);
 
 template <typename T>
-
 hid_t hdf5_datatype() {
 #define CASE(t, out) if constexpr (std::is_same_v<T, t>) { return out; }
 

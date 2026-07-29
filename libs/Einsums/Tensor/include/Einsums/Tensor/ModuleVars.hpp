@@ -25,11 +25,11 @@ class EINSUMS_EXPORT Einsums_Tensor_vars final : public design_pats::Lockable<st
 
   public:
     // Put module-global variables here.
-    hid_t hdf5_file;
-    hid_t link_property_list;
+    hid_t hdf5_file{H5I_INVALID_HID};
+    hid_t link_property_list{H5I_INVALID_HID};
 
-    hid_t double_complex_type;
-    hid_t float_complex_type;
+    hid_t double_complex_type{H5I_INVALID_HID};
+    hid_t float_complex_type{H5I_INVALID_HID};
 
     // Used for making temporary disk tensors.
     std::atomic_int64_t volatile temp_counter;
