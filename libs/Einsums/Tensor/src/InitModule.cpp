@@ -54,31 +54,34 @@ EINSUMS_EXPORT void add_Einsums_Tensor_arguments() {
     auto &global_config = GlobalConfigMap::get_singleton();
     auto &global_string = global_config.get_string_map()->get_value();
     auto &global_double = global_config.get_double_map()->get_value();
-    auto &global_int    = global_config.get_int_map()->get_value();
-    auto &global_bool   = global_config.get_bool_map()->get_value();
+    auto &global_int = global_config.get_int_map()->get_value();
+    auto &global_bool = global_config.get_bool_map()->get_value();
 
     auto lock = std::lock_guard(global_config);
 
     static cl::OptionCategory TensorCategory("Tensor Options");
 
-    static cl::Opt<std::string> scratch_dir("einsums:scratch-dir", {}, "The scratch directory for Einsums tensor files.", TensorCategory,
-                                            cl::Location(global_string["scratch-dir"]),
-                                            cl::Default(std::filesystem::temp_directory_path().string()));
-    static cl::Opt<std::string> file_name(
-        "einsums:hdf5-file-name", {},
-        "The name of the HDF5 file for Einsums. Defaults to einsums.[pid].h5, where [pid] is the PID of the current process.",
-        TensorCategory, cl::Location(global_string["hdf5-file-name"]), cl::Default(fmt::format("einsums.{}.h5", pid)));
+    static cl::Opt<std::string> scratch_dir("einsums:scratch-dir", { }, "The scratch directory for Einsums tensor files.", TensorCategory,
+            cl::Location(global_string["scratch-dir"]), cl::Default(std::filesystem::temp_directory_path().string()));
+    static cl::Opt<std::string> file_name("einsums:hdf5-file-name", { },
+            "The name of the HDF5 file for Einsums. Defaults to einsums.[pid].h5, where [pid] is the PID of the current process.",
+            TensorCategory, cl::Location(global_string["hdf5-file-name"]), cl::Default(fmt::format("einsums.{}.h5", pid)));
 
-    static cl::Flag delete_files("einsums:no-delete-hdf5-files", {}, "Tells Einsums not to clean up HDF5 files on exit.", TensorCategory,
-                                 cl::Location(global_bool["delete-hdf5-files"]), cl::Default(false));
+    static cl::Flag delete_files("einsums:no-delete-hdf5-files", { }, "Tells Einsums not to clean up HDF5 files on exit.", TensorCategory,
+            cl::Location(global_bool["delete-hdf5-files"]), cl::Default(false));
 }
 
 static void create_complex_types() {
-    auto &singleton     = einsums::detail::Einsums_Tensor_vars::get_singleton();
+    auto &singleton = einsums::detail::Einsums_Tensor_vars::get_singleton();
     auto &global_config = GlobalConfigMap::get_singleton();
 
+#if defined(H5T_NATIVE_FLOAT_COMPLEX) && defined(H5T_NATIVE_DOUBLE_COMPLEX)
+    singleton.float_complex_type = H5T_NATIVE_FLOAT_COMPLEX;
+    singleton.double_complex_type = H5T_NATIVE_DOUBLE_COMPLEX;
+#else
+
     singleton.double_complex_type = H5Tcreate(H5T_COMPOUND, 2 * sizeof(double));
-    singleton.float_complex_type  = H5Tcreate(H5T_COMPOUND, 2 * sizeof(float));
+    singleton.float_complex_type = H5Tcreate(H5T_COMPOUND, 2 * sizeof(float));
 
     if (singleton.double_complex_type == H5I_INVALID_HID) {
         EINSUMS_LOG_ERROR("Could not create HDF5 double complex number data type!");
@@ -87,7 +90,7 @@ static void create_complex_types() {
         std::terminate();
     } else {
         int err = 1;
-        err     = H5Tinsert(singleton.double_complex_type, "x", 0, H5T_NATIVE_DOUBLE);
+        err = H5Tinsert(singleton.double_complex_type, "x", 0, H5T_NATIVE_DOUBLE);
 
         if (err < 0) {
             EINSUMS_LOG_ERROR("Could not assign members to double complex data type!");
@@ -126,7 +129,7 @@ static void create_complex_types() {
         std::terminate();
     } else {
         int err = 1;
-        err     = H5Tinsert(singleton.float_complex_type, "x", 0, H5T_NATIVE_FLOAT);
+        err = H5Tinsert(singleton.float_complex_type, "x", 0, H5T_NATIVE_FLOAT);
 
         if (err < 0) {
             EINSUMS_LOG_ERROR("Could not assign members to float complex data type!");
@@ -159,13 +162,18 @@ static void create_complex_types() {
             std::terminate();
         }
     }
+#endif
 }
 
 static void open_complex_types() {
     auto &singleton = einsums::detail::Einsums_Tensor_vars::get_singleton();
+#if defined(H5T_NATIVE_FLOAT_COMPLEX) && defined(H5T_NATIVE_DOUBLE_COMPLEX)
+    singleton.float_complex_type = H5T_NATIVE_FLOAT_COMPLEX;
+    singleton.double_complex_type = H5T_NATIVE_DOUBLE_COMPLEX;
+#else
 
     singleton.double_complex_type = H5Topen(singleton.hdf5_file, "double-complex", H5P_DEFAULT);
-    singleton.float_complex_type  = H5Topen(singleton.hdf5_file, "float-complex", H5P_DEFAULT);
+    singleton.float_complex_type = H5Topen(singleton.hdf5_file, "float-complex", H5P_DEFAULT);
 
     if (singleton.double_complex_type == H5I_INVALID_HID) {
         singleton.double_complex_type = H5Tcreate(H5T_COMPOUND, 2 * sizeof(double));
@@ -177,7 +185,7 @@ static void open_complex_types() {
             std::terminate();
         } else {
             int err = 1;
-            err     = H5Tinsert(singleton.double_complex_type, "x", 0, H5T_NATIVE_DOUBLE);
+            err = H5Tinsert(singleton.double_complex_type, "x", 0, H5T_NATIVE_DOUBLE);
 
             if (err < 0) {
                 EINSUMS_LOG_ERROR("Could not assign members to double complex data type!");
@@ -220,7 +228,7 @@ static void open_complex_types() {
             std::terminate();
         } else {
             int err = 1;
-            err     = H5Tinsert(singleton.float_complex_type, "x", 0, H5T_NATIVE_FLOAT);
+            err = H5Tinsert(singleton.float_complex_type, "x", 0, H5T_NATIVE_FLOAT);
 
             if (err < 0) {
                 EINSUMS_LOG_ERROR("Could not assign members to float complex data type!");
@@ -254,10 +262,11 @@ static void open_complex_types() {
             }
         }
     }
+#endif
 }
 
 void open_hdf5_file(std::string const &fname) {
-    auto &singleton     = einsums::detail::Einsums_Tensor_vars::get_singleton();
+    auto &singleton = einsums::detail::Einsums_Tensor_vars::get_singleton();
     auto &global_config = GlobalConfigMap::get_singleton();
 
     singleton.hdf5_file = H5Fopen(fname.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
@@ -297,7 +306,7 @@ void open_hdf5_file(std::string const &fname) {
 }
 
 void create_hdf5_file(std::string const &fname) {
-    auto &singleton     = einsums::detail::Einsums_Tensor_vars::get_singleton();
+    auto &singleton = einsums::detail::Einsums_Tensor_vars::get_singleton();
     auto &global_config = GlobalConfigMap::get_singleton();
 
     singleton.hdf5_file = H5Fcreate(fname.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
@@ -337,7 +346,7 @@ void create_hdf5_file(std::string const &fname) {
 }
 
 void initialize_Einsums_Tensor() {
-    auto &singleton     = einsums::detail::Einsums_Tensor_vars::get_singleton();
+    auto &singleton = einsums::detail::Einsums_Tensor_vars::get_singleton();
     auto &global_config = GlobalConfigMap::get_singleton();
 
     auto fname = std::filesystem::path(global_config.get_string("scratch-dir"));
@@ -358,7 +367,7 @@ void initialize_Einsums_Tensor() {
 }
 
 void finalize_Einsums_Tensor() {
-    auto &singleton     = einsums::detail::Einsums_Tensor_vars::get_singleton();
+    auto &singleton = einsums::detail::Einsums_Tensor_vars::get_singleton();
     auto &global_config = GlobalConfigMap::get_singleton();
 
     auto fname = std::filesystem::path(global_config.get_string("scratch-dir"));
@@ -374,6 +383,7 @@ void finalize_Einsums_Tensor() {
         H5Pclose(singleton.link_property_list);
     }
 
+#if !defined(H5T_NATIVE_FLOAT_COMPLEX) || !defined(H5T_NATIVE_DOUBLE_COMPLEX)
     if (singleton.double_complex_type != H5I_INVALID_HID) {
         H5Tclose(singleton.double_complex_type);
     }
@@ -381,6 +391,7 @@ void finalize_Einsums_Tensor() {
     if (singleton.float_complex_type != H5I_INVALID_HID) {
         H5Tclose(singleton.float_complex_type);
     }
+#endif
 
     auto err = H5close();
 
