@@ -56,39 +56,39 @@ EINSUMS_EXPORT std::string temp_tensor_name();
 
 template <typename T>
 hid_t hdf5_datatype() {
-#define CASE(t, out)                                                                                                                       \
+#define EINSUMS_HDF5_TYPE_CHOICE(t, out)                                                                                                                       \
     if constexpr (std::is_same_v<T, t>) {                                                                                                  \
         return out;                                                                                                                        \
     }
 
-    CASE(signed char, H5T_NATIVE_SCHAR)
-    CASE(signed short int, H5T_NATIVE_SHORT)
-    CASE(signed int, H5T_NATIVE_INT)
-    CASE(signed long int, H5T_NATIVE_LONG)
-    CASE(signed long long, H5T_NATIVE_LLONG)
+    EINSUMS_HDF5_TYPE_CHOICE(signed char, H5T_NATIVE_SCHAR)
+    EINSUMS_HDF5_TYPE_CHOICE(signed short int, H5T_NATIVE_SHORT)
+    EINSUMS_HDF5_TYPE_CHOICE(signed int, H5T_NATIVE_INT)
+    EINSUMS_HDF5_TYPE_CHOICE(signed long int, H5T_NATIVE_LONG)
+    EINSUMS_HDF5_TYPE_CHOICE(signed long long int, H5T_NATIVE_LLONG)
 
-    CASE(unsigned char, H5T_NATIVE_UCHAR)
-    CASE(unsigned short, H5T_NATIVE_USHORT)
-    CASE(unsigned int, H5T_NATIVE_UINT)
-    CASE(unsigned long int, H5T_NATIVE_ULONG)
-    CASE(unsigned long long int, H5T_NATIVE_ULLONG)
+    EINSUMS_HDF5_TYPE_CHOICE(unsigned char, H5T_NATIVE_UCHAR)
+    EINSUMS_HDF5_TYPE_CHOICE(unsigned short, H5T_NATIVE_USHORT)
+    EINSUMS_HDF5_TYPE_CHOICE(unsigned int, H5T_NATIVE_UINT)
+    EINSUMS_HDF5_TYPE_CHOICE(unsigned long int, H5T_NATIVE_ULONG)
+    EINSUMS_HDF5_TYPE_CHOICE(unsigned long long int, H5T_NATIVE_ULLONG)
 
-    CASE(float, H5T_NATIVE_FLOAT)
-    CASE(double, H5T_NATIVE_DOUBLE)
-    CASE(long double, H5T_NATIVE_LDOUBLE)
+    EINSUMS_HDF5_TYPE_CHOICE(float, H5T_NATIVE_FLOAT)
+    EINSUMS_HDF5_TYPE_CHOICE(double, H5T_NATIVE_DOUBLE)
+    EINSUMS_HDF5_TYPE_CHOICE(long double, H5T_NATIVE_LDOUBLE)
 
 #ifdef H5T_NATIVE_FLOAT_COMPLEX
-    CASE(std::complex<float>, H5T_NATIVE_FLOAT_COMPLEX);
-    CASE(std::complex<double>, H5T_NATIVE_DOUBLE_COMPLEX);
-    CASE(std::complex<long double>, H5T_NATIVE_LDOUBLE_COMPLEX);
+    EINSUMS_HDF5_TYPE_CHOICE(std::complex<float>, H5T_NATIVE_FLOAT_COMPLEX);
+    EINSUMS_HDF5_TYPE_CHOICE(std::complex<double>, H5T_NATIVE_DOUBLE_COMPLEX);
+    EINSUMS_HDF5_TYPE_CHOICE(std::complex<long double>, H5T_NATIVE_LDOUBLE_COMPLEX);
 #else
-    CASE(std::complex<float>, detail::Einsums_Tensor_vars::get_singleton().float_complex_type;);
-    CASE(std::complex<double>, detail::Einsums_Tensor_vars::get_singleton().double_complex_type;);
+    EINSUMS_HDF5_TYPE_CHOICE(std::complex<float>, detail::Einsums_Tensor_vars::get_singleton().float_complex_type;);
+    EINSUMS_HDF5_TYPE_CHOICE(std::complex<double>, detail::Einsums_Tensor_vars::get_singleton().double_complex_type;);
 #endif
 
     return H5I_INVALID_HID;
 
-#undef CASE
+#undef EINSUMS_HDF5_TYPE_CHOICE
 }
 
 } // namespace detail
