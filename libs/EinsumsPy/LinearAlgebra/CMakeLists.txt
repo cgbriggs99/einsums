@@ -50,6 +50,6 @@ einsums_extend_with_python_headers(${EINSUMS_PYTHON_LIB_NAME}_LinearAlgebra)
 
 if (EINSUMS_WITH_CUDA)
   foreach (f IN LISTS LinearAlgebraSources)
-    set_source_file_properties("src/${f}" PROPERTIES LANGUAGE CUDA)
+    set_source_files_properties("src/${f}" PROPERTIES LANGUAGE CUDA)
   endforeach ()
 endif ()
