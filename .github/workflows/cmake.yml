@@ -23,6 +23,12 @@ jobs:
     if: ${{ contains(needs.detect_changes.outputs.filters, 'ci') || contains(needs.detect_changes.outputs.filters, 'src') }}
     uses: ./.github/workflows/linux-build-and-test.yml
 
+  short_names:
+    name: Short Names
+    needs: [ detect_changes ]
+    if: ${{ contains(needs.detect_changes.outputs.filters, 'ci') || contains(needs.detect_changes.outputs.filters, 'src') }}
+    uses: ./.github/workflows/linux-short-name.yml
+
   macos_default:
     name: macOS
     needs: [ detect_changes ]
