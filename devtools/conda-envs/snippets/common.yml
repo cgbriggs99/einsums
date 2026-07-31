@@ -14,12 +14,12 @@ dependencies:
   - cpp-argparse
   - catch2
   - fftw
-  - fmt=11
+  - fmt<=12.1
   - cpptrace
   - spdlog
   # HDF5
   # * zlib brings headers; hdf5 package only bring libzlib
-  - hdf5<2
+  - hdf5
   - zlib
   - numpy
   - mimalloc
