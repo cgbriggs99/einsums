@@ -108,7 +108,7 @@ jobs:
 
       - name: Build and Install
         run: |
-          cmake --build "${{ github.workspace }}/build" --config Release --target install
+          TMPDIR=$PWD cmake --build "${{ github.workspace }}/build" --config Release --target install
 
       - name: Check if all paths are short enough.
         working-directory: "${{ github.workspace }}/build"
