@@ -25,7 +25,7 @@ inline std::FILE *wrap_fopen(char const *fname, char const *mode) {
     auto       error = fopen_s(&fp, fname, mode);
 
     if (error == EINVAL) {
-        EINSUMS_THROW_EXCEPTION(std::system_error, "Could not open file {} with permissions {}.", fname, mode);
+        EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file {} with permissions {}.", fname, mode);
     }
     return fp;
 #else

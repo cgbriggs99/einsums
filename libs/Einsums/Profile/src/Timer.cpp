@@ -136,7 +136,7 @@ void report(std::string const &fname, bool append) {
 	auto error = fopen_s(&fp, fname.c_str(), append ? "w+": "w");
 	
 	if(error == EINVAL) {
-		EINSUMS_THROW_EXCEPTION(std::system_error, "Could not open file {} for writing.", fname);
+		EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file {} for writing.", fname);
 	}
 	
 	#else
