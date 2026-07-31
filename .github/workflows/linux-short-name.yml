@@ -60,7 +60,7 @@ jobs:
         working-directory: src/devtools/conda-envs
         run: |
           pwd
-          python merge_yml.py ${{ matrix.compiler }} ${{ matrix.blas }}
+          python merge_yml.py default openblas 
 
       - name: Get Week
         id: get-date
@@ -99,7 +99,7 @@ jobs:
             -D EINSUMS_BUILD_PYTHON=ON \
             -D CMAKE_C_COMPILER_LAUNCHER=ccache \
             -D CMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -D CMAKE_BUILD_TYPE=Release \
             -D EINSUMS_SHOW_WARNING=OFF \
             -D CMAKE_INSTALL_PREFIX="${{ github.workspace }}/installed" \
             -D CMAKE_PREFIX_PATH="${CONDA_PREFIX}" \
@@ -145,7 +145,7 @@ jobs:
             -B build \
             -G Ninja \
             --log-level verbose \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH="${CONDA_PREFIX};${CONDA_PREFIX}/Library;${{ github.workspace }}/installed"
           cmake --build build
           ./build/HelloWorld
