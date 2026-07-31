@@ -83,6 +83,17 @@ std::string get_executable_prefix() {
 }
 } // namespace detail
 
+namespace {
+
+inline int wrap_get_pid() {
+#ifdef EINSUMS_WINDOWS
+    return _getpid();
+#else
+    return getpid();
+#endif
+}
+} // namespace
+
 void register_arguments(std::function<void(argparse::ArgumentParser &)> func) {
     auto &argument_list = detail::ArgumentList::get_singleton();
     auto  lock          = std::lock_guard(argument_list);
@@ -101,7 +112,7 @@ void RuntimeConfiguration::pre_initialize() {
     std::vector<std::string> lines = {
         // clang-format off
         "system:",
-        "    pid: " + std::to_string(getpid()),
+        "    pid: " + std::to_string(wrap_get_pid()),
         "    executable_prefix: " + detail::get_executable_prefix(),
         "einsums:",
         "    master_yaml_file: ${system.executable_prefix}"
@@ -122,7 +133,7 @@ void RuntimeConfiguration::pre_initialize() {
 
     // For now set the values to their default values.
     global_strings["executable-prefix"] = detail::get_executable_prefix();
-    global_ints["pid"]                  = getpid();
+    global_ints["pid"]                  = wrap_get_pid();
 }
 
 RuntimeConfiguration::RuntimeConfiguration(int argc, char const *const argv[],
@@ -182,7 +193,7 @@ RuntimeConfiguration::parse_command_line(std::function<void(argparse::ArgumentPa
 #ifdef EINSUMS_DEBUG
         global_bools["install-signal-handlers"] = true;
 #else
-		global_bools["install-signal-handlers"] = false;
+        global_bools["install-signal-handlers"] = false;
 #endif
 
         argument_parser->add_argument("--einsums:no-attach-debugger")

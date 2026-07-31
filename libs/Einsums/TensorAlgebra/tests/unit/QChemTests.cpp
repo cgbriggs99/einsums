@@ -18,6 +18,20 @@
 
 #include <Einsums/Testing.hpp>
 
+inline std::FILE *fp wrap_fopen(char const *fname, char const *mode) {
+#ifdef EINSUMS_WINDOWS
+    std::FILE *fp;
+    auto       error = std::fopen_s(&fp, fname, mode);
+
+    if (error == EINVAL) {
+        EINSUMS_THROW_EXCEPTION(std::system_error, "Could not open file {} with permissions {}.", fname, mode);
+    }
+    return fp;
+#else
+    return std::fopen(fname, mode);
+#endif
+}
+
 class ScaleFunctionTensor : public einsums::tensor_base::FunctionTensor<double, 4> {
   private:
     einsums::Tensor<double, 1> const *Evals;
@@ -40,13 +54,21 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
     char buffer[1024] = {0};
     int  line_num     = 0;
 
+#ifdef EINSUMS_WINDOWS
+    char *context;
+#endif
+
     while (!std::feof(input)) {
         line_num++;
         std::memset(buffer, 0, 1024);
         std::fgets(buffer, 1023, input);
         std::array<int, Rank> indices;
 
+#ifdef EINSUMS_WINDOWS
+        char *next = std::strtok_s(buffer, " \t", &context);
+#else
         char *next = std::strtok(buffer, " \t");
+#endif
 
         if (next == NULL) {
             continue;
@@ -55,7 +77,11 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
         indices[0] = std::atoi(next) - 1;
 
         for (int i = 1; i < Rank; i++) {
+#ifdef EINSUMS_WINDOWS
+            next = std::strtok_s(NULL, " \t", &context);
+#else
             next = std::strtok(NULL, " \t");
+#endif
 
             if (next == NULL) {
                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "Line {} in file {} not formatted correctly!", line_num, fname);
@@ -64,7 +90,11 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
             indices[i] = std::atoi(next) - 1;
         }
 
+#ifdef EINSUMS_WINDOWS
+        next = std::strtok_s(NULL, " \t", &context);
+#else
         next = std::strtok(NULL, " \t");
+#endif
 
         if (next == NULL) {
             EINSUMS_THROW_EXCEPTION(std::runtime_error, "Line {} in file {} not formatted correctly!", line_num, fname);

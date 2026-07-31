@@ -31,7 +31,11 @@ void spdlog_format_thread_id(int pid, spdlog::details::log_msg const &, std::tm 
 
 struct ThreadIdFormatterFlag : spdlog::custom_flag_formatter {
     void format(spdlog::details::log_msg const &msg, std::tm const &tm_time, spdlog::memory_buf_t &dest) override {
+		#ifdef EINSUMS_WINDOWS
+		spdlog_format_thread_id(_getpid(), msg, tm_time, dest);
+		#else
         spdlog_format_thread_id(getpid(), msg, tm_time, dest);
+		#endif
     }
 
     std::unique_ptr<custom_flag_formatter> clone() const override { return spdlog::details::make_unique<ThreadIdFormatterFlag>(); }
