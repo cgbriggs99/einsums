@@ -15,6 +15,7 @@
 #include <Einsums/Tensor/TiledTensor.hpp>
 #include <Einsums/TensorAlgebra.hpp>
 #include <Einsums/TensorBase/TensorBase.hpp>
+#include <Einsums/Errors/ThrowException.hpp>
 
 #include <Einsums/Testing.hpp>
 

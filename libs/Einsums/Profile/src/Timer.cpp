@@ -5,6 +5,7 @@
 
 #include <Einsums/Print.hpp>
 #include <Einsums/Profile/Timer.hpp>
+#include <Einsums/Errors/ThrowException.hpp>
 
 #include <fmt/chrono.h>
 
