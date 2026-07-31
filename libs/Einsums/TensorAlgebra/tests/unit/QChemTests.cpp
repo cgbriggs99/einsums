@@ -50,7 +50,7 @@ class ScaleFunctionTensor : public einsums::tensor_base::FunctionTensor<double, 
 
 template <size_t Rank>
 static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
-    std::FILE *input = std::fopen(fname.c_str(), "r");
+    std::FILE *input = wrap_fopen(fname.c_str(), "r");
 
     char buffer[1024] = {0};
     int  line_num     = 0;
