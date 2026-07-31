@@ -48,5 +48,5 @@ einsums_info("  Configuring Einsums modules:")
 
 foreach(module ${_Einsums_modules})
   einsums_info("    ${module}")
-  add_subdirectory(${module})
+  einsums_add_subdirectory(${module})
 endforeach()

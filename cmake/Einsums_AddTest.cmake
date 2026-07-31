@@ -36,6 +36,8 @@ function(einsums_add_test category name)
   else()
     set(_exe "${${name}_EXECUTABLE}")
   endif()
+  
+  #einsums_shorten_name(${_exe} _exe)
 
   if(${name}_RUN_SERIAL)
     set(run_serial TRUE)

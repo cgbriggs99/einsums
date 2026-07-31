@@ -74,9 +74,11 @@ function(einsums_create_configuration_summary message module_name)
   endif()
 
   if("${module_name_uc}" STREQUAL "EINSUMS")
+	einsums_shorten_name("libs/${PROJECT_NAME}/Config" __short_directory)
+  
     configure_file(
       "${EINSUMS_SOURCE_DIR}/cmake/templates/ConfigDefinesStrings.hpp.in"
-      "${EINSUMS_BINARY_DIR}/libs/${PROJECT_NAME}/Config/include/${PROJECT_NAME}/Config/ConfigStrings.hpp"
+      "${EINSUMS_BINARY_DIR}/${__short_directory}/include/${PROJECT_NAME}/Config/ConfigStrings.hpp"
       @ONLY
     )
   endif()

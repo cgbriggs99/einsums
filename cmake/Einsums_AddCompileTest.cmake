@@ -18,10 +18,12 @@ function(einsums_add_compile_test category name)
   endif()
 
   string(REGEX REPLACE "\\." "_" test_name "${category}.${name}")
+  
+  einsums_shorten_name(${test_name} short_test_name)
 
   if(${name}_OBJECT)
     einsums_add_library(
-      ${test_name}
+      ${short_test_name}
       SOURCE_ROOT ${${name}_SOURCE_ROOT}
       SOURCES ${${name}_SOURCES}
       EXCLUDE_FROM_ALL EXCLUDE_FROM_DEFAULT_BUILD
@@ -30,7 +32,7 @@ function(einsums_add_compile_test category name)
     )
   else()
     einsums_add_executable(
-      ${test_name}
+      ${short_test_name}
       SOURCE_ROOT ${${name}_SOURCE_ROOT}
       SOURCES ${${name}_SOURCES}
       EXCLUDE_FROM_ALL EXCLUDE_FROM_DEFAULT_BUILD
@@ -41,7 +43,7 @@ function(einsums_add_compile_test category name)
 
   add_test(
     NAME "${category}.${name}"
-    COMMAND ${CMAKE_COMMAND} --build ${PROJECT_BINARY_DIR} --target ${test_name} --config
+    COMMAND ${CMAKE_COMMAND} --build ${PROJECT_BINARY_DIR} --target ${short_test_name} --config
             $<CONFIGURATION>
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   )
@@ -120,7 +122,12 @@ function(einsums_add_header_tests category)
       string(REGEX REPLACE "/" "_" test_name "${test_file}")
 
       # generate the test
-      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${full_test_file}
+      cmake_path(GET full_test_file STEM test_file_stem)
+      
+      einsums_shorten_name(${test_file_stem} shortened_test_stem)
+      cmake_path(REPLACE_EXTENSION shortened_test_stem ".cpp" OUTPUT_VARIABLE shortened_test_file)
+      
+      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${shortened_test_file}
            "#include <${relpath}>\n" "#ifndef EINSUMS_MAIN_DEFINED\n" "int main() { return 0; }\n"
            "#endif\n"
       )
@@ -135,7 +142,7 @@ function(einsums_add_header_tests category)
 
       einsums_add_headers_compile_test(
         "${category}" ${test_name}
-        SOURCES "${CMAKE_CURRENT_BINARY_DIR}/${full_test_file}"
+        SOURCES "${CMAKE_CURRENT_BINARY_DIR}/${shortened_test_file}"
         SOURCE_ROOT "${CMAKE_CURRENT_BINARY_DIR}/${header_dir}"
         FOLDER "Tests/Headers/${header_dir}"
         DEPENDENCIES ${${category}_DEPENDENCIES} einsums_private_flags einsums_public_flags

@@ -3,4 +3,4 @@
 # Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 #----------------------------------------------------------------------------------------------
 
-add_subdirectory(testing)
+einsums_add_subdirectory(testing)

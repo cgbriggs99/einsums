@@ -11,7 +11,7 @@ if(EINSUMS_WITH_TESTS)
     einsums_add_pseudo_dependencies(
       Tests.Unit.Modules Tests.Unit.Modules.${EINSUMS_PYTHON_LIB_NAME}.GPU
     )
-    add_subdirectory(unit)
+    einsums_add_subdirectory(unit)
   endif()
 
   if(EINSUMS_WITH_TESTS_REGRESSIONS)
@@ -19,7 +19,7 @@ if(EINSUMS_WITH_TESTS)
     einsums_add_pseudo_dependencies(
       Tests.Regressions.Modules Tests.Regressions.Modules.${EINSUMS_PYTHON_LIB_NAME}.GPU
     )
-    add_subdirectory(regressions)
+    einsums_add_subdirectory(regressions)
   endif()
 
   if(EINSUMS_WITH_TESTS_BENCHMARKS)
@@ -27,7 +27,7 @@ if(EINSUMS_WITH_TESTS)
     einsums_add_pseudo_dependencies(
       Tests.Performance.Modules Tests.Performance.Modules.${EINSUMS_PYTHON_LIB_NAME}.GPU
     )
-    add_subdirectory(performance)
+    einsums_add_subdirectory(performance)
   endif()
 
   if(EINSUMS_WITH_TESTS_HEADERS)

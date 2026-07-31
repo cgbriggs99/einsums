@@ -112,6 +112,23 @@ einsums_option(
 )
 
 if(MSVC)
+	set(__shorten_default ON)
+else()
+	set(__shorten_default OFF)
+endif()
+
+einsums_option(EINSUMS_SHORTEN_NAMES BOOL "Whether to shorten names of files and directories. Needed on Windows due to long paths being generated. (default: ${__shorten_default}" ${__shorten_default} ADVANCED)
+
+include(Einsums_ShortenName)
+
+if(MSVC)
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "4.2")
+    set(CMAKE_INTERMEDIATE_DIR_STRATEGY SHORT)
+  else()
+    set(EINSUMS_SHORTEN_NAMES ON)
+  endif()
+
+
   einsums_option(
     EINSUMS_WITH_VS_STARTUP_PROJECT STRING
     "Defines the startup project for the Einsums solution (default: ALL_BUILD)." "ALL_BUILD"

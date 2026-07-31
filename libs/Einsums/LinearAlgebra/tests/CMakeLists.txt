@@ -9,7 +9,7 @@ if(EINSUMS_WITH_TESTS)
   if(EINSUMS_WITH_TESTS_UNIT)
     einsums_add_pseudo_target(Tests.Unit.Modules.LinearAlgebra)
     einsums_add_pseudo_dependencies(Tests.Unit.Modules Tests.Unit.Modules.LinearAlgebra)
-    add_subdirectory(unit)
+    einsums_add_subdirectory(unit)
   endif()
 
   if(EINSUMS_WITH_TESTS_REGRESSIONS)
@@ -17,7 +17,7 @@ if(EINSUMS_WITH_TESTS)
     einsums_add_pseudo_dependencies(
       Tests.Regressions.Modules Tests.Regressions.Modules.LinearAlgebra
     )
-    add_subdirectory(regressions)
+    einsums_add_subdirectory(regressions)
   endif()
 
   if(EINSUMS_WITH_TESTS_BENCHMARKS)
@@ -25,7 +25,7 @@ if(EINSUMS_WITH_TESTS)
     einsums_add_pseudo_dependencies(
       Tests.Performance.Modules Tests.Performance.Modules.LinearAlgebra
     )
-    add_subdirectory(performance)
+    einsums_add_subdirectory(performance)
   endif()
 
   if(EINSUMS_WITH_TESTS_HEADERS)

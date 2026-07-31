@@ -56,6 +56,9 @@ function(einsums_add_module libname modulename)
   set(SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src")
   set(HEADER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+  einsums_shorten_name(${modulename} short_modulename)
+  	  
+  	  
   einsums_debug("Add module ${modulename}: SOURCE_ROOT: ${SOURCE_ROOT}")
   einsums_debug("Add module ${modulename}: HEADER_ROOT: ${HEADER_ROOT}")
 
@@ -304,7 +307,7 @@ function(einsums_add_module libname modulename)
   target_link_libraries(${libname} PRIVATE ${${modulename}_OBJECTS})
 
   foreach(dir ${${modulename}_CMAKE_SUBDIRS})
-    add_subdirectory(${dir})
+    einsums_add_subdirectory(${dir})
   endforeach(dir)
 
   include(Einsums_PrintSummary)
