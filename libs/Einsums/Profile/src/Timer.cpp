@@ -132,7 +132,7 @@ void finalize() {
 void report(std::string const &fname, bool append) {
 	#ifdef EINSUMS_WINDOWS
 	std::FILE *fp;
-	auto error = std::fopen_s(&fp, fname.c_str(), append ? "w+": "w");
+	auto error = fopen_s(&fp, fname.c_str(), append ? "w+": "w");
 	
 	if(error == EINVAL) {
 		EINSUMS_THROW_EXCEPTION(std::system_error, "Could not open file {} for writing.", fname);

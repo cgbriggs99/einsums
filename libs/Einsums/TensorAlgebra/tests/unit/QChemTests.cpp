@@ -21,7 +21,7 @@
 inline std::FILE *wrap_fopen(char const *fname, char const *mode) {
 #ifdef EINSUMS_WINDOWS
     std::FILE *fp;
-    auto       error = std::fopen_s(&fp, fname, mode);
+    auto       error = fopen_s(&fp, fname, mode);
 
     if (error == EINVAL) {
         EINSUMS_THROW_EXCEPTION(std::system_error, "Could not open file {} with permissions {}.", fname, mode);
@@ -65,7 +65,7 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
         std::array<int, Rank> indices;
 
 #ifdef EINSUMS_WINDOWS
-        char *next = std::strtok_s(buffer, " \t", &context);
+        char *next = strtok_s(buffer, " \t", &context);
 #else
         char *next = std::strtok(buffer, " \t");
 #endif
@@ -78,7 +78,7 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
 
         for (int i = 1; i < Rank; i++) {
 #ifdef EINSUMS_WINDOWS
-            next = std::strtok_s(NULL, " \t", &context);
+            next = strtok_s(NULL, " \t", &context);
 #else
             next = std::strtok(NULL, " \t");
 #endif
@@ -91,7 +91,7 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
         }
 
 #ifdef EINSUMS_WINDOWS
-        next = std::strtok_s(NULL, " \t", &context);
+        next = strtok_s(NULL, " \t", &context);
 #else
         next = std::strtok(NULL, " \t");
 #endif
