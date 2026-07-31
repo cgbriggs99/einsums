@@ -119,15 +119,19 @@ endif()
 
 einsums_option(EINSUMS_SHORTEN_NAMES BOOL "Whether to shorten names of files and directories. Needed on Windows due to long paths being generated. (default: ${__shorten_default}" ${__shorten_default} ADVANCED)
 
+if((${CMAKE_VERSION} VERSION_GREATER_EQUAL "4.2"))
+  if(EINSUMS_SHORTEN_NAMES)
+  	message("Using CMake short names instead of Einsums short names.")
+	set(CACHE{CMAKE_INTERMEDIATE_DIR_STRATEGY} VALUE SHORT)
+  else()
+    set(CACHE{CMAKE_INTERMEDIATE_DIR_STRATEGY} VALUE FULL)
+  endif()
+  set(EINSUMS_SHORTEN_NAMES OFF)
+endif()	
+
 include(Einsums_ShortenName)
 
 if(MSVC)
-  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "4.2")
-    set(CMAKE_INTERMEDIATE_DIR_STRATEGY SHORT)
-  else()
-    set(EINSUMS_SHORTEN_NAMES ON)
-  endif()
-
 
   einsums_option(
     EINSUMS_WITH_VS_STARTUP_PROJECT STRING
