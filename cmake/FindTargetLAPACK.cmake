@@ -160,7 +160,7 @@ get_property(
 )
 
 if(${_ven} STREQUAL "MKL")
-  target_link_libraries(tgt::lapack INTERFACE $<$<PLATFORM_ID:Unix>:atomic>)
+  target_link_libraries(tgt::lapack INTERFACE $<$<PLATFORM_ID:Linux>:atomic>)
 endif()
 
 set(${PN}_MESSAGE "Found LAPACK ${_ven}w/${_int}: ${_ill}")
@@ -177,8 +177,8 @@ if((TARGET tgt::blas) AND (TARGET tgt::lapk))
   )
   
   if(${_ven} STREQUAL "MKL")
-    target_link_libraries(tgt::blas INTERFACE $<$<PLATFORM_ID:Unix>:atomic>)
-    target_link_libraries(tgt::lapk INTERFACE $<$<PLATFORM_ID:Unix>:atomic>)
+    target_link_libraries(tgt::blas INTERFACE $<$<PLATFORM_ID:Linux>:atomic>)
+    target_link_libraries(tgt::lapk INTERFACE $<$<PLATFORM_ID:Linux>:atomic>)
   endif()
   
   set(${PN}_MESSAGE "Found LAPACK ${_ven}w/${_int}: ${_illl};${_illb}")
