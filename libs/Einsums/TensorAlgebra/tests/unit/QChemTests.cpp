@@ -18,7 +18,7 @@
 
 #include <Einsums/Testing.hpp>
 
-inline std::FILE *fp wrap_fopen(char const *fname, char const *mode) {
+inline std::FILE *wrap_fopen(char const *fname, char const *mode) {
 #ifdef EINSUMS_WINDOWS
     std::FILE *fp;
     auto       error = std::fopen_s(&fp, fname, mode);
