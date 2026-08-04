@@ -142,7 +142,7 @@ jobs:
 
       - name: Build and Install
         run: |
-          cmake --build "${{ github.workspace }}/build" --config Release --target install
+          cmake --build "${{ github.workspace }}/build" --target install
 
       - name: Valgrind the bad test
         working-directory: "${{ github.workspace }}/build/libs/Einsums/Config/tests/unit"
