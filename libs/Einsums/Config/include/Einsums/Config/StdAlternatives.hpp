@@ -21,6 +21,7 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
+#include <type_traits>
 
 #ifdef EINSUMS_WINDOWS
 #    include <process.h>
