@@ -9,8 +9,6 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <openssl/err.h>
-#include <openssl/rand.h>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -119,7 +117,7 @@ namespace detail {
                               void *context) {
     // Essentially CS 101 binary search. It's not that hard to implement.
 
-    ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint = (lower_bound + upper_bound) / 2;
+    ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint;
 
     char const *char_base = reinterpret_cast<char const *>(base);
 
@@ -150,6 +148,8 @@ namespace detail {
 
     while (upper_bound - lower_bound > 1) {
         midpoint = (lower_bound + upper_bound) / 2;
+
+        std::printf("Search points: %d %d %d", lower_bound, midpoint, upper_bound);
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
 
@@ -481,34 +481,6 @@ namespace detail {
     va_end(args);
 
     return out;
-}
-
-[[nodiscard]] errno_t rand_s(unsigned int *output) {
-    if (output == nullptr) {
-        errno = EINVAL;
-        return EINVAL;
-    }
-
-    int error_code = RAND_bytes(reinterpret_cast<unsigned char *>(output), sizeof(unsigned int));
-
-    if (error_code != 1) {
-        unsigned long      error_actual = ERR_get_error();
-        std::ostringstream err_string;
-        err_string << "Einsums: Cryptographically secure random number generator ran into an error. OpenSSL error stack follows:\n";
-        std::array<char, 256> buffer; // According to the ERR_get_error() docs, this needs to be at least 256 bytes.
-
-        while (error_actual != 0) {
-            ERR_error_string_n(error_actual, buffer.data(), sizeof(buffer));
-
-            err_string << buffer.data() << std::endl;
-
-            error_actual = ERR_get_error();
-        }
-
-        throw std::runtime_error(err_string.str());
-    }
-
-    return 0;
 }
 
 [[nodiscard]] int scanf_s(char const *format, ...) {

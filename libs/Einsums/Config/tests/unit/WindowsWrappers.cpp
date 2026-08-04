@@ -6,6 +6,7 @@
 #include <Einsums/Config/StdAlternatives.hpp>
 
 #include <cstdlib>
+#include <random>
 
 #include <Einsums/Testing.hpp>
 
@@ -46,15 +47,15 @@ static int int_compare(void *context, void const *left, void const *right) {
 }
 
 TEST_CASE("qsort_s") {
+    std::default_random_engine         engine;
+    std::uniform_int_distribution<int> random_dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 
     SECTION("small") {
         std::vector<int> random_data(16);
 
         // Fill with random data.
         for (size_t i = 0; i < random_data.size(); i++) {
-            errno_t err = einsums::rand_s(reinterpret_cast<unsigned int *>(random_data.data() + i));
-
-            REQUIRE(err == 0);
+            random_data[i] = random_dist(engine);
         }
 
         // Sort.
@@ -72,9 +73,7 @@ TEST_CASE("qsort_s") {
 
         // Fill with random data.
         for (size_t i = 0; i < random_data.size(); i++) {
-            errno_t err = einsums::rand_s(reinterpret_cast<unsigned int *>(random_data.data() + i));
-
-            REQUIRE(err == 0);
+            random_data[i] = random_dist(engine);
         }
 
         // Sort.
@@ -89,13 +88,13 @@ TEST_CASE("qsort_s") {
 }
 
 TEST_CASE("bsearch_s") {
-    std::vector<int> random_data(256);
+    std::default_random_engine         engine;
+    std::uniform_int_distribution<int> random_dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+    std::vector<int>                   random_data(256);
 
     // Fill with random data.
     for (size_t i = 0; i < random_data.size(); i++) {
-        errno_t err = einsums::rand_s(reinterpret_cast<unsigned int *>(random_data.data() + i));
-
-        REQUIRE(err == 0);
+        random_data[i] = random_dist(engine);
     }
 
     // Sort.

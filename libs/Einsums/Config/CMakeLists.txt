@@ -19,11 +19,9 @@ set(ConfigHeaders
 )
 
 set(ConfigSources Version.cpp Types.cpp StdAlternatives.cpp)
-set(ConfigDeps)
 
 if(NOT WIN32)
   list(APPEND ConfigSources Sort.cpp)
-  set(ConfigDeps OpenSSL::Crypto) # Windows already has cryptographically secure rand_s, so this is unneeded.
 endif()
 
 include(Einsums_AddModule)
@@ -31,7 +29,7 @@ einsums_add_module(
   Einsums Config CONFIG_FILES
   SOURCES ${ConfigSources}
   HEADERS ${ConfigHeaders}
-  DEPENDENCIES ${ConfigDeps}
+  DEPENDENCIES
   MODULE_DEPENDENCIES Einsums_Preprocessor Einsums_TypeSupport
   CMAKE_SUBDIRS examples tests
 )

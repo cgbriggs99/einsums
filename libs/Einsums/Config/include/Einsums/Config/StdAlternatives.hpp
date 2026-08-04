@@ -140,10 +140,6 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_co
     return ::qsort_s(base, elements, width, compare, context);
 }
 
-[[nodiscard]] inline errno_t rand_s(unsigned int *out) {
-    return ::rand_s(out);
-}
-
 [[nodiscard]] inline errno_t strcat_s(char *dest, std::size_t dest_size, char const *src) {
     return ::strcat_s(dest, dest_size, src);
 }
@@ -230,9 +226,6 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_co
 [[nodiscard]] EINSUMS_EXPORT errno_t memmove_s(void *dest, std::size_t dest_size, void const *src, std::size_t count);
 
 EINSUMS_EXPORT void qsort_s(void *base, std::size_t elements, std::size_t width, safe_compare compare, void *context);
-
-// Windows says this is cryptographically secure, so we need to make it cryptographically secure.
-[[nodiscard]] EINSUMS_EXPORT errno_t rand_s(unsigned int *output);
 
 [[nodiscard]] EINSUMS_EXPORT errno_t strcat_s(char *dest, std::size_t dest_size, char const *src);
 
