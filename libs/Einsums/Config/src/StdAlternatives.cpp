@@ -18,11 +18,7 @@
 #include <cstring>
 
 #ifdef EINSUMS_WINDOWS
-// #    include <errhandlingapi.h>
-#    include <handleapi.h>
-#    include <processthreadsapi.h>
 #    include <stdexcept>
-#    include <tlhelp32.h>
 #endif
 
 /*
