@@ -147,8 +147,7 @@ jobs:
       - name: Valgrind the bad test
 	    working-directory: "${{ github.workspace }}/build/libs/Einsums/Config/tests/unit"
 	    run: |
-		  # Get the OpenSSL suppressions. Otherwise, this will warn of about 15 kB of leaks.
-		  wget --header "Accept: application/vnd.github.v3.raw" https://api.github.com/repos/openssl/openssl/contents/util/valgrind.suppressions
+		  wget --header 'Accept: application/vnd.github.v3.raw'' https://api.github.com/repos/openssl/openssl/contents/util/valgrind.suppressions
 		  valgrind --leak-check=full --show-leak-kinds=all --suppressions=valgrind.suppression ./WindowsWrappers_test
 
       - name: Test (CTest) - Unit Tests
