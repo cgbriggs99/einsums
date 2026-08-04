@@ -25,6 +25,7 @@
 
 #ifdef EINSUMS_WINDOWS
 #    include <process.h>
+#    include <stdlib.h>
 #else
 #    include <unistd.h>
 #endif

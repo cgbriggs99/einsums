@@ -148,7 +148,7 @@ namespace detail {
         }
     }
 
-    while (lower_bound != upper_bound && upper_bound - lower_bound != 1) {
+    while (upper_bound - lower_bound > 1) {
         midpoint = (lower_bound + upper_bound) / 2;
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
