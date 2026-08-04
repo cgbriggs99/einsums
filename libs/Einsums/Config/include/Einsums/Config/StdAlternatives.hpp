@@ -139,6 +139,10 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_co
     return ::qsort_s(base, elements, width, compare, context);
 }
 
+[[nodiscard]] inline errno_t rand_s(unsigned int *out) {
+    return ::rand_s(out);
+}
+
 [[nodiscard]] inline errno_t strcat_s(char *dest, std::size_t dest_size, char const *src) {
     return ::strcat_s(dest, dest_size, src);
 }
