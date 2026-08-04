@@ -88,19 +88,18 @@ namespace detail {
 [[nodiscard]] error_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr) {
     if (out_buffer == nullptr) {
         errno = EINVAL;
+		return EINVAL;
     }
 
     if (number_of_elements == 0) {
         errno = EINVAL;
+		return EINVAL;
     }
 
     if ((0 < number_of_elements && number_of_elements < 26) || time_ptr == nullptr) {
         ::std::memset(out_buffer, 0, number_of_elements);
         errno = EINVAL;
-    }
-
-    if (errno != 0) {
-        return errno;
+		return EINVAL;
     }
 
     error_t validation = detail::validate_timestruct(time_ptr);
@@ -120,7 +119,7 @@ namespace detail {
                               int (*compare)(void *, void const *, void const *), void *context) {
     // Essentially CS 101 binary search. It's not that hard to implement.
 
-    ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint = 0;
+    ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint = (lower_bound + upper_bound) / 2;
 
     char const *char_base = reinterpret_cast<char const *>(base);
 
@@ -132,13 +131,13 @@ namespace detail {
             return const_cast<void *>(base);
         }
 
-        if (low_compare > 0) {
+        if (low_compare < 0) {
             return nullptr;
         }
     }
 
     {
-        int high_compare = compare(context, key, reinterpret_cast<void const *>(char_base + (number - 1) * width));
+        int high_compare = compare(context, reinterpret_cast<void const *>(char_base + (number - 1) * width), key);
 
         if (high_compare == 0) {
             return const_cast<void *>(reinterpret_cast<void const *>(char_base + (number - 1) * width));
@@ -149,7 +148,7 @@ namespace detail {
         }
     }
 
-    while (lower_bound != upper_bound) {
+    while (lower_bound != upper_bound && upper_bound - lower_bound != 1) {
         midpoint = (lower_bound + upper_bound) / 2;
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
@@ -159,18 +158,29 @@ namespace detail {
         if (mid_compare == 0) {
             return const_cast<void *>(curr);
         } else if (mid_compare < 0) {
-            lower_bound = midpoint;
-        } else {
             upper_bound = midpoint;
+        } else {
+            lower_bound = midpoint;
         }
     }
 
-    int low_compare = compare(context, key, reinterpret_cast<void const *>(char_base + lower_bound * width));
+    int low_compare  = compare(context, key, reinterpret_cast<void const *>(char_base + lower_bound * width));
+    int high_compare = compare(context, key, reinterpret_cast<void const *>(char_base + upper_bound * width));
+    int mid_compare  = compare(context, key, reinterpret_cast<void const *>(char_base + midpoint * width));
     if (low_compare == 0) {
         return const_cast<void *>(reinterpret_cast<void const *>(char_base + lower_bound * width));
     } else {
-        return nullptr;
+
+        if (high_compare == 0) {
+            return const_cast<void *>(reinterpret_cast<void const *>(char_base + upper_bound * width));
+        } else {
+
+            if (mid_compare == 0) {
+                return const_cast<void *>(reinterpret_cast<void const *>(char_base + midpoint * width));
+            }
+        }
     }
+    return nullptr;
 }
 
 [[nodiscard]] error_t clearerr_s(::std::FILE *fp) {

@@ -36,11 +36,13 @@ TEST_CASE("asctime_s") {
 static int int_compare(void *context, void const *left, void const *right) {
     int const *const int_left = reinterpret_cast<int const *>(left), *const int_right = reinterpret_cast<int const *>(right);
 
-    std::ignore = context;
-
-    std::printf("Comparing %d and %d: %d\n", *int_left, *int_right, *int_left - *int_right);
-
-    return *int_left - *int_right;
+    if (*int_left < *int_right) {
+        return -1;
+    } else if (*int_left == *int_right) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 TEST_CASE("qsort_s") {
@@ -61,7 +63,6 @@ TEST_CASE("qsort_s") {
 
         // Make sure the values are increasing.
         for (size_t i = 0; i < random_data.size() - 1; i++) {
-            std::printf("%d: %d\n", i, random_data[i]);
             CHECK(random_data[i] <= random_data[i + 1]);
         }
     }
@@ -82,7 +83,6 @@ TEST_CASE("qsort_s") {
 
         // Make sure the values are increasing.
         for (size_t i = 0; i < random_data.size() - 1; i++) {
-            std::printf("%d: %d\n", i, random_data[i]);
             CHECK(random_data[i] <= random_data[i + 1]);
         }
     }
