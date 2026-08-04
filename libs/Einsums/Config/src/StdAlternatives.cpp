@@ -3,6 +3,11 @@
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 //----------------------------------------------------------------------------------------------
 
+#ifdef EINSUMS_WINDOWS
+// This needs to be before everything.
+#    include <windows.h>
+#endif
+
 #include <Einsums/Config/StdAlternatives.hpp>
 
 #include <fmt/format.h>
@@ -18,7 +23,6 @@
 #    include <processthreadsapi.h>
 #    include <stdexcept>
 #    include <tlhelp32.h>
-#    include <windows.h>
 #endif
 
 /*
@@ -170,7 +174,7 @@ namespace detail {
     while (upper_bound - lower_bound > 1) {
         midpoint = (lower_bound + upper_bound) / 2;
 
-        std::printf("Search points: %d %d %d\n", lower_bound, midpoint, upper_bound);
+        std::printf("Search points: %zu %zu %zu\n", lower_bound, midpoint, upper_bound);
         std::fflush(stdout);
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
@@ -776,7 +780,7 @@ namespace detail {
     }
 
     errno_t prev_err = errno;
-    errno              = 0;
+    errno            = 0;
 
     *fp = std::tmpfile();
 

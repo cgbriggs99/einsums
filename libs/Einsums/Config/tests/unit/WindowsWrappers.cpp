@@ -28,10 +28,10 @@ TEST_CASE("asctime_s") {
     REQUIRE(buffer[0] == 0);
     REQUIRE(buffer[5] == 0);
 
-    std::time_t curr = std::time(nullptr);
-	struct std::tm time_struct;
-	
-	REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+    std::time_t    curr = std::time(nullptr);
+    struct std::tm time_struct;
+
+    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
 
     REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), &time_struct) == 0);
     INFO(buffer.data());
@@ -39,6 +39,9 @@ TEST_CASE("asctime_s") {
 
 static int int_compare(void *context, void const *left, void const *right) {
     int const *const int_left = reinterpret_cast<int const *>(left), *const int_right = reinterpret_cast<int const *>(right);
+
+    std::printf("Comparing %d and %d\n", *int_left, *int_right);
+    std::fflush(stdout);
 
     if (*int_left < *int_right) {
         return -1;
