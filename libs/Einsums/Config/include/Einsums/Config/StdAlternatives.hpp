@@ -31,7 +31,10 @@
 namespace einsums {
 
 #ifndef EINSUMS_WINDOWS
-using errno_t = int;
+using errno_t      = int;
+using safe_compare = int (*)(void *context, void const *key, void const *datum);
+#else
+using safe_compare = int(__cdecl *)(void *context, void const *key, void const *datum);
 #endif
 
 // Just going in alphabetical order, looking for things with an _s in the Windows C runtime.
@@ -66,8 +69,8 @@ namespace detail {
     return ::asctime_s(out_buffer, number_of_elements, time_ptr);
 }
 
-[[nodiscard]] inline void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width,
-                                     int(__cdecl *compare)(void *context, void const *key, void const *datum), void *context) {
+[[nodiscard]] inline void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width, safe_compare compare,
+                                     void *context) {
     return ::bsearch_s(key, base, number, width, compare, context);
 }
 
@@ -89,7 +92,7 @@ namespace detail {
 }
 
 [[nodiscard]] inline errno_t freopen_s(std::FILE **stream, char const *file_name, char const *mode, std::FILE *old_fp) {
-    return ::freopen_s(stream, filename_mode, old_stream);
+    return ::freopen_s(stream, file_name, mode, old_fp);
 }
 
 [[nodiscard]] inline errno_t getenv_s(std::size_t *needed_size, char *buffer, std::size_t buffer_size, char const *var_name) {
@@ -114,7 +117,7 @@ namespace detail {
     return ::gmtime_s(tm_out, time);
 }
 
-[[nodiscard]] inline errno_t localtime_s(struct std::tm *tm_out, std::time const *time) {
+[[nodiscard]] inline errno_t localtime_s(struct std::tm *tm_out, std::time_t const *time) {
     return ::localtime_s(tm_out, time);
 }
 
@@ -131,8 +134,7 @@ namespace detail {
     return ::memmove_s(dest, dest_size, src, count);
 }
 
-inline void qsort_s(void *base, std::size_t elements, std::size_t width,
-                    int(__cdecl *compare)(void *context, void const *left, void const *right), void *context) {
+inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_compare compare, void *context) {
     return ::qsort_s(base, elements, width, compare, context);
 }
 
@@ -188,7 +190,7 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width,
 [[nodiscard]] EINSUMS_EXPORT errno_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr);
 
 [[nodiscard]] EINSUMS_EXPORT void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width,
-                                             int (*compare)(void *context, void const *key, void const *datum), void *context);
+                                             safe_compare compare, void *context);
 
 [[nodiscard]] EINSUMS_EXPORT errno_t clearerr_s(::std::FILE *stream);
 
@@ -221,8 +223,7 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width,
 
 [[nodiscard]] EINSUMS_EXPORT errno_t memmove_s(void *dest, std::size_t dest_size, void const *src, std::size_t count);
 
-EINSUMS_EXPORT void qsort_s(void *base, std::size_t elements, std::size_t width,
-                            int (*compare)(void *context, void const *left, void const *right), void *context);
+EINSUMS_EXPORT void qsort_s(void *base, std::size_t elements, std::size_t width, safe_compare compare, void *context);
 
 // Windows says this is cryptographically secure, so we need to make it cryptographically secure.
 [[nodiscard]] EINSUMS_EXPORT errno_t rand_s(unsigned int *output);

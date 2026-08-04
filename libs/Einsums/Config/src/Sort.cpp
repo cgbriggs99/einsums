@@ -5,13 +5,12 @@
 
 #include <Einsums/Config/StdAlternatives.hpp>
 
-#include <vector>
+#include <algorithm>
 
 // Apparently we have to do this ourselves. It doesn't seem to be possible to convert a lambda with captures to an
 // appropriate function pointer. At least not in a way that is portable across compilers.
 
-static void insertion_sort(void *base, std::size_t elements, std::size_t width, int (*compare)(void *, void const *, void const *),
-                           void *context) {
+static void insertion_sort(void *base, std::size_t elements, std::size_t width, einsums::safe_compare compare, void *context) {
     char *char_base = reinterpret_cast<char *>(base);
 
     for (std::size_t head = 0; head < elements - 1; head++) {
@@ -32,8 +31,7 @@ static void insertion_sort(void *base, std::size_t elements, std::size_t width, 
     }
 }
 
-static std::size_t partition_elements(void *base, std::size_t elements, std::size_t width,
-                                      int (*compare)(void *, void const *, void const *), void *context) {
+static std::size_t partition_elements(void *base, std::size_t elements, std::size_t width, einsums::safe_compare compare, void *context) {
     char *char_base = reinterpret_cast<char *>(base);
     char *pivot     = char_base + width * (elements - 1);
 
@@ -59,8 +57,7 @@ static std::size_t partition_elements(void *base, std::size_t elements, std::siz
 
 namespace einsums {
 
-void qsort_s(void *base, std::size_t elements, std::size_t width, int (*compare)(void *context, void const *left, void const *right),
-             void *context) {
+void qsort_s(void *base, std::size_t elements, std::size_t width, safe_compare compare, void *context) {
     // The size where insertion sort becomes faster.
     constexpr int insertion_size = 16;
 

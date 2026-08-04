@@ -85,24 +85,24 @@ namespace detail {
 } // namespace detail
 
 #ifndef EINSUMS_WINDOWS
-[[nodiscard]] error_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr) {
+[[nodiscard]] errno_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr) {
     if (out_buffer == nullptr) {
         errno = EINVAL;
-		return EINVAL;
+        return EINVAL;
     }
 
     if (number_of_elements == 0) {
         errno = EINVAL;
-		return EINVAL;
+        return EINVAL;
     }
 
     if ((0 < number_of_elements && number_of_elements < 26) || time_ptr == nullptr) {
         ::std::memset(out_buffer, 0, number_of_elements);
         errno = EINVAL;
-		return EINVAL;
+        return EINVAL;
     }
 
-    error_t validation = detail::validate_timestruct(time_ptr);
+    errno_t validation = detail::validate_timestruct(time_ptr);
 
     if (validation != 0) {
         ::std::memset(out_buffer, 0, number_of_elements);
@@ -110,13 +110,13 @@ namespace detail {
         return validation;
     }
 
-    error_t out = detail::asctime_convert(out_buffer, time_ptr);
+    errno_t out = detail::asctime_convert(out_buffer, time_ptr);
 
     return out;
 }
 
-[[nodiscard]] void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width,
-                              int (*compare)(void *, void const *, void const *), void *context) {
+[[nodiscard]] void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width, safe_compare compare,
+                              void *context) {
     // Essentially CS 101 binary search. It's not that hard to implement.
 
     ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint = (lower_bound + upper_bound) / 2;
@@ -183,7 +183,7 @@ namespace detail {
     return nullptr;
 }
 
-[[nodiscard]] error_t clearerr_s(::std::FILE *fp) {
+[[nodiscard]] errno_t clearerr_s(::std::FILE *fp) {
     if (fp == nullptr) {
         errno = EINVAL;
         return EINVAL;
@@ -202,7 +202,7 @@ namespace detail {
     }
 }
 
-[[nodiscard]] error_t fopen_s(std::FILE **fp, char const *filename, char const *mode) {
+[[nodiscard]] errno_t fopen_s(std::FILE **fp, char const *filename, char const *mode) {
     if (fp == nullptr) {
         errno = EINVAL;
         return EINVAL;
