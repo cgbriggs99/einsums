@@ -37,11 +37,23 @@ TEST_CASE("asctime_s") {
     INFO(buffer.data());
 }
 
-static int int_compare(void *context, void const *left, void const *right) {
+static int int_compare_print(void *context, void const *left, void const *right) {
     int const *const int_left = reinterpret_cast<int const *>(left), *const int_right = reinterpret_cast<int const *>(right);
 
     std::printf("Comparing %d and %d\n", *int_left, *int_right);
     std::fflush(stdout);
+
+    if (*int_left < *int_right) {
+        return -1;
+    } else if (*int_left == *int_right) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+static int int_compare(void *context, void const *left, void const *right) {
+    int const *const int_left = reinterpret_cast<int const *>(left), *const int_right = reinterpret_cast<int const *>(right);
 
     if (*int_left < *int_right) {
         return -1;
@@ -113,7 +125,7 @@ TEST_CASE("bsearch_s") {
 
         REQUIRE_NOTHROW(found = reinterpret_cast<int *>(einsums::bsearch_s(reinterpret_cast<void *>(&(random_data[i])),
                                                                            reinterpret_cast<void *>(random_data.data()), random_data.size(),
-                                                                           sizeof(int), int_compare, nullptr)));
+                                                                           sizeof(int), int_compare_print, nullptr)));
         REQUIRE(found != nullptr);
         REQUIRE(*found == random_data[i]);
     }
