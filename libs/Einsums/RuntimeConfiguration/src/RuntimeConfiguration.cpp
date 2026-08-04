@@ -101,7 +101,7 @@ void RuntimeConfiguration::pre_initialize() {
     std::vector<std::string> lines = {
         // clang-format off
         "system:",
-        "    pid: " + std::to_string(getpid()),
+        "    pid: " + std::to_string(einsums::getpid()),
         "    executable_prefix: " + detail::get_executable_prefix(),
         "einsums:",
         "    master_yaml_file: ${system.executable_prefix}"

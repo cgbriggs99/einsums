@@ -115,6 +115,9 @@ namespace detail {
     return ::_getpid();
 }
 
+[[nodiscard]] int EINSUMS_EXPORT getppid();
+
+
 [[nodiscard]] inline errno_t gmtime_s(struct std::tm *tm_out, std::time_t const *time) {
     return ::gmtime_s(tm_out, time);
 }
@@ -215,6 +218,10 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_co
 
 [[nodiscard]] inline int getpid() {
     return ::getpid();
+}
+
+[[nodiscard]] inline int getppid() {
+    return ::getppid();
 }
 
 [[nodiscard]] EINSUMS_EXPORT errno_t gmtime_s(struct std::tm *tm_out, std::time_t const *time);

@@ -234,7 +234,7 @@ struct BufferAllocator {
     constexpr bool operator!=(BufferAllocator<T> const &other) const { return false; }
 };
 
-#ifndef WINDOWS
+#ifndef EINSUMS_WINDOWS
 
 extern template struct EINSUMS_EXPORT BufferAllocator<void>;
 extern template struct EINSUMS_EXPORT BufferAllocator<float>;

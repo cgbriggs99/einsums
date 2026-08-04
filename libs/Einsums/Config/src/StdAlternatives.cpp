@@ -5,13 +5,21 @@
 
 #include <Einsums/Config/StdAlternatives.hpp>
 
+#include <fmt/format.h>
+
 #include <array>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <ostream>
-#include <sstream>
-#include <string>
+
+#ifdef EINSUMS_WINDOWS
+#    include <errhandlingapi.h>
+#    include <handleapi.h>
+#    include <processthreadsapi.h>
+#    include <stdexcept>
+#    include <tlhelp32.h>
+#    include <windows.h>
+#endif
 
 /*
  * To keep in line with the underlying library functions, we should never store 0 in errno.
@@ -116,6 +124,19 @@ namespace detail {
 [[nodiscard]] void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width, safe_compare compare,
                               void *context) {
     // Essentially CS 101 binary search. It's not that hard to implement.
+    if (number == 0) {
+        return nullptr;
+    }
+
+    if (number == 1) {
+        int low_compare = compare(context, key, base);
+
+        if (low_compare == 0) {
+            return const_cast<void *>(base);
+        } else {
+            return nullptr;
+        }
+    }
 
     ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint;
 
@@ -149,7 +170,8 @@ namespace detail {
     while (upper_bound - lower_bound > 1) {
         midpoint = (lower_bound + upper_bound) / 2;
 
-        std::printf("Search points: %d %d %d", lower_bound, midpoint, upper_bound);
+        std::printf("Search points: %d %d %d\n", lower_bound, midpoint, upper_bound);
+        std::fflush(stdout);
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
 
@@ -339,11 +361,20 @@ namespace detail {
         return EINVAL;
     }
 
+    errno_t prev_err = errno;
+    errno            = 0;
+
     char *env_var = std::getenv(var_name);
 
     if (env_var == nullptr) {
         *needed_size = 0;
-        return errno;
+
+        if (errno == 0) {
+            errno = prev_err;
+            return 0;
+        } else {
+            return errno;
+        }
     }
 
     *needed_size = std::strlen(env_var) + 1;
@@ -355,7 +386,12 @@ namespace detail {
         std::strncpy(buffer, env_var, *needed_size);
     }
 
-    return errno;
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
 }
 
 [[nodiscard]] errno_t gmtime_s(struct std::tm *tm_out, std::time_t const *time) {
@@ -386,9 +422,17 @@ namespace detail {
 
     struct std::tm *temp = std::gmtime(time);
 
+    errno_t prev_err = errno;
+    errno            = 0;
+
     std::memcpy(tm_out, temp, sizeof(struct std::tm));
 
-    return errno;
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
 }
 
 [[nodiscard]] errno_t localtime_s(struct std::tm *tm_out, std::time_t const *time) {
@@ -418,9 +462,16 @@ namespace detail {
     }
 
     // This is allowed since the tm object is internal and handled by the C runtime, not allocated on the heap.
-    *tm_out = *std::localtime(time);
+    errno_t prev_err = errno;
+    errno            = 0;
+    *tm_out          = *std::localtime(time);
 
-    return errno;
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
 }
 
 [[nodiscard]] errno_t memcpy_s(void *dest, std::size_t dest_size, void const *src, std::size_t count) {
@@ -583,6 +634,9 @@ namespace detail {
         return ERANGE;
     }
 
+    errno_t prev_err = errno;
+    errno            = 0;
+
     char const *error_str = std::strerror(error_code);
 
     // strncpy doesn't do the same thing that we need. We need simple truncation, strncpy backfills with zeros.
@@ -598,7 +652,12 @@ namespace detail {
         }
     }
 
-    return 0;
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
 }
 
 [[nodiscard]] errno_t strncat_s(char *dest, std::size_t dest_size, char const *src, std::size_t count) {
@@ -716,12 +775,49 @@ namespace detail {
         return EINVAL;
     }
 
+    errno_t prev_err = errno;
+    errno              = 0;
+
     *fp = std::tmpfile();
 
-    return 0;
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
 }
 
 #else
+
+[[nodiscard]] int getppid() {
+    int pid = GetCurrentProcessId();
+
+    HANDLE         snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 process_entry;
+
+    // Error checking.
+    if (snapshot == INVALID_HANDLE_VALUE) {
+        throw std::runtime_error(fmt::format("Einsums: Couldn't get process handle for getppid. Error code {}", GetLastError()));
+    }
+
+    // Get the first process entry.
+    if (!Process32First(snapshot, &process_entry)) {
+        throw std::runtime_error(fmt::format("Einsums: Couldn't get first process entry for getppid. Error code {}", GetLastError()));
+    }
+
+    do {
+        if (process_entry.th32ProcessID == pid) {
+            CloseHandle(snapshot);
+            return process_entry.th32ParentProcessID;
+        }
+    } while (Process32Next(snapshot, &process_entry));
+
+    CloseHandle(snapshot);
+
+    throw std::runtime_error(
+        fmt::format("Einsums: Couldn't find a process with PID that matches {} (current PID), so no parent was found.", pid));
+}
 
 [[nodiscard]] int fprintf_s(std::FILE *fp, char const *format, ...) {
     std::va_list args;

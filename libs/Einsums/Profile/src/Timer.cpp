@@ -5,6 +5,7 @@
 
 #include <Einsums/Print.hpp>
 #include <Einsums/Profile/Timer.hpp>
+#include <Einsums/Errors/ThrowException.hpp>
 
 #include <fmt/chrono.h>
 
@@ -95,12 +96,12 @@ static bool is_init = false;
 
 void initialize() {
     using namespace detail;
-	
-	if(detail::is_init) {
-		return;
-	} else {
-		detail::is_init = true;
-	}
+
+    if (detail::is_init) {
+        return;
+    } else {
+        detail::is_init = true;
+    }
 
     root              = std::make_shared<TimerDetail>();
     root->name        = "Total Run Time";
@@ -117,20 +118,38 @@ void initialize() {
 
 void finalize() {
     using namespace detail;
-	
-	if(!detail::is_init) {
-		return;
-	} else {
-		detail::is_init = false;
-	}
-	
+
+    if (!detail::is_init) {
+        return;
+    } else {
+        detail::is_init = false;
+    }
+
     assert(root.get() == current_timer);
     root.reset();
     current_timer = nullptr;
 }
 
 void report(std::string const &fname, bool append) {
-    std::FILE *fp = std::fopen(fname.c_str(), append ? "w+" : "w");
+    std::FILE *fp;
+
+    auto error = einsums::fopen_s(&fp, fname.c_str(), append ? "w+" : "w");
+
+    if (error != 0) {
+        std::string buffer;
+        buffer.reserve(256);
+
+        auto error2 = einsums::strerror_s(buffer.data(), buffer.capacity() + 1, error);
+
+        if (error2 != 0) {
+            EINSUMS_THROW_EXCEPTION(
+                std::runtime_error,
+                "Could not open file! When processing fopen error {}, another error occurred! Second error code is error {}.",
+                static_cast<int>(error), static_cast<int>(error2));
+        }
+
+        EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file: {}", buffer);
+    }
 
     detail::print_timer_info(detail::root.get(), fp);
 

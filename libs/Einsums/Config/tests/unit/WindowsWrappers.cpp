@@ -24,13 +24,16 @@ TEST_CASE("asctime_s") {
     REQUIRE(buffer[0] == 0);
     REQUIRE(buffer[5] == 'A');
     buffer[0] = 'A';
-    REQUIRE(einsums::asctime_s(buffer.data(), 256, nullptr) == EINVAL);
+    REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), nullptr) == EINVAL);
     REQUIRE(buffer[0] == 0);
     REQUIRE(buffer[5] == 0);
 
     std::time_t curr = std::time(nullptr);
+	struct std::tm time_struct;
+	
+	REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
 
-    REQUIRE(einsums::asctime_s(buffer.data(), 256, std::localtime(&curr)) == 0);
+    REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), &time_struct) == 0);
     INFO(buffer.data());
 }
 
