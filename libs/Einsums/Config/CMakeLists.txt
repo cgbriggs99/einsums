@@ -25,7 +25,7 @@ einsums_add_module(
   Einsums Config CONFIG_FILES
   SOURCES ${ConfigSources}
   HEADERS ${ConfigHeaders}
-  DEPENDENCIES OpenSSL::Crypto
+  DEPENDENCIES OpenSSL::Crypto OpenSSL::applink
   MODULE_DEPENDENCIES Einsums_Preprocessor Einsums_TypeSupport
   CMAKE_SUBDIRS examples tests
 )
