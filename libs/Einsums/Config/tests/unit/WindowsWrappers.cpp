@@ -106,8 +106,6 @@ TEST_CASE("bsearch_s") {
     for (size_t i = 0; i < random_data.size(); i++) {
         int *found;
 
-        std::printf("Searching for %d. Expecting at %p.\n", random_data[i], random_data.data() + i);
-
         REQUIRE_NOTHROW(found = reinterpret_cast<int *>(einsums::bsearch_s(reinterpret_cast<void *>(&(random_data[i])),
                                                                            reinterpret_cast<void *>(random_data.data()), random_data.size(),
                                                                            sizeof(int), int_compare, nullptr)));
