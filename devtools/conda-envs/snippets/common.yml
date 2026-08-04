@@ -20,6 +20,7 @@ dependencies:
   # HDF5
   # * zlib brings headers; hdf5 package only bring libzlib
   - hdf5<2
+  - openssl
   - zlib
   - numpy
   - mimalloc

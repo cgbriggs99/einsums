@@ -1,0 +1,806 @@
+//----------------------------------------------------------------------------------------------
+// Copyright (c) The Einsums Developers. All rights reserved.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+//----------------------------------------------------------------------------------------------
+
+#include <Einsums/Config/StdAlternatives.hpp>
+
+#include <array>
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#include <ostream>
+#include <sstream>
+#include <string>
+
+/*
+ * To keep in line with the underlying library functions, we should never store 0 in errno.
+ */
+
+static constexpr std::array<char const *, 7> day_names{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+
+static constexpr std::array<char const *, 12> month_names{"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+namespace einsums {
+
+namespace detail {
+[[nodiscard]] errno_t validate_timestruct(struct ::std::tm const *time_ptr) noexcept {
+    if (time_ptr->tm_sec < 0 || time_ptr->tm_sec > 60) { // 60 because leap seconds are a thing.
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time_ptr->tm_min < 0 || time_ptr->tm_min > 59) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time_ptr->tm_hour < 0 || time_ptr->tm_hour > 23) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time_ptr->tm_mday < 1 || time_ptr->tm_mday > 31) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time_ptr->tm_mon < 0 || time_ptr->tm_mon > 11) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    // No validation for year. Can be positive or negative since it's years since 1900.
+
+    if (time_ptr->tm_wday < 0 || time_ptr->tm_wday > 6) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time_ptr->tm_yday < 0 || time_ptr->tm_yday > 365) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    return 0; // Success!
+}
+
+[[nodiscard]] errno_t asctime_convert(char *out_buffer, struct ::std::tm const *time_ptr) {
+    errno_t prev_err = errno;
+    errno            = 0;
+    int ret =
+        ::std::snprintf(out_buffer, 26, "%3s %3s %2d %.2d:%.2d:%.2d %4d\n", day_names[time_ptr->tm_wday], month_names[time_ptr->tm_mon],
+                        time_ptr->tm_mday, time_ptr->tm_hour, time_ptr->tm_min, time_ptr->tm_sec, time_ptr->tm_year + 1900);
+
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+} // namespace detail
+
+#ifndef EINSUMS_WINDOWS
+[[nodiscard]] error_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr) {
+    if (out_buffer == nullptr) {
+        errno = EINVAL;
+    }
+
+    if (number_of_elements == 0) {
+        errno = EINVAL;
+    }
+
+    if ((0 < number_of_elements && number_of_elements < 26) || time_ptr == nullptr) {
+        ::std::memset(out_buffer, 0, number_of_elements);
+        errno = EINVAL;
+    }
+
+    if (errno != 0) {
+        return errno;
+    }
+
+    error_t validation = detail::validate_timestruct(time_ptr);
+
+    if (validation != 0) {
+        ::std::memset(out_buffer, 0, number_of_elements);
+        errno = validation;
+        return validation;
+    }
+
+    error_t out = detail::asctime_convert(out_buffer, time_ptr);
+
+    return out;
+}
+
+[[nodiscard]] void *bsearch_s(void const *key, void const *base, ::std::size_t number, ::std::size_t width,
+                              int (*compare)(void *, void const *, void const *), void *context) {
+    // Essentially CS 101 binary search. It's not that hard to implement.
+
+    ::std::size_t lower_bound = 0, upper_bound = number - 1, midpoint = 0;
+
+    char const *char_base = reinterpret_cast<char const *>(base);
+
+    // Check the endpoints and exit early if they don't work.
+
+    {
+        int low_compare = compare(context, key, base);
+        if (low_compare == 0) {
+            return const_cast<void *>(base);
+        }
+
+        if (low_compare > 0) {
+            return nullptr;
+        }
+    }
+
+    {
+        int high_compare = compare(context, key, reinterpret_cast<void const *>(char_base + (number - 1) * width));
+
+        if (high_compare == 0) {
+            return const_cast<void *>(reinterpret_cast<void const *>(char_base + (number - 1) * width));
+        }
+
+        if (high_compare < 0) {
+            return nullptr;
+        }
+    }
+
+    while (lower_bound != upper_bound) {
+        midpoint = (lower_bound + upper_bound) / 2;
+
+        void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
+
+        int mid_compare = compare(context, key, curr);
+
+        if (mid_compare == 0) {
+            return const_cast<void *>(curr);
+        } else if (mid_compare < 0) {
+            lower_bound = midpoint;
+        } else {
+            upper_bound = midpoint;
+        }
+    }
+
+    int low_compare = compare(context, key, reinterpret_cast<void const *>(char_base + lower_bound * width));
+    if (low_compare == 0) {
+        return const_cast<void *>(reinterpret_cast<void const *>(char_base + lower_bound * width));
+    } else {
+        return nullptr;
+    }
+}
+
+[[nodiscard]] error_t clearerr_s(::std::FILE *fp) {
+    if (fp == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    errno_t prev_err = errno;
+    errno            = 0;
+
+    std::clearerr(fp);
+
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] error_t fopen_s(std::FILE **fp, char const *filename, char const *mode) {
+    if (fp == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (filename == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (mode == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    errno_t prev_err = errno;
+    errno            = 0;
+
+    *fp = std::fopen(filename, mode);
+
+    if (errno == 0) {
+        errno = prev_err;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] int fprintf_s(std::FILE *fp, char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = std::vfprintf(fp, format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] std::size_t fread_s(void *buffer, std::size_t buffer_size, std::size_t element_size, std::size_t count, std::FILE *fp) {
+    if (buffer_size == 0 || count == 0 || element_size == 0) {
+        return 0;
+    }
+
+    std::size_t actual_count = count;
+
+    if (count * element_size > buffer_size) {
+        actual_count = buffer_size / element_size;
+    }
+
+    if (actual_count == 0) {
+        return 0;
+    }
+
+    if (buffer == nullptr || fp == nullptr) {
+        errno = EINVAL;
+        return 0;
+    }
+
+    return std::fread(buffer, element_size, actual_count, fp);
+}
+
+[[nodiscard]] errno_t freopen_s(std::FILE **fp, char const *filename, char const *mode, std::FILE *old_fp) {
+    if (old_fp == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (fp == nullptr) {
+        // Setting this to zero is fine here since it gets overwritten in both code paths that follow.
+        errno = 0;
+        std::fclose(old_fp);
+
+        if (errno != 0) {
+            return errno;
+        } else {
+            errno = EINVAL;
+            return EINVAL;
+        }
+    }
+
+    if (filename == nullptr || mode == nullptr) {
+        errno = 0;
+        std::fclose(old_fp);
+
+        if (errno != 0) {
+            return errno;
+        } else {
+            errno = EINVAL;
+            return EINVAL;
+        }
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+    *fp                = std::freopen(filename, mode, old_fp);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] int fscanf_s(std::FILE *fp, char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = std::vfscanf(fp, format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] errno_t getenv_s(std::size_t *needed_size, char *buffer, std::size_t buffer_size, char const *var_name) {
+    if (needed_size == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (buffer == nullptr) {
+        if (buffer_size > 0) {
+            errno = EINVAL;
+            return EINVAL;
+        }
+    }
+
+    if (var_name == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    char *env_var = std::getenv(var_name);
+
+    if (env_var == nullptr) {
+        *needed_size = 0;
+        return errno;
+    }
+
+    *needed_size = std::strlen(env_var) + 1;
+
+    if (buffer != nullptr && buffer_size < *needed_size) {
+        errno = ERANGE;
+        return ERANGE;
+    } else if (buffer != nullptr) {
+        std::strncpy(buffer, env_var, *needed_size);
+    }
+
+    return errno;
+}
+
+[[nodiscard]] errno_t gmtime_s(struct std::tm *tm_out, std::time_t const *time) {
+    if (tm_out == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time == nullptr || *time < 0) {
+        *tm_out = {.tm_sec   = -1,
+                   .tm_min   = -1,
+                   .tm_hour  = -1,
+                   .tm_mday  = -1,
+                   .tm_mon   = -1,
+                   .tm_year  = -1,
+                   .tm_wday  = -1,
+                   .tm_yday  = -1,
+                   .tm_isdst = -1};
+
+#    ifdef __GNU__
+        tm_out->tm_gmtoff = -1;
+        tm_out->tm_zone   = nullptr;
+#    endif
+
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    struct std::tm *temp = std::gmtime(time);
+
+    std::memcpy(tm_out, temp, sizeof(struct std::tm));
+
+    return errno;
+}
+
+[[nodiscard]] errno_t localtime_s(struct std::tm *tm_out, std::time_t const *time) {
+    if (tm_out == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (time == nullptr) {
+        *tm_out = {.tm_sec   = -1,
+                   .tm_min   = -1,
+                   .tm_hour  = -1,
+                   .tm_mday  = -1,
+                   .tm_mon   = -1,
+                   .tm_year  = -1,
+                   .tm_wday  = -1,
+                   .tm_yday  = -1,
+                   .tm_isdst = -1};
+
+#    ifdef __GNU__
+        tm_out->tm_gmtoff = -1;
+        tm_out->tm_zone   = nullptr;
+#    endif
+
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    // This is allowed since the tm object is internal and handled by the C runtime, not allocated on the heap.
+    *tm_out = *std::localtime(time);
+
+    return errno;
+}
+
+[[nodiscard]] errno_t memcpy_s(void *dest, std::size_t dest_size, void const *src, std::size_t count) {
+    if (count != 0 && (dest == nullptr || src == nullptr)) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest_size < count) {
+        errno = ERANGE;
+        return ERANGE;
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+
+    std::memcpy(dest, src, count);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] errno_t memmove_s(void *dest, std::size_t dest_size, void const *src, std::size_t count) {
+    if (count != 0 && (dest == nullptr || src == nullptr)) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest_size < count) {
+        errno = ERANGE;
+        return ERANGE;
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+
+    std::memmove(dest, src, count);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] int printf_s(char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = std::vprintf(format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] errno_t rand_s(unsigned int *output) {
+    if (output == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    int error_code = RAND_bytes(reinterpret_cast<unsigned char *>(output), sizeof(unsigned int));
+
+    if (error_code != 1) {
+        unsigned long      error_actual = ERR_get_error();
+        std::ostringstream err_string;
+        err_string << "Einsums: Cryptographically secure random number generator ran into an error. OpenSSL error stack follows:\n";
+        std::array<char, 256> buffer; // According to the ERR_get_error() docs, this needs to be at least 256 bytes.
+
+        while (error_actual != 0) {
+            ERR_error_string_n(error_actual, buffer.data(), sizeof(buffer));
+
+            err_string << buffer.data() << std::endl;
+
+            error_actual = ERR_get_error();
+        }
+
+        throw std::runtime_error(err_string.str());
+    }
+
+    return 0;
+}
+
+[[nodiscard]] int scanf_s(char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = std::vscanf(format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] int sscanf_s(char const *buffer, char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = std::vsscanf(buffer, format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] errno_t strcat_s(char *dest, std::size_t dest_size, char const *src) {
+    if (dest == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest[dest_size - 1] != 0) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (src == nullptr) {
+        dest[0] = 0; // I don't know why Windows does this. It would be better to leave the string unmodified.
+        errno   = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest_size == 0 || dest_size < std::strlen(dest) + std::strlen(src) + 1) {
+        dest[0] = 0; // Again, it would be better to leave the string unmodified, but Windows has to do something weird.
+        errno   = ERANGE;
+        return ERANGE;
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+
+    std::strcat(dest, src);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] errno_t strcpy_s(char *dest, std::size_t dest_size, char const *src) {
+    if (dest == nullptr) {
+        errno = EINVAL;
+        return errno;
+    }
+
+    if (src == nullptr) {
+        dest[0] = 0;
+        errno   = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest_size == 0 || dest_size < std::strlen(src)) {
+        dest[0] = 0;
+        errno   = ERANGE;
+        return ERANGE;
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+
+    std::strcpy(dest, src);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] errno_t strerror_s(char *buffer, std::size_t buff_size, errno_t error_code) {
+    if (buffer == nullptr) {
+        return EINVAL;
+    }
+
+    if (buff_size == 0) {
+        return ERANGE;
+    }
+
+    char const *error_str = std::strerror(error_code);
+
+    // strncpy doesn't do the same thing that we need. We need simple truncation, strncpy backfills with zeros.
+    for (std::size_t i = 0; i < buff_size; i++) {
+        if (i == buff_size - 1) {
+            buffer[i] = 0;
+        }
+
+        buffer[i] = error_str[i];
+
+        if (buffer[i] == 0) {
+            break;
+        }
+    }
+
+    return 0;
+}
+
+[[nodiscard]] errno_t strncat_s(char *dest, std::size_t dest_size, char const *src, std::size_t count) {
+    if (dest == nullptr || dest[dest_size - 1] == 0) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (src == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest_size == 0 || dest_size < std::strlen(dest) + count) {
+        errno = ERANGE;
+        return ERANGE;
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+
+    std::strncat(dest, src, count);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+[[nodiscard]] errno_t strncpy_s(char *dest, std::size_t dest_size, char const *src, std::size_t count) {
+    if (dest == nullptr) {
+        errno = EINVAL;
+        return errno;
+    }
+
+    if (src == nullptr) {
+        dest[0] = 0;
+        errno   = EINVAL;
+        return EINVAL;
+    }
+
+    if (dest_size == 0 || dest_size < count) {
+        dest[0] = 0;
+        errno   = ERANGE;
+        return ERANGE;
+    }
+
+    errno_t prev_errno = errno;
+    errno              = 0;
+
+    std::strncpy(dest, src, count);
+
+    if (errno == 0) {
+        errno = prev_errno;
+        return 0;
+    } else {
+        return errno;
+    }
+}
+
+// We'll need to write our own.
+[[nodiscard]] char *strtok_s(char *str, char const *delimiters, char **context) {
+    if (context == nullptr) {
+        errno = EINVAL;
+        return nullptr;
+    }
+
+    if (str == nullptr && *context == nullptr) {
+        errno = EINVAL;
+        return nullptr;
+    }
+
+    if (delimiters == nullptr) {
+        errno = EINVAL;
+        return nullptr;
+    }
+
+    if (str != nullptr) {
+        *context = str;
+    }
+
+    char *out = *context;
+
+    if (out == nullptr) {
+        return out;
+    }
+
+    std::size_t prefix = std::strspn(*context, delimiters);
+
+    *context += prefix;
+
+    if (**context == 0) {
+        return nullptr;
+    }
+
+    out = *context;
+
+    std::size_t tok_len = std::strcspn(*context, delimiters);
+
+    *context += tok_len;
+
+    if (**context != 0) {
+        (*context)[1] = 0;
+        (*context)++;
+    }
+
+    return out;
+}
+
+[[nodiscard]] errno_t tmpfile_s(std::FILE **fp) {
+    if (fp == nullptr) {
+        errno = EINVAL;
+        return EINVAL;
+    }
+
+    *fp = std::tmpfile();
+
+    return 0;
+}
+
+#else
+
+[[nodiscard]] int fprintf_s(std::FILE *fp, char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = ::vfprintf_s(fp, format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] int fscanf_s(std::FILE *fp, char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = ::vfscanf_s(fp, format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] int printf_s(char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = ::vprintf_s(format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] int scanf_s(char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = ::vscanf_s(format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+[[nodiscard]] int sscanf_s(char const *buffer, char const *format, ...) {
+    std::va_list args;
+
+    va_start(args, format);
+
+    int out = ::vsscanf_s(buffer, format, args);
+
+    va_end(args);
+
+    return out;
+}
+
+#endif
+
+} // namespace einsums

@@ -705,6 +705,7 @@ include(Einsums_SetupH5cpp)
 include(Einsums_SetupArgparse)
 include(Einsums_SetupSpdlog)
 include(Einsums_SetupAllocator)
+include(Einsums_SetupOpenSSL)
 
 if(EINSUMS_USE_LIBRETT AND EINSUMS_WITH_GPU_SUPPORT)
   include(Einsums_SetupLibreTT)

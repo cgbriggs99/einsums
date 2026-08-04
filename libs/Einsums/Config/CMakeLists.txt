@@ -15,16 +15,17 @@ set(ConfigHeaders
     Einsums/Config/ForceInline.hpp
     Einsums/Config/Namespace.hpp
     Einsums/Config/Types.hpp
+    Einsums/Config/StdAlternatives.hpp
 )
 
-set(ConfigSources Version.cpp Types.cpp)
+set(ConfigSources Version.cpp Types.cpp StdAlternatives.cpp Sort.cpp)
 
 include(Einsums_AddModule)
 einsums_add_module(
   Einsums Config CONFIG_FILES
   SOURCES ${ConfigSources}
   HEADERS ${ConfigHeaders}
-  DEPENDENCIES
+  DEPENDENCIES OpenSSL::Crypto
   MODULE_DEPENDENCIES Einsums_Preprocessor Einsums_TypeSupport
   CMAKE_SUBDIRS examples tests
 )
