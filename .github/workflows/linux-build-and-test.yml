@@ -147,6 +147,8 @@ jobs:
       - name: Valgrind the bad test
         working-directory: "${{ github.workspace }}/build/libs/Einsums/Config/tests/unit"
         run: |
+          sudo apt update
+          sudo apt install libc-dbg
           conda install --yes valgrind
           wget --header 'Accept: application/vnd.github.v3.raw' https://api.github.com/repos/openssl/openssl/contents/util/valgrind.suppression
           valgrind --leak-check=full --show-leak-kinds=all --suppressions=valgrind.suppression ./WindowsWrappers_test
