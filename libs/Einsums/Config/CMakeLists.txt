@@ -18,7 +18,11 @@ set(ConfigHeaders
     Einsums/Config/StdAlternatives.hpp
 )
 
-set(ConfigSources Version.cpp Types.cpp StdAlternatives.cpp Sort.cpp)
+set(ConfigSources Version.cpp Types.cpp StdAlternatives.cpp)
+
+if(NOT EINSUMS_WINDOWS)
+  list(APPEND ConfigSources Sort.cpp)
+endif()
 
 include(Einsums_AddModule)
 einsums_add_module(
