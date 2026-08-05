@@ -26,7 +26,7 @@
 
 #ifdef EINSUMS_WINDOWS
 // #    include <errhandlingapi.h>
-#    include <handleapi.h>
+// #    include <handleapi.h>
 #    include <stdexcept>
 #    include <tlhelp32.h>
 #endif
