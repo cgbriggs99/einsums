@@ -18,7 +18,10 @@
 #include <cstring>
 
 #ifdef EINSUMS_WINDOWS
+// #    include <errhandlingapi.h>
+#    include <handleapi.h>
 #    include <stdexcept>
+#    include <tlhelp32.h>
 #endif
 
 /*
@@ -175,15 +178,15 @@ namespace detail {
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
 
-//        // Make sure the endpoints are sorted.
-//        int lowmid  = compare(context, reinterpret_cast<void const *>(char_base + lower_bound * width), curr);
-//        int midhigh = compare(context, curr, reinterpret_cast<void const *>(char_base + upper_bound * width));
-//
-//        if (lowmid > 0 || midhigh > 0) {
-//            std::printf("Data is not sorted.");
-//            std::fflush(stdout);
-//            return nullptr;
-//        }
+        //        // Make sure the endpoints are sorted.
+        //        int lowmid  = compare(context, reinterpret_cast<void const *>(char_base + lower_bound * width), curr);
+        //        int midhigh = compare(context, curr, reinterpret_cast<void const *>(char_base + upper_bound * width));
+        //
+        //        if (lowmid > 0 || midhigh > 0) {
+        //            std::printf("Data is not sorted.");
+        //            std::fflush(stdout);
+        //            return nullptr;
+        //        }
 
         int mid_compare = compare(context, key, curr);
 

@@ -40,8 +40,8 @@ TEST_CASE("asctime_s") {
 static int int_compare_print(void *context, void const *left, void const *right) {
     int const *const int_left = reinterpret_cast<int const *>(left), *const int_right = reinterpret_cast<int const *>(right);
 
-    std::printf("Comparing %d and %d\n", *int_left, *int_right);
-    std::fflush(stdout);
+    //    std::printf("Comparing %d and %d\n", *int_left, *int_right);
+    //    std::fflush(stdout);
 
     if (*int_left < *int_right) {
         return -1;
@@ -118,10 +118,16 @@ TEST_CASE("bsearch_s") {
     // Sort.
     REQUIRE_NOTHROW(einsums::qsort_s(reinterpret_cast<void *>(random_data.data()), random_data.size(), sizeof(int), int_compare, nullptr));
 
-    // We're not going to check the sort. That's the job of the qsort_s test.
+    // Make sure the values are increasing.
+    for (size_t i = 0; i < random_data.size() - 1; i++) {
+        CHECK(random_data[i] <= random_data[i + 1]);
+    }
 
     for (size_t i = 0; i < random_data.size(); i++) {
         int *found;
+
+        std::printf("Looking for %d at position %zu. Should be at %p\n", random_data[i], i, random_data.data() + i);
+        std::fflush(stdout);
 
         REQUIRE_NOTHROW(found = reinterpret_cast<int *>(einsums::bsearch_s(reinterpret_cast<void *>(&(random_data[i])),
                                                                            reinterpret_cast<void *>(random_data.data()), random_data.size(),
