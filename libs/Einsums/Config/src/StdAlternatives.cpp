@@ -13,11 +13,12 @@
 // #    endif
 
 #    include <Windows.h>
+#    include <basetsd.h>
+#    include <windef.h>
+#    include <winnt.h>
 #endif
 
 #include <Einsums/Config/StdAlternatives.hpp>
-
-#include <fmt/format.h>
 
 #include <array>
 #include <cstdarg>
@@ -28,6 +29,9 @@
 
 #    ifndef EINSUMS_WINDOWS_HAS_TYPES
 #        include "windows_types.h"
+
+BOOL WINAPI CloseHandle(HANDLE hObject);
+
 #    endif
 
 // #    include <errhandlingapi.h>
@@ -803,12 +807,12 @@ namespace detail {
 
     // Error checking.
     if (snapshot == INVALID_HANDLE_VALUE) {
-        throw std::runtime_error(fmt::format("Einsums: Couldn't get process handle for getppid. Error code {}", GetLastError()));
+        throw std::runtime_error("Einsums: Couldn't get process handle for getppid");
     }
 
     // Get the first process entry.
     if (!Process32First(snapshot, &process_entry)) {
-        throw std::runtime_error(fmt::format("Einsums: Couldn't get first process entry for getppid. Error code {}", GetLastError()));
+        throw std::runtime_error("Einsums: Couldn't get first process entry for getppid");
     }
 
     do {

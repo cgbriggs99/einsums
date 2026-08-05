@@ -18,6 +18,8 @@ extern "C" {
 #    define WINAPI __stdcall
 #endif
 
+#define MAX_PATH 260
+
 // Copy-paste of the provided Windows IDL.
 // typedef unsigned short wchar_t;
 typedef void         *ADCONNECTION_HANDLE;
@@ -268,6 +270,12 @@ typedef struct _SECURITY_DESCRIPTOR {
     PACL   Sacl;
     PACL   Dacl;
 } SECURITY_DESCRIPTOR, *PSECURITY_DESCRIPTOR;
+
+typedef HANDLE HINSTANCE;
+
+typedef HINSTANCE HMODULE;
+
+#define INVALID_HANDLE_VALUE ((HANDLE)(LONG_PTR)(-1))
 
 #ifdef __cplusplus
 }

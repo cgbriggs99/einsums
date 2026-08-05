@@ -5,6 +5,9 @@
 
 
 #include <windows.h>
+#include <windef.h>
+#include <basetsd.h>
+#include <winnt.h>
 #include <tlhelp32.h>
 
 
