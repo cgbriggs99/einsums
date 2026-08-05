@@ -13,6 +13,15 @@
 //#    endif
 
 #    include <Windows.h>
+
+#ifndef WINAPI
+#define WINAPI
+typedef void *HANDLE;
+typedef unsigned long DWORD;
+typedef unsigned long long SIZE_T;
+typedef unsigned long long ULONG_PTR;
+typedef int BOOL;
+#endif
 #endif
 
 #include <Einsums/Config/StdAlternatives.hpp>

@@ -32,6 +32,22 @@
 
 namespace einsums {
 
+namespace detail {
+
+template <typename T, typename Else, typename = void>
+struct type_or_else_if_defined {
+    using type = Else;
+};
+
+template <typename T, typename Else>
+struct type_or_else_if_defined<T, Else, std::void_t<decltype(sizeof(T))>> {
+    using type = T;
+};
+
+template <typename T, typename Else>
+using type_or_else_if_defined_t = type_or_else_if_defined<T, Else>::type;
+} // namespace detail
+
 #ifndef EINSUMS_WINDOWS
 using errno_t      = int;
 using safe_compare = int (*)(void *context, void const *key, void const *datum);
@@ -116,7 +132,6 @@ namespace detail {
 }
 
 [[nodiscard]] int EINSUMS_EXPORT getppid();
-
 
 [[nodiscard]] inline errno_t gmtime_s(struct std::tm *tm_out, std::time_t const *time) {
     return ::gmtime_s(tm_out, time);
