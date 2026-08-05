@@ -138,17 +138,19 @@ TEST_CASE("bsearch_s") {
 
     // Find the smallest value not in the array.
     int  smallest = std::numeric_limits<int>::min();
-    bool found    = false;
+    bool found    = true;
     do {
-        found = false;
+        found = true;
         for (size_t i = 0; i < random_data.size(); i++) {
             if (random_data[i] == smallest) {
-                found = true;
+                found = false;
                 smallest++;
                 break;
             }
         }
     } while (!found);
+
+    std::printf("Smallest value: %d\n", smallest);
 
     // Make sure the value is not in the array
     REQUIRE(einsums::bsearch_s(reinterpret_cast<void *>(&smallest), reinterpret_cast<void *>(random_data.data()), random_data.size(),
@@ -157,15 +159,18 @@ TEST_CASE("bsearch_s") {
     // Find the middlemost value not in the array.
     int near_zero = 0;
     do {
-        found = false;
+        found = true;
         for (size_t i = 0; i < random_data.size(); i++) {
             if (random_data[i] == near_zero) {
-                found = true;
+                found = false;
                 near_zero++;
                 break;
             }
         }
+
     } while (!found);
+
+    std::printf("Middlest value: %d\n", near_zero);
 
     // Make sure the value is not in the array
     REQUIRE(einsums::bsearch_s(reinterpret_cast<void *>(&near_zero), reinterpret_cast<void *>(random_data.data()), random_data.size(),
@@ -174,15 +179,18 @@ TEST_CASE("bsearch_s") {
     // Find the largest value not in the array.
     int biggest = std::numeric_limits<int>::max();
     do {
-        found = false;
+        found = true;
         for (size_t i = 0; i < random_data.size(); i++) {
             if (random_data[i] == biggest) {
-                found = true;
+                found = false;
                 biggest--;
                 break;
             }
         }
     } while (!found);
+	
+	std::printf("Biggest value: %d\n", biggest);
+
 
     // Make sure the value is not in the array
     REQUIRE(einsums::bsearch_s(reinterpret_cast<void *>(&biggest), reinterpret_cast<void *>(random_data.data()), random_data.size(),

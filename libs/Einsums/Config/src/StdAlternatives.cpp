@@ -171,22 +171,9 @@ namespace detail {
     }
 
     while (upper_bound - lower_bound > 1) {
-        midpoint = lower_bound + (upper_bound - lower_bound) / 2;
-
-        std::printf("Search points: %zu %zu %zu\n", lower_bound, midpoint, upper_bound);
-        std::fflush(stdout);
+        midpoint = (upper_bound + lower_bound) / 2;
 
         void const *curr = reinterpret_cast<void const *>(char_base + midpoint * width);
-
-        //        // Make sure the endpoints are sorted.
-        //        int lowmid  = compare(context, reinterpret_cast<void const *>(char_base + lower_bound * width), curr);
-        //        int midhigh = compare(context, curr, reinterpret_cast<void const *>(char_base + upper_bound * width));
-        //
-        //        if (lowmid > 0 || midhigh > 0) {
-        //            std::printf("Data is not sorted.");
-        //            std::fflush(stdout);
-        //            return nullptr;
-        //        }
 
         int mid_compare = compare(context, key, curr);
 
@@ -199,20 +186,13 @@ namespace detail {
         }
     }
 
-    int low_compare  = compare(context, key, reinterpret_cast<void const *>(char_base + lower_bound * width));
-    int high_compare = compare(context, key, reinterpret_cast<void const *>(char_base + upper_bound * width));
-    int mid_compare  = compare(context, key, reinterpret_cast<void const *>(char_base + midpoint * width));
+    int low_compare = compare(context, key, reinterpret_cast<void const *>(char_base + lower_bound * width));
     if (low_compare == 0) {
         return const_cast<void *>(reinterpret_cast<void const *>(char_base + lower_bound * width));
     } else {
-
+        int high_compare = compare(context, key, reinterpret_cast<void const *>(char_base + upper_bound * width));
         if (high_compare == 0) {
             return const_cast<void *>(reinterpret_cast<void const *>(char_base + upper_bound * width));
-        } else {
-
-            if (mid_compare == 0) {
-                return const_cast<void *>(reinterpret_cast<void const *>(char_base + midpoint * width));
-            }
         }
     }
     return nullptr;
