@@ -6,13 +6,13 @@
 #ifdef EINSUMS_WINDOWS
 // This needs to be before everything.
 
-#    ifdef _M_AMD64
-#        define _AMD64_
-#    elif defined(_M_ARM)
-#        define _ARM_
-#    endif
+//#    ifdef _M_AMD64
+//#        define _AMD64_
+//#    elif defined(_M_ARM)
+//#        define _ARM_
+//#    endif
 
-#    include <windows.h>
+#    include <Windows.h>
 #endif
 
 #include <Einsums/Config/StdAlternatives.hpp>
