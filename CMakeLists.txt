@@ -810,6 +810,11 @@ if(EINSUMS_WITH_EXAMPLES)
   einsums_add_pseudo_target(Examples)
 endif()
 
+# For some reason, Windows doesn't always provide all types.
+if(MSVC)
+  einsums_add_config_test(EINSUMS_WINDOWS_NEEDS_TYPES SOURCE ${CMAKE_PROJECT_DIR}/cmake/tests/windows_needs_types.cpp)
+endif()
+
 # ##################################################################################################
 # Debug library postfix
 # ##################################################################################################

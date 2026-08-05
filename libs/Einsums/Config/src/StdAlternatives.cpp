@@ -6,22 +6,17 @@
 #ifdef EINSUMS_WINDOWS
 // This needs to be before everything.
 
-//#    ifdef _M_AMD64
-//#        define _AMD64_
-//#    elif defined(_M_ARM)
-//#        define _ARM_
-//#    endif
+// #    ifdef _M_AMD64
+// #        define _AMD64_
+// #    elif defined(_M_ARM)
+// #        define _ARM_
+// #    endif
 
 #    include <Windows.h>
 
-#ifndef WINAPI
-#define WINAPI
-typedef void *HANDLE;
-typedef unsigned long DWORD;
-typedef unsigned long long SIZE_T;
-typedef unsigned long long ULONG_PTR;
-typedef int BOOL;
-#endif
+#    ifndef WINAPI
+#        define WINAPI
+#    endif
 #endif
 
 #include <Einsums/Config/StdAlternatives.hpp>
@@ -34,6 +29,11 @@ typedef int BOOL;
 #include <cstring>
 
 #ifdef EINSUMS_WINDOWS
+
+#    ifdef EINSUMS_WINDOWS_NEEDS_TYPES
+#        include <windows_types.h>
+#    endif
+
 // #    include <errhandlingapi.h>
 // #    include <handleapi.h>
 #    include <stdexcept>
