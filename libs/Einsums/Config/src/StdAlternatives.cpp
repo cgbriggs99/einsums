@@ -13,10 +13,6 @@
 // #    endif
 
 #    include <Windows.h>
-
-#    ifndef WINAPI
-#        define WINAPI
-#    endif
 #endif
 
 #include <Einsums/Config/StdAlternatives.hpp>
@@ -31,7 +27,7 @@
 #ifdef EINSUMS_WINDOWS
 
 #    ifndef EINSUMS_WINDOWS_HAS_TYPES
-#        include <windows_types.h>
+#        include "windows_types.h"
 #    endif
 
 // #    include <errhandlingapi.h>

@@ -14,6 +14,10 @@
 extern "C" {
 #endif
 
+#ifndef WINAPI
+#    define WINAPI __stdcall
+#endif
+
 // Copy-paste of the provided Windows IDL.
 // typedef unsigned short wchar_t;
 typedef void         *ADCONNECTION_HANDLE;
@@ -93,7 +97,7 @@ typedef struct _GUID {
     unsigned long  Data1;
     unsigned short Data2;
     unsigned short Data3;
-    byte           Data4[8];
+    BYTE           Data4[8];
 } GUID, UUID, *PGUID;
 
 typedef struct _LARGE_INTEGER {
