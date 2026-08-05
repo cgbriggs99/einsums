@@ -30,7 +30,7 @@
 
 #ifdef EINSUMS_WINDOWS
 
-#    ifdef EINSUMS_WINDOWS_NEEDS_TYPES
+#    ifndef EINSUMS_WINDOWS_HAS_TYPES
 #        include <windows_types.h>
 #    endif
 
