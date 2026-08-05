@@ -24,13 +24,14 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <fmt/format.h>
 
 #ifdef EINSUMS_WINDOWS
 
 #    ifndef EINSUMS_WINDOWS_HAS_TYPES
 #        include "windows_types.h"
 
-BOOL WINAPI CloseHandle(HANDLE hObject);
+extern "C" BOOL WINAPI CloseHandle(HANDLE hObject);
 
 #    endif
 
@@ -800,7 +801,7 @@ namespace detail {
 #else
 
 [[nodiscard]] int getppid() {
-    int pid = GetCurrentProcessId();
+    int pid =_getpid();
 
     HANDLE         snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     PROCESSENTRY32 process_entry;
