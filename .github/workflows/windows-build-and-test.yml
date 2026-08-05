@@ -89,7 +89,7 @@ jobs:
             -D CMAKE_C_COMPILER="%CC%" ^
             -D CMAKE_CXX_COMPILER="%CXX%" ^
             -D CMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" ^
-            -D EINSUMS_BUILD_PYTHON=OFF ^
+            -D EINSUMS_BUILD_PYTHON=ON ^
             -D EINSUMS_WITH_TESTS=ON ^
             -D EINSUMS_WITH_EXAMPLES=ON ^
             -D EINSUMS_WITH_BACKTRACES=OFF ^
@@ -113,3 +113,13 @@ jobs:
           rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
           ctest -j4 --output-on-failure
+
+      - name: Test (pytest) - unit tests
+        working-directory: "${{github.workspace}}/installed"
+          run: |
+            if [[ "${{runner.os}}" == "Windows" ]]; then
+              export PYTHONPATH="$PYTHONPATH;${{github.workspace}}/installed/lib;$CONDA_PREFIX/lib"
+            else
+              export PYTHONPATH=$PYTHONPATH:${{github.workspace}}/installed/lib:$CONDA_PREFIX/lib
+            fi
+            pytest "${{github.workspace}}/installed"
