@@ -115,11 +115,9 @@ jobs:
           ctest -j4 --output-on-failure
 
       - name: Test (pytest) - unit tests
+        shell: cmd
         working-directory: "${{github.workspace}}/installed"
-          run: |
-            if [[ "${{runner.os}}" == "Windows" ]]; then
-              export PYTHONPATH="$PYTHONPATH;${{github.workspace}}/installed/lib;$CONDA_PREFIX/lib"
-            else
-              export PYTHONPATH=$PYTHONPATH:${{github.workspace}}/installed/lib:$CONDA_PREFIX/lib
-            fi
-            pytest "${{github.workspace}}/installed"
+        run: |
+          call conda activate einsums-env
+          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;%CONDA_PREFIX%/lib"
+          pytest "${{github.workspace}}/installed"
