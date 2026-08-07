@@ -19,6 +19,9 @@
 #ifdef EINSUMS_WINDOWS
 #    include <Windows.h>
 #    include <corecrt.h>
+
+extern "C" void __cdecl _invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
+                                           wchar_t const *const file_name, unsigned int const line_number, uintptr_t const reserved);
 #endif
 
 int einsums_main(int argc, char *const *const argv) {
