@@ -17,8 +17,10 @@ using einsums::errno_t;
 TEST_CASE("asctime_s") {
     std::array<char, 256> buffer;
     einsums::printf_s("If you don't see the next line, then Windows is quitting because of bad inputs.\n");
+    std::fflush(stdout);
     REQUIRE(einsums::asctime_s(nullptr, 0, nullptr) == EINVAL);
     einsums::printf_s("If you see this line, then Windows is not quitting because of bad inputs.\n");
+    std::fflush(stdout);
     REQUIRE(einsums::asctime_s(buffer.data(), 0, nullptr) == EINVAL);
     buffer[0] = 'A';
     buffer[5] = 'A';
