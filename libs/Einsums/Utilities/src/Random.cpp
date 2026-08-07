@@ -9,7 +9,9 @@
 #include <random>
 
 namespace einsums {
-std::default_random_engine random_engine;
+	
+	
+EINSUMS_EXPORT std::default_random_engine random_engine;
 
 void seed_random(std::default_random_engine::result_type seed) {
     random_engine.seed(seed);

@@ -766,14 +766,14 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
         return nullptr;
     }
 
-    out = *context;
+    out = static_cast<char *>(*context);
 
     std::size_t tok_len = std::strcspn(static_cast<char *>(*context), delimiters);
 
     *context += tok_len;
 
     if (**context != 0) {
-        (*context)[1] = 0;
+        (*context)[0] = 0;
         (*context)++;
     }
 
