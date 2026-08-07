@@ -15,6 +15,7 @@ using einsums::errno_t;
 #endif
 
 TEST_CASE("asctime_s") {
+	
     std::array<char, 256> buffer;
     einsums::printf_s("If you don't see the next line, then Windows is quitting because of bad inputs.\n");
     std::fflush(stdout);
@@ -129,9 +130,6 @@ TEST_CASE("bsearch_s") {
 
     for (size_t i = 0; i < random_data.size(); i++) {
         int *found;
-
-        std::printf("Looking for %d at position %zu. Should be at %p\n", random_data[i], i, random_data.data() + i);
-        std::fflush(stdout);
 
         REQUIRE_NOTHROW(found = reinterpret_cast<int *>(einsums::bsearch_s(reinterpret_cast<void *>(&(random_data[i])),
                                                                            reinterpret_cast<void *>(random_data.data()), random_data.size(),

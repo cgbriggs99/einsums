@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 //----------------------------------------------------------------------------------------------
 
+#include <Einsums/Config/CompilerSpecific.hpp>
 #include <Einsums/Runtime.hpp>
 #include <Einsums/Runtime/ShutdownFunction.hpp>
 #include <Einsums/Utilities/Random.hpp>
@@ -14,6 +15,11 @@
 
 #define CATCH_CONFIG_RUNNER
 #include <catch2/catch_all.hpp>
+
+#ifdef EINSUMS_WINDOWS
+#    include <Windows.h>
+#    include <corecrt.h>
+#endif
 
 int einsums_main(int argc, char *const *const argv) {
     int result;
@@ -41,5 +47,9 @@ int einsums_main(int argc, char *const *const argv) {
 }
 
 int main(int argc, char **argv) {
+#ifdef EINSUMS_WINDOWS
+    auto prev_handler = _set_invalid_parameter_handle(_invalid_parameter);
+#endif
+
     return einsums::start(einsums_main, argc, argv);
 }
