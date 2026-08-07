@@ -773,7 +773,7 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
     *context += tok_len;
 
     if (**context != 0) {
-        (*context)[0] = 0;
+        **context = 0;
         (*context)++;
     }
 
