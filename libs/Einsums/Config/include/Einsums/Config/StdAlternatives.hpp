@@ -31,6 +31,8 @@
 #endif
 
 namespace einsums {
+	
+using StrtokContext = char *;
 
 namespace detail {
 
@@ -178,8 +180,8 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_co
     return ::strncpy_s(dest, dest_size, src, count);
 }
 
-[[nodiscard]] inline char *strtok_s(char *str, char const *delimiters, char **context) {
-    return ::strtok_s(str, delimiters, context);
+[[nodiscard]] inline char *strtok_s(char *str, char const *delimiters, StrtokContext *context) {
+    return ::strtok_s(str, delimiters, static_cast<char **>(context));
 }
 
 [[nodiscard]] inline errno_t tmpfile_s(std::FILE **fp) {
@@ -259,7 +261,7 @@ EINSUMS_EXPORT void qsort_s(void *base, std::size_t elements, std::size_t width,
 
 [[nodiscard]] EINSUMS_EXPORT errno_t strcpy_s(char *dest, std::size_t dest_size, char const *src, std::size_t count);
 
-[[nodiscard]] EINSUMS_EXPORT char *strtok_s(char *str, char const *delimiters, char **context);
+[[nodiscard]] EINSUMS_EXPORT char *strtok_s(char *str, char const *delimiters, StrtokContext *context);
 
 [[nodiscard]] EINSUMS_EXPORT errno_t tmpfile_s(std::FILE **fp);
 

@@ -114,10 +114,10 @@ jobs:
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
           ctest -j4 --output-on-failure
 
-#      - name: Test (pytest) - unit tests
-#        shell: cmd
-#        working-directory: "${{github.workspace}}/installed"
-#        run: |
-#          call conda activate einsums-env
-#          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;%CONDA_PREFIX%/lib"
-#          pytest "${{github.workspace}}/installed"
+      - name: Test (pytest) - unit tests
+        shell: cmd
+        working-directory: "${{github.workspace}}/installed"
+        run: |
+          call conda activate einsums-env
+          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;%CONDA_PREFIX%/lib"
+          pytest "${{github.workspace}}/installed"

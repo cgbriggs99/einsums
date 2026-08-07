@@ -43,7 +43,7 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
     }
 
     char buffer[1024] = {0};
-	char *context;
+	einsums::StrtokContext context;
     int  line_num     = 0;
 
     while (!std::feof(input)) {
@@ -61,7 +61,7 @@ static void read_tensor(std::string fname, einsums::Tensor<double, Rank> *out) {
         indices[0] = std::atoi(next) - 1;
 
         for (int i = 1; i < Rank; i++) {
-            next = einsums::strtok_s(NULL, " \t", context);
+            next = einsums::strtok_s(NULL, " \t", &context);
 
             if (next == NULL) {
                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "Line {} in file {} not formatted correctly!", line_num, fname);

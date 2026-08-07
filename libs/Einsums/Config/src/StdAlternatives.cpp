@@ -731,7 +731,7 @@ namespace detail {
 }
 
 // We'll need to write our own.
-[[nodiscard]] char *strtok_s(char *str, char const *delimiters, char **context) {
+[[nodiscard]] char *strtok_s(char *str, char const *delimiters, StrtokContext *context) {
     if (context == nullptr) {
         errno = EINVAL;
         return nullptr;
@@ -751,13 +751,13 @@ namespace detail {
         *context = str;
     }
 
-    char *out = *context;
+    char *out = static_cast<char *>(*context);
 
     if (out == nullptr) {
         return out;
     }
 
-    std::size_t prefix = std::strspn(*context, delimiters);
+    std::size_t prefix = std::strspn(static_cast<char *>(*context), delimiters);
 
     *context += prefix;
 
@@ -767,7 +767,7 @@ namespace detail {
 
     out = *context;
 
-    std::size_t tok_len = std::strcspn(*context, delimiters);
+    std::size_t tok_len = std::strcspn(static_cast<char *>(*context), delimiters);
 
     *context += tok_len;
 
