@@ -30,8 +30,14 @@
 #    include <unistd.h>
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#    define EINSUMS_CHECK_FORMAT(archetype, string_idx, first_arg) [[gnu::format(archetype, string_idx, first_arg)]]
+#else
+#    define EINSUMS_CHECK_FORMAT(archetype, string_idx, first_arg)
+#endif
+
 namespace einsums {
-	
+
 using StrtokContext = char *;
 
 namespace detail {
@@ -70,19 +76,20 @@ namespace detail {
 } // namespace detail
 
 // Yes, these are nodiscard. Everyone always forgets that these functions have return values that need to be checked.
-[[nodiscard]] EINSUMS_EXPORT int fprintf_s(std::FILE *fp, char const *format, ...);
+// Except printf_s. Really, what are our options if printf fails? If that's the case something has gone really wrong.
+[[nodiscard]] EINSUMS_CHECK_FORMAT(printf, 2, 3) EINSUMS_EXPORT int fprintf_s(std::FILE *fp, char const *format, ...);
 
-[[nodiscard]] EINSUMS_EXPORT int fscanf_s(std::FILE *fp, char const *format, ...);
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 3) EINSUMS_EXPORT int fscanf_s(std::FILE *fp, char const *format, ...);
 
-[[nodiscard]] EINSUMS_EXPORT int printf_s(char const *format, ...);
+EINSUMS_CHECK_FORMAT(printf, 1, 2) EINSUMS_EXPORT int printf_s(char const *format, ...);
 
-[[nodiscard]] EINSUMS_EXPORT int scanf_s(char const *format, ...);
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 1, 2) EINSUMS_EXPORT int scanf_s(char const *format, ...);
 
 // No sprintf. We shouldn't be using it anyways. No snprintf since it's already safe. The _snprintf_s function is considered optional, it
 // seems. This is due to the fact that _snprintf isn't standards conformant. Standards-conformant snprintf is essentially the same as
 // _snprintf_s.
 
-[[nodiscard]] EINSUMS_EXPORT int sscanf_s(char const *buffer, char const *format, ...);
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 3) EINSUMS_EXPORT int sscanf_s(char const *buffer, char const *format, ...);
 
 #ifdef EINSUMS_WINDOWS
 [[nodiscard]] inline errno_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr) noexcept {
@@ -188,23 +195,23 @@ inline void qsort_s(void *base, std::size_t elements, std::size_t width, safe_co
     return ::tmpfile_s(fp);
 }
 
-[[nodiscard]] inline int vfprintf_s(std::FILE *fp, char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(printf, 2, 0) inline int vfprintf_s(std::FILE *fp, char const *format, std::va_list args) {
     return ::vfprintf_s(fp, format, args);
 }
 
-[[nodiscard]] inline int vfscanf_s(std::FILE *fp, char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 0) inline int vfscanf_s(std::FILE *fp, char const *format, std::va_list args) {
     return ::vfscanf_s(fp, format, args);
 }
 
-[[nodiscard]] inline int vprintf_s(char const *format, std::va_list args) {
+EINSUMS_CHECK_FORMAT(printf, 1, 0) inline int vprintf_s(char const *format, std::va_list args) {
     return ::vprintf_s(format, args);
 }
 
-[[nodiscard]] inline int vscanf_s(char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 1, 0) inline int vscanf_s(char const *format, std::va_list args) {
     return ::vscanf_s(format, args);
 }
 
-[[nodiscard]] inline int vsscanf_s(char const *buffer, char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 0) inline int vsscanf_s(char const *buffer, char const *format, std::va_list args) {
     return ::vsscanf_s(buffer, format, args);
 }
 
@@ -265,23 +272,23 @@ EINSUMS_EXPORT void qsort_s(void *base, std::size_t elements, std::size_t width,
 
 [[nodiscard]] EINSUMS_EXPORT errno_t tmpfile_s(std::FILE **fp);
 
-[[nodiscard]] inline int vfprintf_s(std::FILE *fp, char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(printf, 2, 0) inline int vfprintf_s(std::FILE *fp, char const *format, std::va_list args) {
     return std::vfprintf(fp, format, args);
 }
 
-[[nodiscard]] inline int vfscanf_s(std::FILE *fp, char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 0) inline int vfscanf_s(std::FILE *fp, char const *format, std::va_list args) {
     return std::vfscanf(fp, format, args);
 }
 
-[[nodiscard]] inline int vprintf_s(char const *format, std::va_list args) {
+EINSUMS_CHECK_FORMAT(printf, 1, 0) inline int vprintf_s(char const *format, std::va_list args) {
     return std::vprintf(format, args);
 }
 
-[[nodiscard]] inline int vscanf_s(char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 1, 0) inline int vscanf_s(char const *format, std::va_list args) {
     return std::vscanf(format, args);
 }
 
-[[nodiscard]] inline int vsscanf_s(char const *buffer, char const *format, std::va_list args) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 0) inline int vsscanf_s(char const *buffer, char const *format, std::va_list args) {
     return std::vsscanf(buffer, format, args);
 }
 

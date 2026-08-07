@@ -20,11 +20,12 @@
 
 #include <Einsums/Config/StdAlternatives.hpp>
 
+#include <fmt/format.h>
+
 #include <array>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <fmt/format.h>
 
 #ifdef EINSUMS_WINDOWS
 
@@ -263,7 +264,7 @@ namespace detail {
     }
 }
 
-[[nodiscard]] int fprintf_s(std::FILE *fp, char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(printf, 2, 3) int fprintf_s(std::FILE *fp, char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -341,7 +342,7 @@ namespace detail {
     }
 }
 
-[[nodiscard]] int fscanf_s(std::FILE *fp, char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 3) int fscanf_s(std::FILE *fp, char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -532,7 +533,7 @@ namespace detail {
     }
 }
 
-[[nodiscard]] int printf_s(char const *format, ...) {
+EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -544,7 +545,7 @@ namespace detail {
     return out;
 }
 
-[[nodiscard]] int scanf_s(char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 1, 2) int scanf_s(char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -556,7 +557,7 @@ namespace detail {
     return out;
 }
 
-[[nodiscard]] int sscanf_s(char const *buffer, char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 3) int sscanf_s(char const *buffer, char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -801,7 +802,7 @@ namespace detail {
 #else
 
 [[nodiscard]] int getppid() {
-    int pid =_getpid();
+    int pid = _getpid();
 
     HANDLE         snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     PROCESSENTRY32 process_entry;
@@ -829,7 +830,7 @@ namespace detail {
         fmt::format("Einsums: Couldn't find a process with PID that matches {} (current PID), so no parent was found.", pid));
 }
 
-[[nodiscard]] int fprintf_s(std::FILE *fp, char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(printf, 2, 3) int fprintf_s(std::FILE *fp, char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -841,7 +842,7 @@ namespace detail {
     return out;
 }
 
-[[nodiscard]] int fscanf_s(std::FILE *fp, char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 3) int fscanf_s(std::FILE *fp, char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -853,7 +854,7 @@ namespace detail {
     return out;
 }
 
-[[nodiscard]] int printf_s(char const *format, ...) {
+EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -865,7 +866,7 @@ namespace detail {
     return out;
 }
 
-[[nodiscard]] int scanf_s(char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 1, 2) int scanf_s(char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
@@ -877,7 +878,7 @@ namespace detail {
     return out;
 }
 
-[[nodiscard]] int sscanf_s(char const *buffer, char const *format, ...) {
+[[nodiscard]] EINSUMS_CHECK_FORMAT(scanf, 2, 3) int sscanf_s(char const *buffer, char const *format, ...) {
     std::va_list args;
 
     va_start(args, format);
