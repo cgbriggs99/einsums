@@ -12,7 +12,16 @@
 # set(Example1_cpp_FLAGS DEPENDENCIES SomeOtherGreatLibrary) set(Example2_hip_PARAMETERS THREADS 1)
 
 # Name of test file. Include .cpp, .hip, etc. extension.
-set(ConfigTests WindowsWrappers.cpp)
+set(ConfigTests)
+
+if(MSVC)
+  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    list(APPEND ConfigTests WindowsWrappers.cpp)
+  endif()
+else()
+  list(APPEND ConfigTests WindowsWrappers.cpp)
+endif()
+  
 
 foreach(test ${ConfigTests})
   # Extract base name of test Example1.cpp -> Example1, Example.2.hip -> Example

@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type: [ RelWithDebInfo ]
+        build_type: [ RelWithDebInfo, Debug ]
 
     name: "clang-cl • openblas • ${{ matrix.build_type }}"
     runs-on: windows-2022

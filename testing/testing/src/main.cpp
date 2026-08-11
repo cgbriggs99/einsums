@@ -21,9 +21,9 @@
 #    include <fmt/xchar.h>
 
 #    include <Windows.h>
+#    include <cerrno>
 #    include <corecrt.h>
 #    include <cstdio>
-#    include <cerrno>
 
 extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
                                                   wchar_t const *const file_name, unsigned int const line_number,
