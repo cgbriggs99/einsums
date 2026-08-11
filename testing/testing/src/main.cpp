@@ -20,7 +20,7 @@
 #    include <Windows.h>
 #    include <corecrt.h>
 #include <fmt/format.h>
-#include <csdtio>
+#include <cstdio>
 #include <fmt/xchar.h>
 
 extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
