@@ -19,9 +19,14 @@
 #ifdef EINSUMS_WINDOWS
 #    include <Windows.h>
 #    include <corecrt.h>
+#include <fmt/format.h>
+#include <csdtio>
+#include <fmt/xchar.h>
 
-extern "C" void __cdecl _invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
-                                           wchar_t const *const file_name, unsigned int const line_number, uintptr_t const reserved);
+extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
+                                           wchar_t const *const file_name, unsigned int const line_number, uintptr_t const reserved) {
+    std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(), stderr);
+}
 #endif
 
 int einsums_main(int argc, char *const *const argv) {
@@ -51,7 +56,7 @@ int einsums_main(int argc, char *const *const argv) {
 
 int main(int argc, char **argv) {
 #ifdef EINSUMS_WINDOWS
-    auto prev_handler = _set_invalid_parameter_handler(_invalid_parameter);
+    auto prev_handler = _set_invalid_parameter_handler(einsums_invalid_parameter);
 #endif
 
     return einsums::start(einsums_main, argc, argv);
