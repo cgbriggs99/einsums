@@ -14,11 +14,7 @@
 # Name of test file. Include .cpp, .hip, etc. extension.
 set(ConfigTests)
 
-if(MSVC)
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    list(APPEND ConfigTests WindowsWrappers.cpp)
-  endif()
-else()
+if((NOT MSVC) OR (${CMAKE_BUILD_TYPE} STREQUAL "Debug"))
   list(APPEND ConfigTests WindowsWrappers.cpp)
 endif()
   

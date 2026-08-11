@@ -61,6 +61,12 @@ int einsums_main(int argc, char *const *const argv) {
 int main(int argc, char **argv) {
 #ifdef EINSUMS_WINDOWS
     auto prev_handler = _set_invalid_parameter_handler(einsums_invalid_parameter);
+
+#    ifdef EINSUMS_DEBUG
+    _CrtSetReportMode(_CRT_ASSERT, 0);
+    _CrtSetReportMode(_CRT_WARN, 0);
+    _CrtSetReportMode(_CRT_ERROR, 0);
+#    endif
 #endif
 
     return einsums::start(einsums_main, argc, argv);
