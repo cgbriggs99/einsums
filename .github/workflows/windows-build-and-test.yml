@@ -118,7 +118,7 @@ jobs:
         shell: cmd
         working-directory: "${{github.workspace}}/build"
         run: |
-          cmake --install . --prefix %GITHUB_WORKSPACE\installed
+          cmake --install . --prefix %GITHUB_WORKSPACE%\installed
 
       - name: Test (pytest) - unit tests
         shell: cmd
