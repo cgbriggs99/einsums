@@ -17,14 +17,18 @@
 #include <catch2/catch_all.hpp>
 
 #ifdef EINSUMS_WINDOWS
+#    include <fmt/format.h>
+#    include <fmt/xchar.h>
+
 #    include <Windows.h>
 #    include <corecrt.h>
-#include <fmt/format.h>
-#include <cstdio>
-#include <fmt/xchar.h>
+#    include <cstdio>
+#    include <cerrno>
 
 extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
-                                           wchar_t const *const file_name, unsigned int const line_number, uintptr_t const reserved) {
+                                                  wchar_t const *const file_name, unsigned int const line_number,
+                                                  uintptr_t const reserved) {
+    errno = EINVAL;
     std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(), stderr);
 }
 #endif
