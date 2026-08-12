@@ -112,7 +112,7 @@ jobs:
           if errorlevel 1 exit /b %ERRORLEVEL%
           rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          ctest -j1 --output-on-failure
+          ctest -j1 --output-on-failure --timeout 600
  
       - name: Install
         shell: cmd
