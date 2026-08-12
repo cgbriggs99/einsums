@@ -29,9 +29,9 @@ void handle_termination(char const *reason) {
     bool attach              = global_config.get_bool("attach-debugger", true);
 	bool diagnostics = global_config.get_bool("diagnostics-on-terminate", true);
 
-    if (attach) {
-        util::attach_debugger();
-    }
+//    if (attach) {
+//        util::attach_debugger();
+//    }
 
     if (diagnostics) {
         // Add more information here.
