@@ -29,7 +29,12 @@ extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expressio
                                                   wchar_t const *const file_name, unsigned int const line_number,
                                                   uintptr_t const reserved) {
     errno = EINVAL;
-    std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(), stderr);
+    if (expression != nullptr && function_name != nullptr && file_name != nullptr) {
+        std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(),
+                    stderr);
+    } else {
+        std::fputws(L"Error at unknown location!", stderr);
+    }
 }
 #endif
 
@@ -63,7 +68,12 @@ int main(int argc, char **argv) {
     auto prev_handler = _set_invalid_parameter_handler(einsums_invalid_parameter);
 
 #    ifdef EINSUMS_DEBUG
-    _CrtSetReportMode(_CRT_ASSERT, 0);
+    _CrtSetReportMode(_CRT_ASSERT, _CRT_MODE_FILE);
+	_CrtSetReportMode(_CRT_WARN, _CRT_MODE_FILE);
+	_CrtSetReportMode(_CRT_ERROR, _CRT_MODE_FILE);
+	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+	_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+	_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #    endif
 #endif
 
