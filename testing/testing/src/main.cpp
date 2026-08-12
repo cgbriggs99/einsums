@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------
 
 #include <Einsums/Config/CompilerSpecific.hpp>
+#include <Einsums/Config/Debug.hpp>
 #include <Einsums/Runtime.hpp>
 #include <Einsums/Runtime/ShutdownFunction.hpp>
 #include <Einsums/Utilities/Random.hpp>
@@ -24,6 +25,7 @@
 #    include <cerrno>
 #    include <corecrt.h>
 #    include <cstdio>
+#    include <cwchar>
 
 extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expression, wchar_t const *const function_name,
                                                   wchar_t const *const file_name, unsigned int const line_number,
@@ -33,7 +35,7 @@ extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expressio
         std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(),
                     stderr);
     } else {
-        std::fputws(L"Error at unknown location!", stderr);
+        std::fputs("Error at unknown location!", stderr);
     }
 }
 #endif
@@ -69,11 +71,11 @@ int main(int argc, char **argv) {
 
 #    ifdef EINSUMS_DEBUG
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
-	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
-	_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-	_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #    endif
 #endif
 
