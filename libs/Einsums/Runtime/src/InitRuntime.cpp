@@ -99,32 +99,31 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
 
     auto &global_config = GlobalConfigMap::get_singleton();
 
-    EINSUMS_LOG_INFO("The global configuration is at {}.", static_cast<void const *>(std::addressof(global_config)));
-    std::fflush(stdout);
-    EINSUMS_LOG_INFO("The global bool map is at {}.", static_cast<void const *>(global_config.get_bool_map().get()));
-    std::fflush(stdout);
+    EINSUMS_LOG_TRACE("The global configuration is at {}.", static_cast<void const *>(std::addressof(global_config)));
+    EINSUMS_LOG_TRACE("The global bool map is at {}.", static_cast<void const *>(global_config.get_bool_map().get()));
 
     // Report build settings.
-    EINSUMS_LOG_INFO("Starting Einsums: {}", build_string());
+    auto version_str = build_string();
+    EINSUMS_LOG_INFO("Starting Einsums: {}", version_str);
 
     if (global_config.get_bool("install-signal-handlers", false)) {
-        EINSUMS_LOG_INFO("Installing signal handlers...");
+        EINSUMS_LOG_TRACE("Installing signal handlers...");
         set_signal_handlers();
     }
 
-    EINSUMS_LOG_INFO("Initializing the profiler.");
+    EINSUMS_LOG_TRACE("Initializing the profiler.");
 
     // This is the only initialization routine that needs to be explicitly called here.
     // This is because the runtime environment depends on the profiler. If the profiler
     // depended on the runtime environment, then there would be a dependency issue.
     profile::initialize();
 
-    EINSUMS_LOG_INFO("Disabling HDF5 reporting.");
+    EINSUMS_LOG_TRACE("Disabling HDF5 reporting.");
 
     // Disable HDF5 diagnostic reporting
     H5Eset_auto(0, nullptr, nullptr);
 
-    EINSUMS_LOG_INFO("Creating the runtime instance.")
+    EINSUMS_LOG_TRACE("Creating the runtime instance.")
 
     // Build and configure this runtime instance.
     std::unique_ptr<Runtime> rt = std::make_unique<Runtime>(std::move(config), !is_init);
@@ -142,10 +141,10 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     EINSUMS_LOG_INFO("Releasing the runtime pointer.");
     Runtime *p = rt.release();
 
-    EINSUMS_LOG_INFO("Registering the runtime pointer for eventual deletion.");
+    EINSUMS_LOG_TRACE("Registering the runtime pointer for eventual deletion.");
     detail::register_free_pointer([p]() { delete p; });
 
-    EINSUMS_LOG_INFO("Returning from the run function. Starting to shut down.");
+    EINSUMS_LOG_TRACE("Returning from the run function. Starting to shut down.");
 
     return 0;
 }
