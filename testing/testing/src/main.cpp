@@ -37,7 +37,7 @@ extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expressio
     } else {
         std::fputs("Error at unknown location!", stderr);
     }
-    std::flush(stderr);
+    std::fflush(stderr);
 }
 #endif
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
 #    ifdef EINSUMS_DEBUG
     std::printf("Setting report modes.");
-    std::flush(stdout);
+    std::fflush(stdout);
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
     //    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
     //    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
     //    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
     //    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
     std::printf("Finished setting report modes.");
-    std::flush(stdout);
+    std::fflush(stdout);
 #    endif
 #endif
 
