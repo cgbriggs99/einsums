@@ -106,11 +106,12 @@ jobs:
 
       - name: run the test I care about
         shell: cmd
+        if: matrix.build_type == "Debug"
         working-directory: ${{github.workspace}}/build/Debug/bin
         run: |
           call conda activate einsums-env
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          if "${{matrix.build_type}}"=="Debug" ( WindowsWrappers_test.exe --einsums:log-level 0 )
+          WindowsWrappers_test.exe --einsums:log-level 0
 
       - name: Test (CTest)
         shell: cmd
