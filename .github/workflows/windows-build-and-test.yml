@@ -106,9 +106,9 @@ jobs:
 
       - name: run the test I care about
         shell: cmd
-        working-directory: ${{github.workspace}}/build/libs/Einsums/Config/tests/unit
+        working-directory: ${{github.workspace}}/build/Debug/bin
         run: |
-          if "${{matrix.build_type}}"=="Debug" ( WindowsWrappers_test )
+          if "${{matrix.build_type}}"=="Debug" ( WindowsWrappers_test.exe )
 
       - name: Test (CTest)
         shell: cmd
