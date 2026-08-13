@@ -99,13 +99,13 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
 
     auto &global_config = GlobalConfigMap::get_singleton();
 
-    // Report build settings.
-    EINSUMS_LOG_INFO("Starting Einsums: {}", build_string());
-
     EINSUMS_LOG_INFO("The global configuration is at {}.", static_cast<void const *>(std::addressof(global_config)));
     std::fflush(stdout);
     EINSUMS_LOG_INFO("The global bool map is at {}.", static_cast<void const *>(global_config.get_bool_map().get()));
     std::fflush(stdout);
+
+    // Report build settings.
+    EINSUMS_LOG_INFO("Starting Einsums: {}", build_string());
 
     if (global_config.get_bool("install-signal-handlers", false)) {
         EINSUMS_LOG_INFO("Installing signal handlers...");
