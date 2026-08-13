@@ -26,12 +26,7 @@ EINSUMS_SINGLETON_IMPL(RuntimeVars)
 
 void handle_termination(char const *reason) {
     auto &global_config = GlobalConfigMap::get_singleton();
-    bool attach              = global_config.get_bool("attach-debugger", true);
-	bool diagnostics = global_config.get_bool("diagnostics-on-terminate", true);
-
-//    if (attach) {
-//        util::attach_debugger();
-//    }
+    bool  diagnostics   = global_config.get_bool("diagnostics-on-terminate", true);
 
     if (diagnostics) {
         // Add more information here.
@@ -67,16 +62,27 @@ EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
     return FALSE;
 }
 
+[[noreturn]] EINSUMS_EXPORT void signal_handler(int signum) {
+    bool attach = true;
+
+    auto &global_config = GlobalConfigMap::get_singleton();
+    attach              = global_config.get_bool("attach-debugger", true);
+
+    if (signum != SIGINT && attach) {
+        util::attach_debugger();
+    }
+
+    /// @todo If einsums.diagnostics_on_terminate is true then print out a lot of information.
+
+    std::abort();
+}
 #else
+
 [[noreturn]] EINSUMS_EXPORT void termination_handler(int signum) {
     bool attach = true;
 
-    try {
-        auto &global_config = GlobalConfigMap::get_singleton();
-        attach              = global_config.get_bool("attach-debugger", true);
-    } catch (...) {
-        attach = true;
-    }
+    auto &global_config = GlobalConfigMap::get_singleton();
+    attach              = global_config.get_bool("attach-debugger", true);
 
     if (signum != SIGINT && attach) {
         util::attach_debugger();
@@ -102,6 +108,11 @@ void on_abort(int) noexcept {
 void set_signal_handlers() {
 #if defined(EINSUMS_WINDOWS)
     SetConsoleCtrlHandler(termination_handler, TRUE);
+    std::signal(SIGABRT, signal_handler);
+	std::signal(SIGFPE, signal_handler);
+	std::signal(SIGILL, signal_handler);
+	std::signal(SIGINT, signal_handler);
+	std::signal(SIGSEGV, signal_handler);
 #else
     struct sigaction new_action;
     new_action.sa_handler = termination_handler;
@@ -119,9 +130,9 @@ void set_signal_handlers() {
 }
 
 Runtime::Runtime(RuntimeConfiguration &&rtcfg, bool initialize) : _rtcfg(std::move(rtcfg)) {
-	if(!runtime_ptr()) {
-	    init_global_data();
-	}
+    if (!runtime_ptr()) {
+        init_global_data();
+    }
 
     if (initialize) {
         init();
