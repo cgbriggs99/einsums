@@ -106,6 +106,8 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     auto version_str = build_string();
     EINSUMS_LOG_INFO("Starting Einsums: {}", version_str);
 
+    EINSUMS_LOG_TRACE("Version string's data is at {}.", static_cast<void const *>(version_str.c_str()));
+
     if (global_config.get_bool("install-signal-handlers", false)) {
         EINSUMS_LOG_TRACE("Installing signal handlers...");
         set_signal_handlers();
