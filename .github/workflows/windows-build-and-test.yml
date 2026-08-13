@@ -103,6 +103,12 @@ jobs:
           call conda activate einsums-env
           if errorlevel 1 exit /b %ERRORLEVEL%
           cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
+		  
+      - name: run the test I care about
+	    shell: cmd
+		working-directory: ${{github.workspace}}/build/libs/Einsums/Config/tests/unit
+		run: |
+		  if "${{matrix.build_type}}"=="Debug" ( WindowsWrappers_test )
 
       - name: Test (CTest)
         shell: cmd
