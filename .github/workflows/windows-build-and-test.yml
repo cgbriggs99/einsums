@@ -110,7 +110,7 @@ jobs:
         run: |
           call conda activate einsums-env
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          if "${{matrix.build_type}}"=="Debug" ( WindowsWrappers_test.exe )
+          if "${{matrix.build_type}}"=="Debug" ( WindowsWrappers_test.exe --einsums:log-level 0 )
 
       - name: Test (CTest)
         shell: cmd

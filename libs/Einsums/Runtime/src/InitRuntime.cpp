@@ -107,28 +107,40 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
         set_signal_handlers();
     }
 
+    EINSUMS_LOG_TRACE("Initializing the profiler.");
+
     // This is the only initialization routine that needs to be explicitly called here.
     // This is because the runtime environment depends on the profiler. If the profiler
     // depended on the runtime environment, then there would be a dependency issue.
     profile::initialize();
 
+    EINSUMS_LOG_TRACE("Disabling HDF5 reporting.");
+
     // Disable HDF5 diagnostic reporting
     H5Eset_auto(0, nullptr, nullptr);
+
+    EINSUMS_LOG_TRACE("Creating the runtime instance.")
 
     // Build and configure this runtime instance.
     std::unique_ptr<Runtime> rt = std::make_unique<Runtime>(std::move(config), !is_init);
 
     is_init = true;
     if (blocking) {
+        EINSUMS_LOG_DEBUG("Running the main function in blocking mode.");
         return run(f, *rt, params);
     }
 
+    EINSUMS_LOG_DEBUG("Running the main function in non-blocking mode.");
     run(f, *rt, params);
 
     // pointer to runtime is stored in TLS
+    EINSUMS_LOG_TRACE("Releasing the runtime pointer.");
     Runtime *p = rt.release();
 
+    EINSUMS_LOG_TRACE("Registering the runtime pointer for eventual deletion.");
     detail::register_free_pointer([p]() { delete p; });
+
+    EINSUMS_LOG_TRACE("Returning from the run function. Starting to shut down.");
 
     return 0;
 }
