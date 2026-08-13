@@ -23,6 +23,7 @@
 #include <fmt/format.h>
 
 #include <array>
+#include <csignal>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>

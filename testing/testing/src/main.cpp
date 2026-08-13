@@ -66,18 +66,5 @@ int einsums_main(int argc, char *const *const argv) {
 }
 
 int main(int argc, char **argv) {
-#ifdef EINSUMS_WINDOWS
-    auto prev_handler = _set_invalid_parameter_handler(einsums_invalid_parameter);
-
-#    ifdef EINSUMS_DEBUG
-    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
-//    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-//    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
-//    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-//    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
-#    endif
-#endif
-
     return einsums::start(einsums_main, argc, argv);
 }

@@ -12,49 +12,47 @@
 
 #ifndef EINSUMS_WINDOWS
 using einsums::errno_t;
+#    define FAIL_TAG "[!nonportable]"
+#else
+#    define FAIL_TAG "[!shouldfail][!nonportable]"
 #endif
 
-TEST_CASE("asctime_s") {
-	
-    std::array<char, 256> buffer;
-    einsums::printf_s("If you don't see the next line, then Windows is quitting because of bad inputs.\n");
-    std::fflush(stdout);
+TEST_CASE("asctime_s null buffer", "[windows-overrides][asctime_s]") {
+
     REQUIRE(einsums::asctime_s(nullptr, 0, nullptr) == EINVAL);
-    einsums::printf_s("If you see this line, then Windows is not quitting because of bad inputs.\n");
-    std::fflush(stdout);
+}
+
+TEST_CASE("asctime_s no data", "[windows-overrides][asctime_s]") {
+    std::array<char, 256> buffer;
     REQUIRE(einsums::asctime_s(buffer.data(), 0, nullptr) == EINVAL);
+}
+
+TEST_CASE("asctime_s buffer too small", "[windows-overrides][asctime_s]") {
+    std::array<char, 256> buffer;
     buffer[0] = 'A';
     buffer[5] = 'A';
     REQUIRE(einsums::asctime_s(buffer.data(), 5, nullptr) == EINVAL);
     REQUIRE(buffer[0] == 0);
     REQUIRE(buffer[5] == 'A');
+}
+
+TEST_CASE("asctime_s no time pointer", "[windows-overrides][asctime_s]") {
+    std::array<char, 256> buffer;
     buffer[0] = 'A';
     REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), nullptr) == EINVAL);
     REQUIRE(buffer[0] == 0);
     REQUIRE(buffer[5] == 0);
+}
 
-    std::time_t    curr = std::time(nullptr);
-    struct std::tm time_struct;
+TEST_CASE("asctime_s proper inputs", "[windows-override][asctime_s]") {
+    std::array<char, 256> buffer;
+    std::time_t           curr = std::time(nullptr);
+    struct std::tm        time_struct;
 
     REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
 
     REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), &time_struct) == 0);
     INFO(buffer.data());
-}
-
-static int int_compare_print(void *context, void const *left, void const *right) {
-    int const *const int_left = reinterpret_cast<int const *>(left), *const int_right = reinterpret_cast<int const *>(right);
-
-    //    std::printf("Comparing %d and %d\n", *int_left, *int_right);
-    //    std::fflush(stdout);
-
-    if (*int_left < *int_right) {
-        return -1;
-    } else if (*int_left == *int_right) {
-        return 0;
-    } else {
-        return 1;
-    }
 }
 
 static int int_compare(void *context, void const *left, void const *right) {
@@ -69,7 +67,7 @@ static int int_compare(void *context, void const *left, void const *right) {
     }
 }
 
-TEST_CASE("qsort_s") {
+TEST_CASE("qsort_s", "[windows-overrides][qsort_s]") {
     std::default_random_engine         engine;
     std::uniform_int_distribution<int> random_dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 
@@ -110,7 +108,7 @@ TEST_CASE("qsort_s") {
     }
 }
 
-TEST_CASE("bsearch_s") {
+TEST_CASE("bsearch_s", "[windows-overrides][qsort_s][bsearch_s]") {
     std::default_random_engine         engine;
     std::uniform_int_distribution<int> random_dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
     std::vector<int>                   random_data(256);
@@ -133,7 +131,7 @@ TEST_CASE("bsearch_s") {
 
         REQUIRE_NOTHROW(found = reinterpret_cast<int *>(einsums::bsearch_s(reinterpret_cast<void *>(&(random_data[i])),
                                                                            reinterpret_cast<void *>(random_data.data()), random_data.size(),
-                                                                           sizeof(int), int_compare_print, nullptr)));
+                                                                           sizeof(int), int_compare, nullptr)));
         REQUIRE(found != nullptr);
         REQUIRE(*found == random_data[i]);
     }
@@ -194,19 +192,32 @@ TEST_CASE("bsearch_s") {
                                sizeof(int), int_compare, nullptr) == nullptr);
 }
 
-TEST_CASE("clearerr_s") {
+TEST_CASE("clearerr_s", "[windows-override][clearerr_s]") {
     // Not much we can do here. Just test nullptr.
     REQUIRE(einsums::clearerr_s(nullptr) == EINVAL);
 }
 
-TEST_CASE("fopen_s, fprintf_s, freopen_s, fread_s") {
+TEST_CASE("fopen_s null output", "[windows-override][fopen_s]") {
+    REQUIRE(einsums::fopen_s(nullptr, nullptr, nullptr) == EINVAL);
+}
+
+TEST_CASE("fopen_s null file name", "[windows-override][fopen_s]") {
     std::FILE *fp = nullptr;
     // Test opening.
-    REQUIRE(einsums::fopen_s(nullptr, nullptr, nullptr) == EINVAL);
     REQUIRE(einsums::fopen_s(&fp, nullptr, nullptr) == EINVAL);
     REQUIRE(fp == nullptr);
+}
+
+TEST_CASE("fopen_s null mode", "[windows-override][fopen_s]") {
+    std::FILE *fp = nullptr;
+    // Test opening.
     REQUIRE(einsums::fopen_s(&fp, "test.txt", nullptr) == EINVAL);
     REQUIRE(fp == nullptr);
+}
+
+TEST_CASE("fopen_s, fprintf_s, freopen_s, fread_s", "[windows-override][fopen_s]") {
+    std::FILE *fp = nullptr;
+    // Test opening.
     REQUIRE(einsums::fopen_s(&fp, "test.txt", "w+") == 0);
     REQUIRE(fp != nullptr);
 
