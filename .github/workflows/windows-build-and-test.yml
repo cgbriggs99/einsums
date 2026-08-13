@@ -106,7 +106,7 @@ jobs:
 
       - name: run the test I care about
         shell: cmd
-        if: matrix.build_type == "Debug"
+        if: matrix.build_type == 'Debug'
         working-directory: ${{github.workspace}}/build/Debug/bin
         run: |
           call conda activate einsums-env
