@@ -102,6 +102,9 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     // Report build settings.
     EINSUMS_LOG_INFO("Starting Einsums: {}", build_string());
 
+    EINSUMS_LOG_TRACE("The global configuration is at {}.", std::addressof(global_config));
+    EINSUMS_LOG_TRACE("The global bool map is at {}.", global_config.get_bool().get());
+
     if (global_config.get_bool("install-signal-handlers", false)) {
         EINSUMS_LOG_INFO("Installing signal handlers...");
         set_signal_handlers();
