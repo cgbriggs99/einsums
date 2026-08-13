@@ -63,14 +63,14 @@ EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
 }
 
 [[noreturn]] EINSUMS_EXPORT void signal_handler(int signum) {
-    bool attach = true;
+    //    bool attach = true;
+    //
+    //    auto &global_config = GlobalConfigMap::get_singleton();
+    //    attach              = global_config.get_bool("attach-debugger", true);
 
-    auto &global_config = GlobalConfigMap::get_singleton();
-    attach              = global_config.get_bool("attach-debugger", true);
-
-    if (signum != SIGINT && attach) {
-        util::attach_debugger();
-    }
+    //    if (signum != SIGINT && attach) {
+    //        util::attach_debugger();
+    //    }
 
     /// @todo If einsums.diagnostics_on_terminate is true then print out a lot of information.
 
@@ -107,12 +107,12 @@ void on_abort(int) noexcept {
 
 void set_signal_handlers() {
 #if defined(EINSUMS_WINDOWS)
-    SetConsoleCtrlHandler(termination_handler, TRUE);
-    std::signal(SIGABRT, signal_handler);
-	std::signal(SIGFPE, signal_handler);
-	std::signal(SIGILL, signal_handler);
-	std::signal(SIGINT, signal_handler);
-	std::signal(SIGSEGV, signal_handler);
+//    SetConsoleCtrlHandler(termination_handler, TRUE);
+//    std::signal(SIGABRT, signal_handler);
+//	std::signal(SIGFPE, signal_handler);
+//	std::signal(SIGILL, signal_handler);
+//	std::signal(SIGINT, signal_handler);
+//	std::signal(SIGSEGV, signal_handler);
 #else
     struct sigaction new_action;
     new_action.sa_handler = termination_handler;
