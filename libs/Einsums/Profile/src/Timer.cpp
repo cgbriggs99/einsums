@@ -4,9 +4,9 @@
 //----------------------------------------------------------------------------------------------
 
 #include <Einsums/Errors/ThrowException.hpp>
+#include <Einsums/Logging.hpp>
 #include <Einsums/Print.hpp>
 #include <Einsums/Profile/Timer.hpp>
-#include <Einsums/Logging.hpp>
 
 #include <fmt/chrono.h>
 
@@ -62,7 +62,9 @@ using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 
 void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
+    EINSUMS_LOG_TRACE("Printing the timer information.");
     if (timer != root.get()) {
+        EINSUMS_LOG_TRACE("The timer is not the root.");
         std::string buffer;
         if (timer->total_calls != 0) {
             buffer = fmt::format("{:>5} : {:>5} calls : {:>5} per call", duration_cast<milliseconds>(timer->total_time), timer->total_calls,
@@ -75,19 +77,28 @@ void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
             width = 0;
         }
         fprintln(fp, "{0:<{1}} : {3: <{4}}{2}", buffer, width, timer->name, "", print::current_indent_level());
+
+        EINSUMS_LOG_TRACE("Freeing temporary buffer.");
     } else {
+        EINSUMS_LOG_TRACE("The timer is the root.");
         fprintln(fp, "Timing information:");
         fprintln(fp);
     }
 
     if (!timer->children.empty()) {
+        EINSUMS_LOG_TRACE("Indenting.");
         print::indent();
 
         for (auto &child : timer->order) {
+            EINSUMS_LOG_TRACE("Recursing.");
             print_timer_info(timer->children.at(child), fp);
         }
 
+        EINSUMS_LOG_TRACE("Deindenting");
+
         print::deindent();
+
+        EINSUMS_LOG_TRACE("Done with current profile level.");
     }
 }
 
@@ -156,18 +167,19 @@ void report(std::string const &fname, bool append) {
 
         EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file: {}", buffer);
     }
-    
-    EINSUMS_LOG_TRACE("Printing the profile information.");
+
+    EINSUMS_LOG_TRACE("Printing the profile information. File pointer is {}, root pointer is {}.", static_cast<void const *>(fp),
+                      static_cast<void const *>(detail::root.get()));
 
     detail::print_timer_info(detail::root.get(), fp);
-    
+
     EINSUMS_LOG_TRACE("Flushing the profile file.");
 
     std::fflush(fp);
-    
+
     EINSUMS_LOG_TRACE("Closing the profile file.");
     std::fclose(fp);
-    
+
     EINSUMS_LOG_TRACE("Finished reporting the profile information.")
 }
 
