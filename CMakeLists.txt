@@ -613,6 +613,9 @@ if(MSVC)
     set(__target_arch "x86")
   endif()
   einsums_info("Architecture detected: ${__target_arch}")
+  
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug,RelWithDebInfo>:Debug>DLL")
+  
 else()
   # Show the flags that toggle each warning
   einsums_add_compile_flag_if_available(-fdiagnostics-show-option)
