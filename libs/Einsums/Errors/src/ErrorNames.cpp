@@ -5,21 +5,15 @@
 
 #include <Einsums/Errors/Error.hpp>
 
-#include <cstdio>
-#include <ostream>
 #include <fmt/format.h>
+
+#include <cstdio>
 
 namespace einsums::detail {
 
 std::string make_error_message(std::string_view const &type_name, char const *str, std::source_location const &location) {
-    std::ostringstream out;
-    
-    out << location.file_name() << ":" << location.line() << ":" << location.column() << ":" << std::endl;
-    out << "In " << location.function_name() << std::endl;
-    out << str;
-    return out.str();
-//    return fmt::format("{}:{}:{}:\nIn {}\n{}: {}", location.file_name(), location.line(), location.column(), location.function_name(),
-//                       type_name, str);
+    return fmt::format("{}:{}:{}:\nIn {}\n{}: {}", location.file_name(), location.line(), location.column(), location.function_name(),
+                       type_name, str);
 }
 
 std::string make_error_message(std::string_view const &type_name, std::string const &str, std::source_location const &location) {
