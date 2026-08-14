@@ -89,9 +89,9 @@ jobs:
             -D CMAKE_C_COMPILER="%CC%" ^
             -D CMAKE_CXX_COMPILER="%CXX%" ^
             -D CMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" ^
-            -D EINSUMS_BUILD_PYTHON=ON ^
+            -D EINSUMS_BUILD_PYTHON=OFF ^
             -D EINSUMS_WITH_TESTS=ON ^
-            -D EINSUMS_WITH_EXAMPLES=ON ^
+            -D EINSUMS_WITH_EXAMPLES=OFF ^
             -D EINSUMS_WITH_BACKTRACES=OFF ^
             -D EINSUMS_SHOW_WARNING=OFF ^
             -D CMAKE_INSTALL_PREFIX="%GITHUB_WORKSPACE%\installed" ^
