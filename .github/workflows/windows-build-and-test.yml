@@ -25,7 +25,7 @@ jobs:
         shell: bash -el {0}
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.build_ref }}
           path: src
@@ -46,7 +46,7 @@ jobs:
         run: python merge_yml.py windows openblas
 
       - name: Cache Conda env
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.CONDA }}/envs
           key: conda-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('src/devtools/conda-envs/conda.yml') }}

@@ -123,12 +123,12 @@ struct ordinal {
 #ifndef DOXYGEN
 #    define OPERATOR(OP)                                                                                                                   \
         template <std::integral OtherType>                                                                                                 \
-        constexpr ordinal<IntType> &operator OP##=(const ordinal<OtherType> &other) {                                                      \
+        constexpr ordinal<IntType> &operator OP## = (const ordinal<OtherType> &other) {                                                    \
             val_ OP## = other.val_;                                                                                                        \
             return *this;                                                                                                                  \
         }                                                                                                                                  \
         template <std::integral OtherType>                                                                                                 \
-        constexpr ordinal<IntType> &operator OP##=(const OtherType &other) {                                                               \
+        constexpr ordinal<IntType> &operator OP## = (const OtherType &other) {                                                             \
             val_ OP## = other;                                                                                                             \
             return *this;                                                                                                                  \
         }
@@ -232,8 +232,14 @@ inline void println() {
 
 template <typename... Ts>
 void fprintln(std::FILE *fp, std::string_view const &f, Ts const... ts) {
+    std::puts("Creating the output string.");
+    std::fflush(stdout);
     std::string const s = fmt::format(fmt::runtime(f), ts...);
+    std::puts("Printing the message.");
+    std::fflush(stdout);
     detail::fprintln(fp, s);
+    std::puts("Freeing the output string.");
+    std::fflush(stdout);
 }
 
 template <typename... Ts>
