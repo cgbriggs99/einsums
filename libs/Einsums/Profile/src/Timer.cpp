@@ -3,9 +3,10 @@
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 //----------------------------------------------------------------------------------------------
 
+#include <Einsums/Errors/ThrowException.hpp>
 #include <Einsums/Print.hpp>
 #include <Einsums/Profile/Timer.hpp>
-#include <Einsums/Errors/ThrowException.hpp>
+#include <Einsums/Logging.hpp>
 
 #include <fmt/chrono.h>
 
@@ -133,15 +134,20 @@ void finalize() {
 void report(std::string const &fname, bool append) {
     std::FILE *fp;
 
+    EINSUMS_LOG_TRACE("Creating/opening the profile file ({}).", fname);
+
     auto error = einsums::fopen_s(&fp, fname.c_str(), append ? "w+" : "w");
 
     if (error != 0) {
         std::string buffer;
         buffer.reserve(256);
 
+        EINSUMS_LOG_ERROR("Error while opening the profile file.");
+
         auto error2 = einsums::strerror_s(buffer.data(), buffer.capacity() + 1, error);
 
         if (error2 != 0) {
+            EINSUMS_LOG_ERROR("Error while creating the error report for opening the profile file.");
             EINSUMS_THROW_EXCEPTION(
                 std::runtime_error,
                 "Could not open file! When processing fopen error {}, another error occurred! Second error code is error {}.",
@@ -150,11 +156,19 @@ void report(std::string const &fname, bool append) {
 
         EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file: {}", buffer);
     }
+    
+    EINSUMS_LOG_TRACE("Printing the profile information.");
 
     detail::print_timer_info(detail::root.get(), fp);
+    
+    EINSUMS_LOG_TRACE("Flushing the profile file.");
 
     std::fflush(fp);
+    
+    EINSUMS_LOG_TRACE("Closing the profile file.");
     std::fclose(fp);
+    
+    EINSUMS_LOG_TRACE("Finished reporting the profile information.")
 }
 
 void push(std::string name) {
