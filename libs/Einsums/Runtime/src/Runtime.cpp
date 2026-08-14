@@ -107,7 +107,7 @@ void on_abort(int) noexcept {
 
 void set_signal_handlers() {
 #if defined(EINSUMS_WINDOWS)
-//    SetConsoleCtrlHandler(termination_handler, TRUE);
+    SetConsoleCtrlHandler(termination_handler, TRUE);
 //    std::signal(SIGABRT, signal_handler);
 //	std::signal(SIGFPE, signal_handler);
 //	std::signal(SIGILL, signal_handler);
