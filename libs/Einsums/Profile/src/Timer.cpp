@@ -90,7 +90,7 @@ void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
     }
 }
 
-static bool is_init = false;
+static std::atomic_bool is_init = false;
 
 } // namespace detail
 
