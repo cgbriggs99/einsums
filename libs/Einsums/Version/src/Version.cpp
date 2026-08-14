@@ -14,11 +14,16 @@
 #include <sstream>
 #include <string>
 
+#define VERSION_MAJOR_STR EINSUMS_PP_STRINGIFY(EINSUMS_VERSION_MAJOR)
+#define VERSION_MINOR_STR EINSUMS_PP_STRINGIFY(EINSUMS_VERSION_MINOR)
+#define VERSION_PATCH_STR EINSUMS_PP_STRINGIFY(EINSUMS_VERSION_PATCH)
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace einsums {
 
 std::string full_version_as_string() {
-    return fmt::format("{}.{}.{}", EINSUMS_VERSION_MAJOR, EINSUMS_VERSION_MINOR, EINSUMS_VERSION_PATCH);
+    // Do it this way so that it doesn't call a constexpr function. Windows struggles with constexpr strings it seems.
+    return std::string{VERSION_MAJOR_STR "." VERSION_MINOR_STR "." VERSION_PATCH_STR};
 }
 
 std::string full_build_string() {
@@ -46,7 +51,16 @@ std::string configuration_string() {
 }
 
 std::string build_string() {
-    return fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
+    // This needs to be done like this so that the build string isn't evaluated as constexpr.
+    // The Windows CRT struggles with copying constexpr strings it seems.
+
+    char git_string[] = EINSUMS_HAVE_GIT_COMMIT;
+
+    if (std::strlen(git_string) >= 10) {
+        git_string[10] = '\0';
+    }
+
+    return fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, git_prefix);
 }
 
 std::string complete_version() {
