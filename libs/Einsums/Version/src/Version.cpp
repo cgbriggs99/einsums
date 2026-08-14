@@ -60,7 +60,7 @@ std::string build_string() {
         git_string[10] = '\0';
     }
 
-    return fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, git_prefix);
+    return fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, git_string);
 }
 
 std::string complete_version() {
