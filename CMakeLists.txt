@@ -606,6 +606,11 @@ if(EINSUMS_WITH_COMPILER_WARNINGS_AS_ERRORS)
   endif()
 endif()
 
+if(WIN32)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug,RelWithDebInfo>:Debug>DLL")
+  set(CMAKE_MSVC_RUNTIME_CHECKS "$<$<CONFIG:Debug>:PossibleDataLoss;StackFrameErrorCheck;UninitializedVariable>")
+endif()
+
 # Diagnostics
 if(MSVC)
   # Display full paths in diagnostics
@@ -616,9 +621,6 @@ if(MSVC)
     set(__target_arch "x86")
   endif()
   einsums_info("Architecture detected: ${__target_arch}")
-  
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug,RelWithDebInfo>:Debug>DLL")
-  set(CMAKE_MSVC_RUNTIME_CHECKS "$<$<CONFIG:Debug>:PossibleDataLoss;StackFrameErrorCheck;UninitializedVariable>")
   
 else()
   # Show the flags that toggle each warning
