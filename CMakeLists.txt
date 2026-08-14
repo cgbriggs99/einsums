@@ -25,6 +25,9 @@ if(NOT CMAKE_BUILD_TYPE)
   )
 endif()
 
+cmake_policy(SET CMP0091 NEW)
+cmake_policy(SET CMP0184 NEW)
+
 project(Einsums LANGUAGES C CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -615,6 +618,7 @@ if(MSVC)
   einsums_info("Architecture detected: ${__target_arch}")
   
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug,RelWithDebInfo>:Debug>DLL")
+  set(CMAKE_MSVC_RUNTIME_CHECKS "$<$<CONFIG:Debug>:PossibleDataLoss;StackFrameErrorCheck;UninitializedVariable>")
   
 else()
   # Show the flags that toggle each warning
