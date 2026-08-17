@@ -29,7 +29,9 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           curl https://download.sysinternals.com/files/Procdump.zip --output Procdump.zip
+          dir
           unzip Procdump.zip
+          dir
           procdump64.exe -i -accepteula -ma
 
       - uses: actions/checkout@v7
