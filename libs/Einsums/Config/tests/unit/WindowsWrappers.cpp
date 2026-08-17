@@ -36,7 +36,7 @@ TEST_CASE("asctime_s buffer too small", "[windows-overrides][asctime_s]") {
     REQUIRE(buffer[5] == 'A');
 }
 
-TEST_CASE("asctime_s no time pointer", "[windows-overrides][asctime_s]") {
+TEST_CASE("asctime_s no time pointer", "[windows-overrides][asctime_s][!shouldfail]") {
     std::array<char, 256> buffer;
     buffer[0] = 'A';
     REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), nullptr) == EINVAL);

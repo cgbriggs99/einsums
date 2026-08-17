@@ -127,6 +127,10 @@ namespace detail {
     if ((0 < number_of_elements && number_of_elements < 26) || time_ptr == nullptr) {
         ::std::memset(out_buffer, 0, number_of_elements);
         errno = EINVAL;
+
+        if (time_ptr == nullptr) {
+            std::raise(SIGSEGV);
+        }
         return EINVAL;
     }
 
