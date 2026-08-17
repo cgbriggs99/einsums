@@ -32,7 +32,7 @@ jobs:
           ls
           unzip Procdump.zip
           ls
-          procdump64.exe -i -accepteula -ma
+          ./procdump64.exe -i -accepteula -ma
 
       - uses: actions/checkout@v7
         with:
