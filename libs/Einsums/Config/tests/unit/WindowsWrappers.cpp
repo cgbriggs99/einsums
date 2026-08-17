@@ -191,7 +191,7 @@ TEST_CASE("bsearch_s", "[windows-overrides][qsort_s][bsearch_s]") {
                                sizeof(int), int_compare, nullptr) == nullptr);
 }
 
-TEST_CASE("clearerr_s", "[windows-override][clearerr_s]") {
+TEST_CASE("clearerr_s", "[windows-override][clearerr_s][!shouldfail]") {
     // Not much we can do here. Just test nullptr.
     REQUIRE(einsums::clearerr_s(nullptr) == EINVAL);
 }

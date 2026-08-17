@@ -224,6 +224,7 @@ namespace detail {
 [[nodiscard]] errno_t clearerr_s(::std::FILE *fp) {
     if (fp == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
