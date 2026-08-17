@@ -6,7 +6,9 @@
 #include <Einsums/Config/CompilerSpecific.hpp>
 #include <Einsums/Config/Debug.hpp>
 #ifdef EINSUMS_HAVE_BACKTRACES
-#include <Einsums/Debugging/Backtrace.hpp>
+#    include <Einsums/Debugging/Backtrace.hpp>
+
+#    include <cpptrace/cpptrace.hpp>
 #endif
 #include <Einsums/Runtime.hpp>
 #include <Einsums/Runtime/ShutdownFunction.hpp>

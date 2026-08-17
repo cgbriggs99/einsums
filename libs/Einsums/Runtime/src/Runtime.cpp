@@ -15,6 +15,8 @@
 
 #ifdef EINSUMS_HAVE_BACKTRACES
 #    include <Einsums/Debugging/Backtrace.hpp>
+
+#    include <cpptrace/cpptrace.hpp>
 #endif
 
 #if defined(EINSUMS_WINDOWS)
