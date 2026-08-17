@@ -40,7 +40,7 @@ void handle_termination(char const *reason) {
     }
 
 #    ifdef EINSUMS_HAVE_BACKTRACES
-    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(stderr);
+    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(std::cerr);
 #    endif
 }
 
@@ -83,7 +83,7 @@ EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
     //    }
 
 #    ifdef EINSUMS_HAVE_BACKTRACE
-    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(stderr);
+    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(std::cerr);
 #    endif
 
     /// @todo If einsums.diagnostics_on_terminate is true then print out a lot of information.
@@ -99,7 +99,7 @@ EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
     attach              = global_config.get_bool("attach-debugger", false);
 
 #    ifdef EINSUMS_HAVE_BACKTRACE
-    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(stderr);
+    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(std::cerr);
 #    endif
 
     if (signum != SIGINT && attach) {
