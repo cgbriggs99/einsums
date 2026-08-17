@@ -251,6 +251,8 @@ namespace detail {
 
     if (mode == nullptr) {
         errno = EINVAL;
+        // Throw a segfault.
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
