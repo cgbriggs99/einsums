@@ -13,6 +13,10 @@
 
 #include <csignal>
 
+#ifdef EINSUMS_HAVE_BACKTRACES
+#    include <Einsums/Debugging/Backtrace.hpp>
+#endif
+
 #if defined(EINSUMS_WINDOWS)
 #    include <Windows.h>
 #endif
@@ -32,6 +36,10 @@ void handle_termination(char const *reason) {
         // Add more information here.
         std::cerr << "{what}: " << (reason ? reason : "Unknown reason") << "\n";
     }
+
+#    ifdef EINSUMS_HAVE_BACKTRACES
+    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(stderr);
+#    endif
 }
 
 EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
@@ -66,11 +74,15 @@ EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
     //    bool attach = true;
     //
     //    auto &global_config = GlobalConfigMap::get_singleton();
-    //    attach              = global_config.get_bool("attach-debugger", true);
+    //    attach              = global_config.get_bool("attach-debugger", false);
 
     //    if (signum != SIGINT && attach) {
     //        util::attach_debugger();
     //    }
+
+#    ifdef EINSUMS_HAVE_BACKTRACE
+    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(stderr);
+#    endif
 
     /// @todo If einsums.diagnostics_on_terminate is true then print out a lot of information.
 
@@ -82,7 +94,11 @@ EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
     bool attach = true;
 
     auto &global_config = GlobalConfigMap::get_singleton();
-    attach              = global_config.get_bool("attach-debugger", true);
+    attach              = global_config.get_bool("attach-debugger", false);
+
+#    ifdef EINSUMS_HAVE_BACKTRACE
+    cpptrace::generate_trace(1, EINSUMS_HAVE_THREAD_BACKTRACE_DEPTH).print(stderr);
+#    endif
 
     if (signum != SIGINT && attach) {
         util::attach_debugger();
