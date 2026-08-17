@@ -18,20 +18,31 @@ using einsums::errno_t;
 #endif
 
 TEST_CASE("asctime_s null buffer", "[windows-overrides][asctime_s]") {
+    std::time_t    curr = std::time(nullptr);
+    struct std::tm time_struct;
 
-    REQUIRE(einsums::asctime_s(nullptr, 0, nullptr) == EINVAL);
+    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+    REQUIRE(einsums::asctime_s(nullptr, 0, &time_struct) == EINVAL);
 }
 
 TEST_CASE("asctime_s no data", "[windows-overrides][asctime_s]") {
     std::array<char, 256> buffer;
-    REQUIRE(einsums::asctime_s(buffer.data(), 0, nullptr) == EINVAL);
+    std::time_t           curr = std::time(nullptr);
+    struct std::tm        time_struct;
+
+    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+    REQUIRE(einsums::asctime_s(buffer.data(), 0, &time_struct) == EINVAL);
 }
 
 TEST_CASE("asctime_s buffer too small", "[windows-overrides][asctime_s]") {
     std::array<char, 256> buffer;
-    buffer[0] = 'A';
-    buffer[5] = 'A';
-    REQUIRE(einsums::asctime_s(buffer.data(), 5, nullptr) == EINVAL);
+    buffer[0]           = 'A';
+    buffer[5]           = 'A';
+    std::time_t    curr = std::time(nullptr);
+    struct std::tm time_struct;
+
+    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+    REQUIRE(einsums::asctime_s(buffer.data(), 5, &time_struct) == EINVAL);
     REQUIRE(buffer[0] == 0);
     REQUIRE(buffer[5] == 'A');
 }
@@ -192,7 +203,7 @@ TEST_CASE("bsearch_s", "[windows-overrides][qsort_s][bsearch_s]") {
 }
 
 // This one fails extra bad
-//TEST_CASE("clearerr_s", "[windows-override][clearerr_s][!shouldfail]") {
+// TEST_CASE("clearerr_s", "[windows-override][clearerr_s][!shouldfail]") {
 //    // Not much we can do here. Just test nullptr.
 //    REQUIRE(einsums::clearerr_s(nullptr) == EINVAL);
 //}
