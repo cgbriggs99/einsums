@@ -30,7 +30,7 @@ jobs:
         run: |
           curl https://download.sysinternals.com/files/Procdump.zip --output Procdump.zip
           unzip Procdump.zip
-          Procdump/procdump64.exe -i -accepteula -ma
+          procdump64.exe -i -accepteula -ma
 
       - uses: actions/checkout@v7
         with:
@@ -119,7 +119,7 @@ jobs:
           mkdir dumps
           call conda activate einsums-env
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          ${{github.workspace}}\Procdump\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
+          ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
           WindowsWrappers_test.exe --einsums:log-level 0 & ^
           echo "Printing the log file." & ^
           echo "Spare line so the log file always shows up." >> profile.txt & ^
