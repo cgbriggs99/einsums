@@ -234,12 +234,16 @@ template <typename... Ts>
 void fprintln(std::FILE *fp, std::string_view const &f, Ts const... ts) {
     std::puts("Creating the output string");
     std::fflush(stdout);
-    std::string s = fmt::format(fmt::runtime(std::string_view(f)), ts...);
-    std::printf("The output string's data is at %p. Printing the message.\n", static_cast<void const *>(s.data()));
-    std::fflush(stdout);
-    detail::fprintln(fp, s);
-    std::fflush(fp);
-    std::puts("Freeing the output string.");
+    {
+        std::string s{std::move(fmt::format(fmt::runtime(std::string_view(f)), ts...))};
+        std::printf("The output string's data is at %p. Printing the message.\n", static_cast<void const *>(s.data()));
+        std::fflush(stdout);
+        detail::fprintln(fp, s);
+        std::fflush(fp);
+        std::puts("Freeing the output string.");
+        std::fflush(stdout);
+    }
+    std::puts("The output string has been freed.");
     std::fflush(stdout);
 }
 
