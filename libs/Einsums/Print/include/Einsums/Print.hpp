@@ -234,7 +234,7 @@ template <typename... Ts>
 void fprintln(std::FILE *fp, std::string_view const &f, Ts const... ts) {
     std::puts("Creating the output string");
     std::fflush(stdout);
-    std::string const s = std::move(fmt::format(fmt::runtime(std::string_view(f)), ts...));
+    std::string s = fmt::format(fmt::runtime(std::string_view(f)), ts...);
     std::printf("The output string's data is at %p. Printing the message.\n", static_cast<void const *>(s.data()));
     std::fflush(stdout);
     detail::fprintln(fp, s);
@@ -274,7 +274,7 @@ inline void fprintln(std::FILE *fp) {
 
 template <typename... Ts>
 void fprintln(std::ostream &fp, std::string_view const &f, Ts const... ts) {
-    std::string const s = fmt::format(fmt::runtime(f), ts...);
+    std::string const s = fmt::format(fmt::runtime(std::string_view(f)), ts...);
     detail::fprintln(fp, s);
 }
 

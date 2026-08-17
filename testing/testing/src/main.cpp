@@ -5,6 +5,9 @@
 
 #include <Einsums/Config/CompilerSpecific.hpp>
 #include <Einsums/Config/Debug.hpp>
+#ifdef EINSUMS_HAVE_BACKTRACES
+#include <Einsums/Debugging/Backtrace.hpp>
+#endif
 #include <Einsums/Runtime.hpp>
 #include <Einsums/Runtime/ShutdownFunction.hpp>
 #include <Einsums/Utilities/Random.hpp>
@@ -31,6 +34,9 @@ extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expressio
                                                   wchar_t const *const file_name, unsigned int const line_number,
                                                   uintptr_t const reserved) {
     errno = EINVAL;
+
+    std::fputs(einsums::util::backtrace().c_str());
+
     if (expression != nullptr && function_name != nullptr && file_name != nullptr) {
         std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(),
                     stderr);
