@@ -239,6 +239,8 @@ namespace detail {
 [[nodiscard]] errno_t fopen_s(std::FILE **fp, char const *filename, char const *mode) {
     if (fp == nullptr) {
         errno = EINVAL;
+        // Throw a segfault.
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 

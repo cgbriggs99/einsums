@@ -196,7 +196,7 @@ TEST_CASE("clearerr_s", "[windows-override][clearerr_s]") {
     REQUIRE(einsums::clearerr_s(nullptr) == EINVAL);
 }
 
-TEST_CASE("fopen_s null output", "[windows-override][fopen_s]") {
+TEST_CASE("fopen_s null output", "[windows-override][fopen_s][!shouldfail]") {
     REQUIRE(einsums::fopen_s(nullptr, nullptr, nullptr) == EINVAL);
 }
 
