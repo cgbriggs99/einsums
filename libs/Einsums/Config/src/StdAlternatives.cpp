@@ -116,21 +116,21 @@ namespace detail {
 [[nodiscard]] errno_t asctime_s(char *out_buffer, ::std::size_t number_of_elements, struct ::std::tm const *time_ptr) {
     if (out_buffer == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
     if (number_of_elements == 0) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
     if ((0 < number_of_elements && number_of_elements < 26) || time_ptr == nullptr) {
         ::std::memset(out_buffer, 0, number_of_elements);
         errno = EINVAL;
+        std::raise(SIGSEGV);
 
-        if (time_ptr == nullptr) {
-            std::raise(SIGSEGV);
-        }
         return EINVAL;
     }
 
