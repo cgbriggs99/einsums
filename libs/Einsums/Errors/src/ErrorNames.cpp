@@ -16,8 +16,6 @@ std::string make_error_message(std::string_view const &type_name, char const *st
     std::string out;
     auto        runtime_fmt = fmt::runtime("{}:{}:{}:\nIn {}\n{}: {}");
 
-    auto pass_args = fmt::vargs{{}};
-
     size_t out_size = fmt::formatted_size(runtime_fmt, location.file_name(), location.line(), location.column(), location.function_name(),
                                           type_name, str);
 
