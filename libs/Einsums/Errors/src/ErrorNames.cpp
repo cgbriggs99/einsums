@@ -23,7 +23,7 @@ std::string make_error_message(std::string_view const &type_name, char const *st
 
     out.resize(out_size + 1);
 
-    fmt::format_to(out.begin, runtime_fmt, location.file_name(), location.line(), location.column(), location.function_name(), type_name,
+    fmt::format_to(out.begin(), runtime_fmt, location.file_name(), location.line(), location.column(), location.function_name(), type_name,
                    str);
     return out;
 }
