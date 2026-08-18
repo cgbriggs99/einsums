@@ -70,7 +70,7 @@ void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
             buffer.reserve(1024); // Reserve 1 kB because Windows doesn't know how to free strings.
             if (timer->total_calls != 0) {
                 fmt::format_to(buffer.begin(), "{:>5} : {:>5} calls : {:>5} per call", duration_cast<milliseconds>(timer->total_time),
-                                     timer->total_calls, duration_cast<milliseconds>(timer->total_time) / timer->total_calls);
+                               timer->total_calls, duration_cast<milliseconds>(timer->total_time) / timer->total_calls);
             } else {
                 buffer = "total_calls == 0!!!";
             }
@@ -202,7 +202,7 @@ void push(std::string name) {
 
     if (omp_get_thread_num() == 0) {
         if (omp_in_parallel()) {
-            name = fmt::format("{} (master thread only)", name);
+            name += " (master thread only)";
         }
 
         if (!current_timer) {

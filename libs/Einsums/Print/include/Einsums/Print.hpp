@@ -228,7 +228,7 @@ void fprintln(std::FILE *fp, std::string_view const &f, Ts &&...ts) {
 
     std::string s;
 
-    s.resize(buffer_size + 1);
+    s.resize(buffer_size);
 
     fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
 
@@ -243,12 +243,12 @@ void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view cons
     if (fp == stdout || fp == stderr) {
         size_t buffer_size = detail::formatted_size(style, runtime_view, std::forward<Ts>(ts)...);
 
-        s.resize(buffer_size + 1);
+        s.resize(buffer_size);
         fmt::format_to(s.begin(), style, runtime_view, std::forward<Ts>(ts)...);
     } else {
         size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
 
-        s.resize(buffer_size + 1);
+        s.resize(buffer_size);
         fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
     }
     detail::fprintln(fp, s);
@@ -265,7 +265,7 @@ inline void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_vi
 
         std::string s;
 
-        s.resize(buffer_size + 1);
+        s.resize(buffer_size);
         fmt::format_to(s.begin(), style, runtime_view);
         detail::fprintln(fp, s);
     } else {
@@ -304,7 +304,7 @@ void fprintln(std::ostream &fp, std::string_view const &f, Ts &&...ts) {
 
     std::string s;
 
-    s.resize(buffer_size + 1);
+    s.resize(buffer_size);
 
     fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
@@ -318,7 +318,7 @@ void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view c
 
     std::string s;
 
-    s.resize(buffer_size + 1);
+    s.resize(buffer_size);
 
     fmt::format_to(s.begin(), style, runtime_view, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
@@ -335,7 +335,7 @@ inline void fprintln(std::ostream &fp, fmt::text_style const &style, std::string
 
     std::string s;
 
-    s.resize(buffer_size + 1);
+    s.resize(buffer_size);
 
     fmt::format_to(s.begin(), style, runtime_view);
     detail::fprintln(fp, s);
