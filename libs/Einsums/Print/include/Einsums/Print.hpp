@@ -298,13 +298,29 @@ inline void println() {
 
 template <typename... Ts>
 void fprintln(std::ostream &fp, std::string_view const &f, Ts &&...ts) {
-    std::string const s = fmt::format(fmt::runtime(std::string_view(f)), std::forward<Ts>(ts)...);
+    auto runtime_view = fmt::runtime(f);
+
+    size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
+
+    std::string s;
+
+    s.resize(buffer_size + 1);
+
+    fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
 }
 
 template <typename... Ts>
 void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
-    std::string const s = fmt::format(style, format, std::forward<Ts>(ts)...);
+    auto runtime_view = fmt::runtime(format);
+
+    size_t buffer_size = detail::formatted_size(runtime_view, style, std::forward<Ts>(ts)...);
+
+    std::string s;
+
+    s.resize(buffer_size + 1);
+
+    fmt::format_to(s.begin(), style, runtime_view, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
 }
 
@@ -313,7 +329,15 @@ inline void fprintln(std::ostream &fp, std::string const &format) {
 }
 
 inline void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view const &format) {
-    std::string const s = fmt::format(style, fmt::runtime(format));
+    auto runtime_view = fmt::runtime(format);
+
+    size_t buffer_size = detail::formatted_size(style, runtime_view);
+
+    std::string s;
+
+    s.resize(buffer_size + 1);
+
+    fmt::format_to(s.begin(), style, runtime_view);
     detail::fprintln(fp, s);
 }
 
