@@ -118,16 +118,13 @@ jobs:
         if: matrix.build_type == 'Debug'
         working-directory: ${{github.workspace}}/build/Debug/bin
         run: |
-          mkdir dumps
+          rem mkdir dumps
           call conda activate einsums-env
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
-          WindowsWrappers_test.exe --einsums:log-level 0 & ^
-          echo "Printing the log file." & ^
-          echo "Spare line so the log file always shows up." >> profile.txt & ^
-          type profile.txt
-          cd dumps
-          for %%f in (*.dmp) do ( type %%f )
+          rem ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
+          BufferAllocator_test.exe --einsums:log-level 0
+          rem cd dumps
+          rem for %%f in (*.dmp) do ( type %%f )
           
 
       - name: Test (CTest)
