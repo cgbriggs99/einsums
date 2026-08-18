@@ -133,6 +133,7 @@ struct BufferAllocator {
         EINSUMS_LOG_TRACE("Reserving the bytes.");
 
         if (!reserve(n)) {
+            EINSUMS_LOG_TRACE("Could not reserve bytes.");
             EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                     "Could not allocate enough memory for buffers. Requested {} elements or {} bytes, but only {} bytes "
                                     "available out of {} bytes maximum.",
