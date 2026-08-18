@@ -64,28 +64,33 @@ using std::chrono::milliseconds;
 void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
     EINSUMS_LOG_TRACE("Printing the timer information.");
     if (timer != root.get()) {
-        EINSUMS_LOG_TRACE("The timer is not the root.");
-        std::string buffer;
-        if (timer->total_calls != 0) {
-            buffer = fmt::format("{:>5} : {:>5} calls : {:>5} per call", duration_cast<milliseconds>(timer->total_time), timer->total_calls,
-                                 duration_cast<milliseconds>(timer->total_time) / timer->total_calls);
-        } else {
-            buffer = "total_calls == 0!!!";
-        }
-        EINSUMS_LOG_TRACE("Assigned to the buffer.");
-        int width = 70 - print::current_indent_level();
-        if (width < 0) {
-            width = 0;
-        }
-        EINSUMS_LOG_TRACE("Set the indent level.");
-        fprintln(fp, "{0:<{1}} : {3: <{4}}{2}", buffer, width, timer->name, "", print::current_indent_level());
+        {
+            EINSUMS_LOG_TRACE("The timer is not the root.");
+            std::string buffer.reserve(1024); // Reserve 1 kB because Windows doesn't know how to free strings.
+            if (timer->total_calls != 0) {
+                buffer = fmt::format("{:>5} : {:>5} calls : {:>5} per call", duration_cast<milliseconds>(timer->total_time),
+                                     timer->total_calls, duration_cast<milliseconds>(timer->total_time) / timer->total_calls);
+            } else {
+                buffer = "total_calls == 0!!!";
+            }
+            EINSUMS_LOG_TRACE("Assigned to the buffer.");
+            int width = 70 - print::current_indent_level();
+            if (width < 0) {
+                width = 0;
+            }
+            EINSUMS_LOG_TRACE("Set the indent level.");
+            fprintln(fp, "{0:<{1}} : {3: <{4}}{2}", buffer, width, timer->name, "", print::current_indent_level());
 
-        EINSUMS_LOG_TRACE("Freeing temporary buffer.");
+            EINSUMS_LOG_TRACE("Freeing temporary buffer.");
+        }
+        EINSUMS_LOG_TRACE("Temporary buffer freed.");
     } else {
         EINSUMS_LOG_TRACE("The timer is the root.");
         fprintln(fp, "Timing information:");
         fprintln(fp);
     }
+
+    EINSUMS_LOG_TRACE("Checking for children.");
 
     if (!timer->children.empty()) {
         EINSUMS_LOG_TRACE("Indenting.");
@@ -101,6 +106,8 @@ void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
         print::deindent();
 
         EINSUMS_LOG_TRACE("Done with current profile level.");
+    } else {
+        EINSUMS_LOG_TRACE("No children found.");
     }
 }
 
