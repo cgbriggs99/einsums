@@ -9,6 +9,7 @@
 
 #include <Einsums/Concepts/File.hpp>
 
+#include <fmt/base.h>
 #include <fmt/color.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -210,14 +211,14 @@ void fprintln(OutType out, Ts... args) {
 
 #ifndef DOXYGEN
 template <typename... Ts>
-void println(std::string_view const &f, Ts const... ts) {
-    std::string const s = fmt::format(fmt::runtime(f), ts...);
+void println(std::string_view const &f, Ts &&...ts) {
+    std::string const s = fmt::format(fmt::runtime(f), std::forward<Ts>(ts)...);
     detail::println(s);
 }
 
 template <typename... Ts>
-void println(fmt::text_style const &style, std::string_view const &format, Ts const... ts) {
-    std::string const s = fmt::format(style, fmt::runtime(format), ts...);
+void println(fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
+    std::string const s = fmt::format(style, fmt::runtime(format), std::forward<Ts>(ts)...);
     detail::println(s);
 }
 
@@ -231,12 +232,27 @@ inline void println() {
 }
 
 template <typename... Ts>
-void fprintln(std::FILE *fp, std::string_view const &f, Ts const... ts) {
+void fprintln(std::FILE *fp, std::string_view const &f, Ts &&...ts) {
+    std::puts("Calculating buffer size.");
+    std::fflush(stdout);
+    
+    auto runtime_view = fmt::runtime(f);
+
+    size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
+
     std::puts("Creating the output string");
     std::fflush(stdout);
     {
-        std::string s{std::move(fmt::format(fmt::runtime(std::string_view(f)), ts...))};
-        std::printf("The output string's data is at %p. Printing the message.\n", static_cast<void const *>(s.data()));
+        std::string s;
+
+        s.resize(buffer_size + 1);
+
+        std::printf("The output string's data is at %p. Formatting the message.\n", static_cast<void const *>(s.data()));
+        std::fflush(stdout);
+
+        fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
+
+        std::printf("The output string's data is now at %p. Printing the message.\n", static_cast<void const *>(s.data()));
         std::fflush(stdout);
         detail::fprintln(fp, s);
         std::fflush(fp);
@@ -248,12 +264,12 @@ void fprintln(std::FILE *fp, std::string_view const &f, Ts const... ts) {
 }
 
 template <typename... Ts>
-void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view const &format, Ts const... ts) {
+void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
     std::string s;
     if (fp == stdout || fp == stderr) {
-        s = fmt::format(style, format, ts...);
+        s = fmt::format(style, format, std::forward<Ts>(ts)...);
     } else {
-        s = fmt::format(format, ts...);
+        s = fmt::format(format, std::forward<Ts>(ts)...);
     }
     detail::fprintln(fp, s);
 }
@@ -277,14 +293,14 @@ inline void fprintln(std::FILE *fp) {
 }
 
 template <typename... Ts>
-void fprintln(std::ostream &fp, std::string_view const &f, Ts const... ts) {
-    std::string const s = fmt::format(fmt::runtime(std::string_view(f)), ts...);
+void fprintln(std::ostream &fp, std::string_view const &f, Ts &&...ts) {
+    std::string const s = fmt::format(fmt::runtime(std::string_view(f)), std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
 }
 
 template <typename... Ts>
-void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view const &format, Ts const... ts) {
-    std::string const s = fmt::format(style, format, ts...);
+void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
+    std::string const s = fmt::format(style, format, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
 }
 
@@ -306,9 +322,9 @@ inline void fprintln(std::ostream &fp) {
  * Calls println to generate an error message, then aborts.
  */
 template <typename... Ts>
-void println_abort(std::string_view const &format, Ts const... ts) {
+void println_abort(std::string_view const &format, Ts &&...ts) {
     std::string message = std::string("ERROR: ") + format.data();
-    println(bg(color::red) | fg(color::white), message, ts...);
+    println(bg(color::red) | fg(color::white), message, std::forward<Ts>(ts)...);
 
 #if defined(EINSUMS_HAVE_CPPTRACE)
     cpptrace::generate_trace().print();
@@ -321,9 +337,9 @@ void println_abort(std::string_view const &format, Ts const... ts) {
  * Calls println to generate a warning message.
  */
 template <typename... Ts>
-void println_warn(std::string_view const &format, Ts const... ts) {
+void println_warn(std::string_view const &format, Ts &&...ts) {
     std::string message = std::string("WARNING: ") + format.data();
-    println(bg(color::yellow) | fg(color::black), message, ts...);
+    println(bg(color::yellow) | fg(color::black), message, std::forward<Ts>(ts)...);
 
 #if defined(EINSUMS_HAVE_CPPTRACE)
     cpptrace::generate_trace(0, 3).print();
@@ -334,10 +350,12 @@ void println_warn(std::string_view const &format, Ts const... ts) {
  * Calls fprintln to generate an error message, then aborts.
  */
 template <typename... Ts>
-void fprintln_abort(std::FILE *fp, std::string_view const &format, Ts const... ts) {
+void fprintln_abort(std::FILE *fp, std::string_view const &format, Ts &&...ts) {
     std::string message = std::string("ERROR: ") + format.data();
-    fprintln(fp, message, ts...);
-
+    fprintln(fp, message, std::forward<Ts>(ts)...);
+#if defined(EINSUMS_HAVE_CPPTRACE)
+    cpptrace::generate_trace().print();
+#endif
     std::abort();
 }
 
@@ -345,24 +363,36 @@ void fprintln_abort(std::FILE *fp, std::string_view const &format, Ts const... t
  * Calls fprintln to generate a warning message.
  */
 template <typename... Ts>
-void fprintln_warn(std::FILE *fp, std::string_view const &format, Ts const... ts) {
+void fprintln_warn(std::FILE *fp, std::string_view const &format, Ts &&...ts) {
     std::string message = std::string("WARNING: ") + format.data();
-    fprintln(fp, message, ts...);
+    fprintln(fp, message, std::forward<Ts>(ts)...);
+
+#if defined(EINSUMS_HAVE_CPPTRACE)
+    cpptrace::generate_trace(0, 3).print();
+#endif
 }
 
 #ifndef DOXYGEN
 template <typename... Ts>
-void fprintln_abort(std::ostream &os, std::string_view const &format, Ts const... ts) {
+void fprintln_abort(std::ostream &os, std::string_view const &format, Ts &&...ts) {
     std::string message = std::string("ERROR: ") + format.data();
-    fprintln(os, bg(color::red) | fg(color::white), message, ts...);
+    fprintln(os, bg(color::red) | fg(color::white), message, std::forward<Ts>(ts)...);
+
+#    if defined(EINSUMS_HAVE_CPPTRACE)
+    cpptrace::generate_trace().print();
+#    endif
 
     std::abort();
 }
 
 template <typename... Ts>
-void fprintln_warn(std::ostream &os, std::string_view const &format, Ts const... ts) {
+void fprintln_warn(std::ostream &os, std::string_view const &format, Ts &&...ts) {
     std::string message = std::string("WARNING: ") + format.data();
-    fprintln(os, bg(color::yellow) | fg(color::black), message, ts...);
+    fprintln(os, bg(color::yellow) | fg(color::black), message, std::forward<Ts>(ts)...);
+
+#    if defined(EINSUMS_HAVE_CPPTRACE)
+    cpptrace::generate_trace(0, 3).print();
+#    endif
 }
 #endif
 
