@@ -13,11 +13,16 @@
 #include <Einsums/StringUtil/MemoryString.hpp>
 
 #include <complex>
+#include <cstdlib>
 #include <deque>
 #include <forward_list>
 #include <source_location>
 #include <type_traits>
 #include <unordered_set>
+
+#ifdef EINSUMS_WINDOWS
+#    include <malloc.h>
+#endif
 
 namespace einsums {
 
@@ -136,7 +141,7 @@ struct BufferAllocator {
 
         EINSUMS_LOG_TRACE("Allocating the bytes.");
 
-        out = static_cast<pointer>(malloc(n * type_size));
+        out = static_cast<pointer>(std::malloc(n * type_size));
 
         EINSUMS_LOG_TRACE("New pointer is at {}.", static_cast<void const *>(out));
 
@@ -218,7 +223,7 @@ struct BufferAllocator {
         if (p != nullptr) {
 
             EINSUMS_LOG_TRACE("Freeing pointer.");
-            free(static_cast<void *>(p));
+            std::free(static_cast<void *>(p));
             EINSUMS_LOG_TRACE("Pointer freed.");
         } else {
             EINSUMS_LOG_TRACE("Tried to free a null pointer. Exiting.");
