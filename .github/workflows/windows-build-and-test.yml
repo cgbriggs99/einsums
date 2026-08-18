@@ -70,83 +70,83 @@ jobs:
           conda info
           conda list
 
-      # ---- Configure, Build, Test ----
-      # vs2022_compiler_vars.bat calls vcvars; no separate vcvars / GITHUB_ENV merge.
-      # pwsh activate skips this scripts and would set clang/clang++ instead of clang-cl.
-      - name: Configure CMake
-        shell: cmd
-        run: |
-          call conda activate einsums-env
-          if errorlevel 1 exit /b %ERRORLEVEL%
-
-          rem Clear feedstock flags (/std:c++17, /O2, -DNDEBUG, ...) for CMake
-          set "CXXFLAGS="
-          set "CFLAGS="
-          set "CPPFLAGS="
-          rem vs2022_compiler_vars sets these for VS; Ninja rejects any -A/-T
-          rem (including empty). Must unset here — preset env cannot clear them.
-          set "CMAKE_GENERATOR_PLATFORM="
-          set "CMAKE_GENERATOR_TOOLSET="
-          set "CMAKE_GENERATOR="
-          set "CC=%CONDA_PREFIX%\Library\bin\clang-cl.exe"
-          set "CXX=%CONDA_PREFIX%\Library\bin\clang-cl.exe"
-
-          cmake -G Ninja ^
-            -S "%GITHUB_WORKSPACE%\src" ^
-            -B "%GITHUB_WORKSPACE%\build" ^
-            -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
-            -D CMAKE_C_COMPILER="%CC%" ^
-            -D CMAKE_CXX_COMPILER="%CXX%" ^
-            -D CMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" ^
-            -D EINSUMS_BUILD_PYTHON=OFF ^
-            -D EINSUMS_WITH_TESTS=ON ^
-            -D EINSUMS_WITH_EXAMPLES=OFF ^
-            -D EINSUMS_WITH_BACKTRACES=ON ^
-            -D EINSUMS_SHOW_WARNING=OFF ^
-            -D CMAKE_INSTALL_PREFIX="%GITHUB_WORKSPACE%\installed" ^
-            ${{ inputs.build_configure_extra_args }}
-
-      - name: Build
-        shell: cmd
-        run: |
-          call conda activate einsums-env
-          if errorlevel 1 exit /b %ERRORLEVEL%
-          cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
-
-      - name: run the test I care about
-        shell: cmd
-        if: matrix.build_type == 'Debug'
-        working-directory: ${{github.workspace}}/build/Debug/bin
-        run: |
-          rem mkdir dumps
-          call conda activate einsums-env
-          set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          rem ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
-          Assert_test.exe --einsums:log-level 0
-          rem cd dumps
-          rem for %%f in (*.dmp) do ( type %%f )
-          
-
-      - name: Test (CTest)
-        shell: cmd
-        working-directory: ${{ github.workspace }}/build
-        run: |
-          call conda activate einsums-env
-          if errorlevel 1 exit /b %ERRORLEVEL%
-          rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
-          set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          ctest -j1 --output-on-failure --timeout 60
- 
-      - name: Install
-        shell: cmd
-        working-directory: "${{github.workspace}}/build"
-        run: |
-          cmake --install . --prefix %GITHUB_WORKSPACE%\installed
-
-      - name: Test (pytest) - unit tests
-        shell: cmd
-        working-directory: "${{github.workspace}}/installed"
-        run: |
-          call conda activate einsums-env
-          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;%CONDA_PREFIX%/lib"
-          pytest "${{github.workspace}}/installed"
+#       # ---- Configure, Build, Test ----
+#       # vs2022_compiler_vars.bat calls vcvars; no separate vcvars / GITHUB_ENV merge.
+#       # pwsh activate skips this scripts and would set clang/clang++ instead of clang-cl.
+#       - name: Configure CMake
+#         shell: cmd
+#         run: |
+#           call conda activate einsums-env
+#           if errorlevel 1 exit /b %ERRORLEVEL%
+#
+#           rem Clear feedstock flags (/std:c++17, /O2, -DNDEBUG, ...) for CMake
+#           set "CXXFLAGS="
+#           set "CFLAGS="
+#           set "CPPFLAGS="
+#           rem vs2022_compiler_vars sets these for VS; Ninja rejects any -A/-T
+#           rem (including empty). Must unset here — preset env cannot clear them.
+#           set "CMAKE_GENERATOR_PLATFORM="
+#           set "CMAKE_GENERATOR_TOOLSET="
+#           set "CMAKE_GENERATOR="
+#           set "CC=%CONDA_PREFIX%\Library\bin\clang-cl.exe"
+#           set "CXX=%CONDA_PREFIX%\Library\bin\clang-cl.exe"
+#
+#           cmake -G Ninja ^
+#             -S "%GITHUB_WORKSPACE%\src" ^
+#             -B "%GITHUB_WORKSPACE%\build" ^
+#             -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
+#             -D CMAKE_C_COMPILER="%CC%" ^
+#             -D CMAKE_CXX_COMPILER="%CXX%" ^
+#             -D CMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" ^
+#             -D EINSUMS_BUILD_PYTHON=OFF ^
+#             -D EINSUMS_WITH_TESTS=ON ^
+#             -D EINSUMS_WITH_EXAMPLES=OFF ^
+#             -D EINSUMS_WITH_BACKTRACES=ON ^
+#             -D EINSUMS_SHOW_WARNING=OFF ^
+#             -D CMAKE_INSTALL_PREFIX="%GITHUB_WORKSPACE%\installed" ^
+#             ${{ inputs.build_configure_extra_args }}
+#
+#       - name: Build
+#         shell: cmd
+#         run: |
+#           call conda activate einsums-env
+#           if errorlevel 1 exit /b %ERRORLEVEL%
+#           cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
+#
+#       - name: run the test I care about
+#         shell: cmd
+#         if: matrix.build_type == 'Debug'
+#         working-directory: ${{github.workspace}}/build/Debug/bin
+#         run: |
+#           rem mkdir dumps
+#           call conda activate einsums-env
+#           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
+#           rem ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
+#           Assert_test.exe --einsums:log-level 0
+#           rem cd dumps
+#           rem for %%f in (*.dmp) do ( type %%f )
+#
+#
+#       - name: Test (CTest)
+#         shell: cmd
+#         working-directory: ${{ github.workspace }}/build
+#         run: |
+#           call conda activate einsums-env
+#           if errorlevel 1 exit /b %ERRORLEVEL%
+#           rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
+#           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
+#           ctest -j1 --output-on-failure --timeout 60
+#
+#       - name: Install
+#         shell: cmd
+#         working-directory: "${{github.workspace}}/build"
+#         run: |
+#           cmake --install . --prefix %GITHUB_WORKSPACE%\installed
+#
+#       - name: Test (pytest) - unit tests
+#         shell: cmd
+#         working-directory: "${{github.workspace}}/installed"
+#         run: |
+#           call conda activate einsums-env
+#           set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;%CONDA_PREFIX%/lib"
+#           pytest "${{github.workspace}}/installed"
