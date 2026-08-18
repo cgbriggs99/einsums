@@ -183,6 +183,14 @@ namespace detail {
 void EINSUMS_EXPORT println(std::string const &str);
 void EINSUMS_EXPORT fprintln(std::FILE *fp, std::string const &str);
 void EINSUMS_EXPORT fprintln(std::ostream &os, std::string const &str);
+
+// fmtlib doesn't have formatted_size for styled text. I'll just make my own.
+template <typename... T>
+FMT_NODISCARD FMT_INLINE auto formatted_size(fmt::text_style ts, fmt::format_string<T...> fmt, T &&...args) -> size_t {
+    auto buf = fmt::detail::counting_buffer<>();
+    fmt::detail::vformat_to(buf, ts, fmt.str, fmt::vargs<T...>{{args...}});
+    return buf.count();
+}
 } // namespace detail
 /// \endcond NOINTERNAL
 
@@ -210,66 +218,38 @@ void fprintln(OutType out, Ts... args) {
 #endif
 
 #ifndef DOXYGEN
-template <typename... Ts>
-void println(std::string_view const &f, Ts &&...ts) {
-    std::string const s = fmt::format(fmt::runtime(f), std::forward<Ts>(ts)...);
-    detail::println(s);
-}
-
-template <typename... Ts>
-void println(fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
-    std::string const s = fmt::format(style, fmt::runtime(format), std::forward<Ts>(ts)...);
-    detail::println(s);
-}
-
-inline void println(fmt::text_style const &style, std::string_view const &format) {
-    std::string const s = fmt::format(style, fmt::runtime(format));
-    detail::println(s);
-}
-
-inline void println() {
-    detail::println("\n");
-}
 
 template <typename... Ts>
 void fprintln(std::FILE *fp, std::string_view const &f, Ts &&...ts) {
-    std::puts("Calculating buffer size.");
-    std::fflush(stdout);
-    
+
     auto runtime_view = fmt::runtime(f);
 
     size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
 
-    std::puts("Creating the output string");
-    std::fflush(stdout);
-    {
-        std::string s;
+    std::string s;
 
-        s.resize(buffer_size + 1);
+    s.resize(buffer_size + 1);
 
-        std::printf("The output string's data is at %p. Formatting the message.\n", static_cast<void const *>(s.data()));
-        std::fflush(stdout);
+    fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
 
-        fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
-
-        std::printf("The output string's data is now at %p. Printing the message.\n", static_cast<void const *>(s.data()));
-        std::fflush(stdout);
-        detail::fprintln(fp, s);
-        std::fflush(fp);
-        std::puts("Freeing the output string.");
-        std::fflush(stdout);
-    }
-    std::puts("The output string has been freed.");
-    std::fflush(stdout);
+    detail::fprintln(fp, s);
 }
 
 template <typename... Ts>
 void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
+    auto        runtime_view = fmt::runtime(format);
     std::string s;
+
     if (fp == stdout || fp == stderr) {
-        s = fmt::format(style, format, std::forward<Ts>(ts)...);
+        size_t buffer_size = detail::formatted_size(style, runtime_view, std::forward<Ts>(ts)...);
+
+        s.resize(buffer_size + 1);
+        fmt::format_to(s.begin(), style, runtime_view, std::forward<Ts>(ts)...);
     } else {
-        s = fmt::format(format, std::forward<Ts>(ts)...);
+        size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
+
+        s.resize(buffer_size + 1);
+        fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
     }
     detail::fprintln(fp, s);
 }
@@ -279,17 +259,41 @@ inline void fprintln(std::FILE *fp, std::string const &format) {
 }
 
 inline void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view const &format) {
-    std::string s;
     if (fp == stdout || fp == stderr) {
-        s = fmt::format(style, fmt::runtime(format));
+        auto   runtime_view = fmt::runtime(format);
+        size_t buffer_size  = detail::formatted_size(style, runtime_view);
+
+        std::string s;
+
+        s.resize(buffer_size + 1);
+        fmt::format_to(s.begin(), style, runtime_view);
+        detail::fprintln(fp, s);
     } else {
-        s = format;
+        std::string s(format);
+        detail::fprintln(fp, s);
     }
-    detail::fprintln(fp, s);
 }
 
 inline void fprintln(std::FILE *fp) {
     detail::fprintln(fp, "\n");
+}
+
+template <typename... Ts>
+void println(std::string_view const &f, Ts &&...ts) {
+    fprintln(stdout, f, std::forward<Ts>(ts)...);
+}
+
+template <typename... Ts>
+void println(fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
+    fprintln(stdout, style, format, std::forward<Ts>(ts)...);
+}
+
+inline void println(fmt::text_style const &style, std::string_view const &format) {
+    fprintln(stdout, style, format);
+}
+
+inline void println() {
+    fprintln(stdout);
 }
 
 template <typename... Ts>
@@ -416,6 +420,9 @@ struct fmt::formatter<einsums::print::ordinal<IntType>> {
 
   protected:
     constexpr inline char const *get_suffix(IntType value) const {
+        // In case a negative number gives a negative mod, this will bring it
+        // in the range of [0, 100). If a mod always gives a positive number, this just does a bit of extra
+        // work.
         IntType const hundreds = (value % 100 + 100) % 100;
 
         if (hundreds > 20 || hundreds < 10) {
