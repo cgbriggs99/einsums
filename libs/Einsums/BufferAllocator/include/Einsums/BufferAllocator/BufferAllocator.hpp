@@ -215,7 +215,7 @@ struct BufferAllocator {
      * @param n The number of elements the pointer points to.
      */
     void deallocate(pointer p, size_type n) {
-        EINSUMS_LOG_TRACE("Deallocating {} elements ({} bytes) at pointer {}.", static_cast<void const *>(p), n, n * sizeof(T));
+        EINSUMS_LOG_TRACE("Deallocating {} elements ({} bytes) at pointer {}.", static_cast<void const *>(p), n, n * type_size);
         release(n);
 
         EINSUMS_LOG_TRACE("Checking for nullness.");
