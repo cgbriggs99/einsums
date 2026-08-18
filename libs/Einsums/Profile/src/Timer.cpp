@@ -66,7 +66,8 @@ void print_timer_info(TimerDetail const *timer, std::FILE *fp) { // NOLINT
     if (timer != root.get()) {
         {
             EINSUMS_LOG_TRACE("The timer is not the root.");
-            std::string buffer.reserve(1024); // Reserve 1 kB because Windows doesn't know how to free strings.
+            std::string buffer;
+            buffer.reserve(1024); // Reserve 1 kB because Windows doesn't know how to free strings.
             if (timer->total_calls != 0) {
                 buffer = fmt::format("{:>5} : {:>5} calls : {:>5} per call", duration_cast<milliseconds>(timer->total_time),
                                      timer->total_calls, duration_cast<milliseconds>(timer->total_time) / timer->total_calls);
