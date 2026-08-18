@@ -183,14 +183,6 @@ namespace detail {
 void EINSUMS_EXPORT println(std::string const &str);
 void EINSUMS_EXPORT fprintln(std::FILE *fp, std::string const &str);
 void EINSUMS_EXPORT fprintln(std::ostream &os, std::string const &str);
-
-// fmtlib doesn't have formatted_size for styled text. I'll just make my own.
-template <typename... T>
-FMT_NODISCARD FMT_INLINE auto formatted_size(fmt::text_style ts, fmt::format_string<T...> fmt, T &&...args) -> size_t {
-    auto buf = fmt::detail::counting_buffer<>();
-    fmt::detail::vformat_to(buf, ts, fmt.str, fmt::vargs<T...>{{args...}});
-    return buf.count();
-}
 } // namespace detail
 /// \endcond NOINTERNAL
 
@@ -222,34 +214,19 @@ void fprintln(OutType out, Ts... args) {
 template <typename... Ts>
 void fprintln(std::FILE *fp, std::string_view const &f, Ts &&...ts) {
 
-    auto runtime_view = fmt::runtime(f);
-
-    size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
-
-    std::string s;
-
-    s.resize(buffer_size);
-
-    fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
+    std::string s = einsums::detail::corrected_format(f, std::forward<Ts>(ts)...);
 
     detail::fprintln(fp, s);
 }
 
 template <typename... Ts>
 void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
-    auto        runtime_view = fmt::runtime(format);
     std::string s;
 
     if (fp == stdout || fp == stderr) {
-        size_t buffer_size = detail::formatted_size(style, runtime_view, std::forward<Ts>(ts)...);
-
-        s.resize(buffer_size);
-        fmt::format_to(s.begin(), style, runtime_view, std::forward<Ts>(ts)...);
+        s = einsums::detail::corrected_format(style, format, std::forward<Ts>(ts)...);
     } else {
-        size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
-
-        s.resize(buffer_size);
-        fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
+        s = einsums::detail::corrected_format(format, std::forward<Ts>(ts)...);
     }
     detail::fprintln(fp, s);
 }
@@ -260,13 +237,7 @@ inline void fprintln(std::FILE *fp, std::string const &format) {
 
 inline void fprintln(std::FILE *fp, fmt::text_style const &style, std::string_view const &format) {
     if (fp == stdout || fp == stderr) {
-        auto   runtime_view = fmt::runtime(format);
-        size_t buffer_size  = detail::formatted_size(style, runtime_view);
-
-        std::string s;
-
-        s.resize(buffer_size);
-        fmt::format_to(s.begin(), style, runtime_view);
+        std::string s = einsums::detail::corrected_format(style, format);
         detail::fprintln(fp, s);
     } else {
         std::string s(format);
@@ -298,29 +269,13 @@ inline void println() {
 
 template <typename... Ts>
 void fprintln(std::ostream &fp, std::string_view const &f, Ts &&...ts) {
-    auto runtime_view = fmt::runtime(f);
-
-    size_t buffer_size = fmt::formatted_size(runtime_view, std::forward<Ts>(ts)...);
-
-    std::string s;
-
-    s.resize(buffer_size);
-
-    fmt::format_to(s.begin(), runtime_view, std::forward<Ts>(ts)...);
+    std::string s = einsums::detail::corrected_format(f, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
 }
 
 template <typename... Ts>
 void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view const &format, Ts &&...ts) {
-    auto runtime_view = fmt::runtime(format);
-
-    size_t buffer_size = detail::formatted_size(runtime_view, style, std::forward<Ts>(ts)...);
-
-    std::string s;
-
-    s.resize(buffer_size);
-
-    fmt::format_to(s.begin(), style, runtime_view, std::forward<Ts>(ts)...);
+    std::string s = einsums::detail::corrected_format(style, format, std::forward<Ts>(ts)...);
     detail::fprintln(fp, s);
 }
 
@@ -329,15 +284,7 @@ inline void fprintln(std::ostream &fp, std::string const &format) {
 }
 
 inline void fprintln(std::ostream &fp, fmt::text_style const &style, std::string_view const &format) {
-    auto runtime_view = fmt::runtime(format);
-
-    size_t buffer_size = detail::formatted_size(style, runtime_view);
-
-    std::string s;
-
-    s.resize(buffer_size);
-
-    fmt::format_to(s.begin(), style, runtime_view);
+    std::string s = einsums::detail::corrected_format(style, format);
     detail::fprintln(fp, s);
 }
 

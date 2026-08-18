@@ -80,14 +80,11 @@ struct FunctionTensor : public CoreTensor {
             if (inds->at(i) >= _dims[i] || inds->at(i) < 0) {
                 std::string message;
 
-                size_t message_size = fmt::formatted_size("Function tensor index out of range! Index at rank {} ", i);
-                message.resize(message_size);
-
-                fmt::format_to(message.begin(), "Function tensor index out of range! Index at rank {} ", i);
+                message = einsums::detail::corrected_format("Function tensor index out of range! Index at rank {} ", i);
                 if (orig != inds->at(i)) {
-                    message += fmt::format("({} -> {}) ", orig, inds->at(i));
+                    message += einsums::detail::corrected_format("({} -> {}) ", orig, inds->at(i));
                 } else {
-                    message += fmt::format("({}) ", inds->at(i));
+                    message += einsums::detail::corrected_format("({}) ", inds->at(i));
                 }
                 EINSUMS_THROW_EXCEPTION(std::out_of_range, "{}is too far below zero or is greater than {}", message, _dims[i]);
             }

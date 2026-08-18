@@ -7,6 +7,7 @@
 
 #include <Einsums/Errors/Error.hpp>
 #include <Einsums/TypeSupport/TypeName.hpp>
+#include <Einsums/Config/StdAlternatives.hpp>
 
 #include <fmt/base.h>
 #include <fmt/format.h>
@@ -16,37 +17,16 @@
 #include <string>
 #include <system_error>
 
-namespace einsums {
-namespace errors {
-namespace detail {
-template <typename... Args>
-std::string corrected_format(std::string_view const &format, Args &&...args) {
-    std::string out;
-
-    auto runtime_format = fmt::runtime(format);
-
-    size_t out_size = fmt::formatted_size(runtime_format, std::forward<Args>(args)...);
-
-    out.resize(out_size);
-
-    fmt::format_to(out.begin(), runtime_format, std::forward<Args>(args)...);
-
-    return out;
-}
-} // namespace detail
-} // namespace errors
-} // namespace einsums
-
 #define EINSUMS_THROW_STD_EXCEPTION(except)                                                                                                \
     throw except(einsums::detail::make_error_message(einsums::type_name<except>(), "", std::source_location::current())) /**/
 
 #define EINSUMS_THROW_EXCEPTION(except, ...)                                                                                               \
-    throw except(einsums::detail::make_error_message(einsums::type_name<except>(), einsums::errors::detail::corrected_format(__VA_ARGS__), \
+    throw except(einsums::detail::make_error_message(einsums::type_name<except>(), einsums::detail::corrected_format(__VA_ARGS__), \
                                                      std::source_location::current())) /**/
 
 #define EINSUMS_THROW_CODED_EXCEPTION(except, code, ...)                                                                                   \
     throw einsums::CodedError<except, code>(einsums::detail::make_error_message(                                                           \
-        einsums::type_name<except>(), einsums::errors::detail::corrected_format(__VA_ARGS__), std::source_location::current())) /**/
+        einsums::type_name<except>(), einsums::detail::corrected_format(__VA_ARGS__), std::source_location::current())) /**/
 
 #define EINSUMS_THROW_NOT_IMPLEMENTED                                                                                                      \
     throw not_implemented(                                                                                                                 \

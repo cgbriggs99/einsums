@@ -13,6 +13,10 @@
 #include <Einsums/Config/CompilerSpecific.hpp>
 #include <Einsums/Config/ExportDefinitions.hpp>
 
+#include <fmt/base.h>
+#include <fmt/format.h>
+#include <fmt/color.h>
+
 #include <cerrno>
 #include <cstdarg>
 #include <cstddef>
@@ -37,6 +41,46 @@
 #endif
 
 namespace einsums {
+namespace detail {
+
+// fmtlib doesn't have formatted_size for styled text. I'll just make my own.
+template <typename... T>
+FMT_NODISCARD FMT_INLINE auto formatted_size(fmt::text_style ts, fmt::format_string<T...> fmt, T &&...args) -> size_t {
+    auto buf = fmt::detail::counting_buffer<>();
+    fmt::detail::vformat_to(buf, ts, fmt.str, fmt::vargs<T...>{{args...}});
+    return buf.count();
+}
+
+template <typename... Args>
+std::string corrected_format(std::string_view const &format, Args &&...args) {
+    std::string out;
+
+    auto runtime_format = fmt::runtime(format);
+
+    size_t out_size = fmt::formatted_size(runtime_format, std::forward<Args>(args)...);
+
+    out.resize(out_size);
+
+    fmt::format_to(out.begin(), runtime_format, std::forward<Args>(args)...);
+
+    return out;
+}
+
+template <typename... Args>
+std::string corrected_format(fmt::text_style style, std::string_view const &format, Args &&...args) {
+    std::string out;
+
+    auto runtime_format = fmt::runtime(format);
+
+    size_t out_size = detail::formatted_size(style, runtime_format, std::forward<Args>(args)...);
+
+    out.resize(out_size);
+
+    fmt::format_to(out.begin(), style, runtime_format, std::forward<Args>(args)...);
+
+    return out;
+}
+} // namespace detail
 
 using StrtokContext = char *;
 

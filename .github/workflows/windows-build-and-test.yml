@@ -122,7 +122,7 @@ jobs:
           call conda activate einsums-env
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
           rem ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
-          Allocator_test.exe --einsums:log-level 0
+          Assert_test.exe --einsums:log-level 0
           rem cd dumps
           rem for %%f in (*.dmp) do ( type %%f )
           
