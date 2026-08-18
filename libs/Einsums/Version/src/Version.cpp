@@ -64,13 +64,21 @@ std::string build_string() {
 }
 
 std::string complete_version() {
-    return einsums::detail::corrected_format("Version:\n"
-                                             "  Einsums: {}\n"
-                                             "\n"
-                                             "Build:\n"
-                                             "  Type: {}\n"
-                                             "  Date: {}\n",
-                                             build_string(), build_type(), build_date_time());
+    std::string out;
+
+    auto runtime_format = fmt::runtime("Version:\n"
+                                       "  Einsums: {}\n"
+                                       "\n"
+                                       "Build:\n"
+                                       "  Type: {}\n"
+                                       "  Date: {}\n");
+
+    size_t out_size = fmt::formatted_size(runtime_format, build_string(), build_type(), build_date_time());
+
+    out.resize(out_size);
+
+    fmt::format_to(out.begin(), runtime_format, build_string(), build_type(), build_date_time());
+    return out;
 }
 
 std::string build_date_time() {

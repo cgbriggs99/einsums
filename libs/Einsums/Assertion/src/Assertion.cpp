@@ -25,8 +25,10 @@ auto get_handler() -> assertion_handler_type & {
     std::lock_guard lock(handler_mutex);
 
     std::puts("Getting the current assertion handler.");
+    std::fflush(stdout);
     if (handler == nullptr) {
         std::puts("It's null, so let's reset it to the default.");
+        std::fflush(stdout);
         handler = default_assertion_handler;
     }
 
@@ -43,6 +45,7 @@ void default_assertion_handler(std::source_location const &loc, char const *expr
     }
 
     std::cerr << std::endl << util::backtrace() << std::endl;
+    std::fflush(stderr);
 
     std::exit(EXIT_FAILURE);
 }
@@ -51,12 +54,15 @@ void set_assertion_handler(assertion_handler_type handler_) {
     std::lock_guard lock(handler_mutex);
 
     std::puts("Setting assertion handler.");
+    std::fflush(stdout);
 
     if (handler_ == nullptr) {
         std::puts("Got a null pointer for the handler. Setting it back to the default instead.");
+        std::fflush(stdout);
         handler = default_assertion_handler;
     } else {
         std::puts("Got an actual handler. Setting.");
+        std::fflush(stdout);
         handler = handler_;
     }
 }
@@ -72,6 +78,7 @@ void handle_assert(std::source_location const &loc, char const *expr, std::strin
     } else {
         std::cout << std::endl;
     }
+    std::fflush(stdout);
 #endif
 
     if (handler == nullptr) {
@@ -79,10 +86,12 @@ void handle_assert(std::source_location const &loc, char const *expr, std::strin
     }
 
     std::puts("Delegating to the assertion handler.");
+    std::fflush(stdout);
 
     handler(loc, expr, msg);
 
     std::puts("Finished delegating to the assertion handler.");
+    std::fflush(stdout);
 }
 
 } // namespace einsums::detail
