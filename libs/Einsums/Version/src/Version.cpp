@@ -64,15 +64,13 @@ std::string build_string() {
 }
 
 std::string complete_version() {
-    std::string out = einsums::detail::corrected_format("Version:\n"
-                                                        "  Einsums: {}\n"
-                                                        "\n"
-                                                        "Build:\n"
-                                                        "  Type: {}\n"
-                                                        "  Date: {}\n",
-                                                        build_string(), build_type(), build_date_time());
-
-    return out;
+    return einsums::detail::corrected_format("Version:\n"
+                                             "  Einsums: {}\n"
+                                             "\n"
+                                             "Build:\n"
+                                             "  Type: {}\n"
+                                             "  Date: {}\n",
+                                             build_string(), build_type(), build_date_time());
 }
 
 std::string build_date_time() {

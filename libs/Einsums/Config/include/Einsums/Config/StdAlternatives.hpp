@@ -52,7 +52,7 @@ FMT_NODISCARD FMT_INLINE auto formatted_size(fmt::text_style ts, fmt::format_str
 }
 
 template <typename... Args>
-std::string corrected_format(std::string_view const &format, Args &&...args) {
+inline std::string corrected_format(std::string_view const &format, Args &&...args) {
     std::string out;
 
     auto runtime_format = fmt::runtime(format);
