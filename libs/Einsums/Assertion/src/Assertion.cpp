@@ -24,7 +24,9 @@ namespace {
 auto get_handler() -> assertion_handler_type & {
     std::lock_guard lock(handler_mutex);
 
+    std::puts("Getting the current assertion handler.");
     if (handler == nullptr) {
+        std::puts("It's null, so let's reset it to the default.");
         handler = default_assertion_handler;
     }
 
@@ -33,14 +35,14 @@ auto get_handler() -> assertion_handler_type & {
 } // namespace
 
 void default_assertion_handler(std::source_location const &loc, char const *expr, std::string const &msg) {
-    std::cerr << complete_version() << "\n" << loc.function_name() << ":" << loc.line() << " : Assertion '" << expr << "' failed";
+    std::cerr << complete_version() << std::endl << loc.function_name() << ":" << loc.line() << " : Assertion '" << expr << "' failed";
     if (!msg.empty()) {
-        std::cerr << " (" << msg << ")\n";
+        std::cerr << " (" << msg << ")" << std::endl;
     } else {
-        std::cerr << "\n";
+        std::cerr << std::endl;
     }
 
-    std::cerr << "\n" << util::backtrace() << "\n";
+    std::cerr << std::endl << util::backtrace() << std::endl;
 
     std::exit(EXIT_FAILURE);
 }
@@ -48,25 +50,27 @@ void default_assertion_handler(std::source_location const &loc, char const *expr
 void set_assertion_handler(assertion_handler_type handler_) {
     std::lock_guard lock(handler_mutex);
 
-    EINSUMS_LOG_DEBUG("Setting assertion handler.");
+    std::puts("Setting assertion handler.");
 
     if (handler_ == nullptr) {
-        EINSUMS_LOG_TRACE("Got a null pointer for the handler. Setting it back to the default instead.");
+        std::puts("Got a null pointer for the handler. Setting it back to the default instead.");
         handler = default_assertion_handler;
     } else {
-        EINSUMS_LOG_TRACE("Got an actual handler. Setting.");
+        std::puts("Got an actual handler. Setting.");
         handler = handler_;
     }
 }
 
 void handle_assert(std::source_location const &loc, char const *expr, std::string const &msg) noexcept {
     std::lock_guard lock(handler_mutex);
-    EINSUMS_LOG_DEBUG(complete_version());
-    EINSUMS_LOG_DEBUG("{}: {}: Assertion '{}' failed", loc.function_name(), loc.line(), expr);
 
 #ifdef EINSUMS_DEBUG
+    std::cout << complete_version() << std::endl;
+    std::cout << loc.function_name() << ": " << loc.line() << ": Assertion '" << expr << "' failed";
     if (!msg.empty()) {
-        EINSUMS_LOG_DEBUG(msg);
+        std::cout << " (" << msg << ')' << std::endl;
+    } else {
+        std::cout << std::endl;
     }
 #endif
 
@@ -74,11 +78,11 @@ void handle_assert(std::source_location const &loc, char const *expr, std::strin
         handler = default_assertion_handler;
     }
 
-    EINSUMS_LOG_TRACE("Delegating to the assertion handler.");
+    std::puts("Delegating to the assertion handler.");
 
     handler(loc, expr, msg);
 
-    EINSUMS_LOG_TRACE("Finished delegating to the assertion handler.");
+    std::puts("Finished delegating to the assertion handler.");
 }
 
 } // namespace einsums::detail
