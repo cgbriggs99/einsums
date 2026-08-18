@@ -5,6 +5,7 @@
 
 #include <Einsums/Errors/Error.hpp>
 
+#include <fmt/base.h>
 #include <fmt/format.h>
 
 #include <cstdio>
@@ -12,8 +13,19 @@
 namespace einsums::detail {
 
 std::string make_error_message(std::string_view const &type_name, char const *str, std::source_location const &location) {
-    return fmt::format("{}:{}:{}:\nIn {}\n{}: {}", location.file_name(), location.line(), location.column(), location.function_name(),
-                       type_name, str);
+    std::string out;
+    auto        runtime_fmt = fmt::runtime("{}:{}:{}:\nIn {}\n{}: {}");
+
+    auto pass_args = fmt::vargs{{}};
+
+    size_t out_size = fmt::formatted_size(runtime_fmt, location.file_name(), location.line(), location.column(), location.function_name(),
+                                          type_name, str);
+
+    out.resize(out_size + 1);
+
+    fmt::format_to(out.begin, runtime_fmt, location.file_name(), location.line(), location.column(), location.function_name(), type_name,
+                   str);
+    return out;
 }
 
 std::string make_error_message(std::string_view const &type_name, std::string const &str, std::source_location const &location) {
