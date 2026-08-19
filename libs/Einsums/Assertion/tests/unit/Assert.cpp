@@ -34,7 +34,13 @@ void test_assertion_handler(std::source_location const &loc, char const *expr, s
         std::fflush(stdout);
 
 #ifdef EINSUMS_HAVE_BACKTRACES
-        result << "\n" << util::backtrace() << "\n";
+        std::string backtrace;
+
+        result << "\n";
+
+        util::print_backtrace(result);
+
+        result << "\n";
 
         std::puts("Added the backtrace.");
         std::fflush(stdout);
