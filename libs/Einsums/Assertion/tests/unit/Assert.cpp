@@ -15,18 +15,44 @@ static std::string result_string;
 
 void test_assertion_handler(std::source_location const &loc, char const *expr, std::string const &msg) {
     using namespace einsums;
-    INFO("Assertion failed. Making string.");
-    std::ostringstream result;
-    result << loc.function_name() << ":" << loc.line() << " : Assertion '" << expr << "' failed";
-    if (!msg.empty()) {
-        result << " (" << msg << ")\n";
-    } else {
-        result << "\n";
+    std::puts("Assertion failed. Making string.");
+    std::fflush(stdout);
+
+    {
+
+        std::ostringstream result;
+        result << loc.function_name() << ":" << loc.line() << " : Assertion '" << expr << "' failed";
+        std::puts("Added the location information.");
+        std::fflush(stdout);
+        if (!msg.empty()) {
+            result << " (" << msg << ")\n";
+        } else {
+            result << "\n";
+        }
+
+        std::puts("Added the optional message.");
+        std::fflush(stdout);
+
+#ifdef EINSUMS_WITH_BACKTRACES
+        result << "\n" << util::backtrace() << "\n";
+
+        std::puts("Added the backtrace.");
+        std::fflush(stdout);
+#endif
+
+        std::puts("Copying the string to the global string variable.");
+        std::fflush(stdout);
+
+        result_string = result.str();
+
+        std::puts("Here's what's in the global string variable:");
+        std::fflush(stdout);
+        std::puts(result_string.c_str());
+        std::fflush(stdout);
     }
 
-    result << "\n" << util::backtrace() << "\n";
-
-    result_string = result.str();
+    std::puts("Freed string stream.");
+    std::fflush(stdout);
 }
 
 TEST_CASE("assert") {
