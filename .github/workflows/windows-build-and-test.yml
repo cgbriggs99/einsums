@@ -151,5 +151,5 @@ jobs:
         working-directory: "${{github.workspace}}/installed"
         run: |
           call conda activate einsums-env
-          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;${{github.workspaec}}\installed\lib\einsums;%CONDA_PREFIX%/lib"
+          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%CONDA_PREFIX%/lib"
           pytest "${{github.workspace}}/installed"
