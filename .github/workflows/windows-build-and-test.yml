@@ -145,10 +145,10 @@ jobs:
         run: |
           cmake --install . --prefix %GITHUB_WORKSPACE%\installed
 
-      # - name: Test (pytest) - unit tests
-      #   shell: cmd
-      #   working-directory: "${{github.workspace}}/installed"
-      #   run: |
-      #     call conda activate einsums-env
-      #     set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%CONDA_PREFIX%/lib"
-      #     pytest "${{github.workspace}}/installed"
+      - name: Test (pytest) - unit tests
+        shell: cmd
+        working-directory: "${{github.workspace}}/installed"
+        run: |
+          call conda activate einsums-env
+          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%CONDA_PREFIX%/lib"
+          pytest "${{github.workspace}}/installed"
