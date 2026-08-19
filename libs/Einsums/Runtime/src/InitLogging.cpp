@@ -63,21 +63,41 @@ static void handle_loglevel_chages(config_mapping_type<std::int64_t> const &map)
 }
 
 void init_logging(RuntimeConfiguration &config) {
+    std::puts("Getting the configuration values.");
+    std::fflush(stdout);
+
     auto &global_config = GlobalConfigMap::get_singleton();
     // Set log destination
+
+    std::puts("Getting the sinks.");
+    std::fflush(stdout);
+
     auto &sinks = get_einsums_logger().sinks();
+
+    std::puts("Clearing the sinks.");
+    std::fflush(stdout);
     sinks.clear();
+
+    std::puts("Setting the sinks.");
+    std::fflush(stdout);
     sinks.push_back(get_spdlog_sink(global_config.get_string("log-destination")));
 
     // Set log pattern
+    std::puts("Creating the log template..");
+    std::fflush(stdout);
     auto formatter = std::make_unique<spdlog::pattern_formatter>();
     formatter->add_flag<ThreadIdFormatterFlag>('k');
     formatter->add_flag<ParentThreadIdFormatterFlag>('q');
     formatter->add_flag<HostnameFormatterFlag>('j');
     formatter->set_pattern(global_config.get_string("log-format"));
+
+    std::puts("Setting the log template.");
+    std::fflush(stdout);
     get_einsums_logger().set_formatter(std::move(formatter));
 
     // Set log level
+    std::puts("Setting the log level.");
+    std::fflush(stdout);
     get_einsums_logger().set_level(static_cast<spdlog::level::level_enum>(global_config.get_int("log-level")));
 
     EINSUMS_LOG_INFO("logging submodule has been initialized");

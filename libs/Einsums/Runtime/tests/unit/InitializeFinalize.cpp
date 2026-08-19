@@ -16,7 +16,12 @@ TEST_CASE("Initialize-Finalize", "[runtime]") {
 
     using namespace einsums;
 
-    REQUIRE_NOTHROW(initialize(std::vector<std::string>{"einsums"}));
+    EINSUMS_LOG_DEBUG("Creating argument vector.");
+    auto args = std::vector<std::string>{"einsums"};
+    
+    EINSUMS_LOG_DEBUG("Reinitializing the library.");
+
+    REQUIRE_NOTHROW(initialize(args));
 
     EINSUMS_LOG_DEBUG("Initialized again.");
 
@@ -30,14 +35,14 @@ TEST_CASE("Initialize-Finalize", "[runtime]") {
 
     SECTION("Double initialize/finalize") {
         EINSUMS_LOG_DEBUG("Initializing.");
-        REQUIRE_NOTHROW(initialize(std::vector<std::string>{"einsums"}));
+        REQUIRE_NOTHROW(initialize(args));
         EINSUMS_LOG_DEBUG("Finalizing.");
         REQUIRE_NOTHROW(finalize());
         EINSUMS_LOG_DEBUG("Finalizing.");
         REQUIRE_NOTHROW(finalize());
         EINSUMS_LOG_DEBUG("Finalizing.");
         EINSUMS_LOG_DEBUG("Initializing.");
-        REQUIRE_NOTHROW(initialize(std::vector<std::string>{"einsums"}));
+        REQUIRE_NOTHROW(initialize(args));
         EINSUMS_LOG_DEBUG("Finalizing.");
         REQUIRE_NOTHROW(finalize());
         EINSUMS_LOG_DEBUG("Finished with section.")
