@@ -93,18 +93,12 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     // Command line arguments for Einsums will be prefixed with --einsums:
     // For example, "--einsums:verbose=1" will be translated to verbose=1
 
-    std::puts("Creating the runtime configuration.");
-    std::fflush(stdout);
-
     RuntimeConfiguration config(argv);
 
     // Before this line logging does not work.
     if (!is_init) {
-        std::puts("Initializing logging.");
-        std::fflush(stdout);
+
         init_logging(config);
-    } else {
-        EINSUMS_LOG_TRACE("Skipped logging initialization. It has already been done.");
     }
 
     EINSUMS_LOG_TRACE("Logging initialized. Getting configuration parameters.");

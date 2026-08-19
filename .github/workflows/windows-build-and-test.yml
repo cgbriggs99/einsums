@@ -24,16 +24,6 @@ jobs:
       run:
         shell: bash -el {0}
     steps:
-      - name: Install procdump
-        shell: bash
-        working-directory: ${{ github.workspace }}
-        run: |
-          curl https://download.sysinternals.com/files/Procdump.zip --output Procdump.zip
-          ls
-          unzip Procdump.zip
-          ls
-          ./procdump64.exe -i -accepteula -ma
-
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.build_ref }}
@@ -104,7 +94,7 @@ jobs:
             -D CMAKE_C_COMPILER="%CC%" ^
             -D CMAKE_CXX_COMPILER="%CXX%" ^
             -D CMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" ^
-            -D EINSUMS_BUILD_PYTHON=OFF ^
+            -D EINSUMS_BUILD_PYTHON=ON ^
             -D EINSUMS_WITH_TESTS=ON ^
             -D EINSUMS_WITH_EXAMPLES=OFF ^
             -D EINSUMS_WITH_BACKTRACES=ON ^
@@ -118,20 +108,6 @@ jobs:
           call conda activate einsums-env
           if errorlevel 1 exit /b %ERRORLEVEL%
           cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
-
-      - name: run the test I care about
-        shell: cmd
-        if: matrix.build_type == 'Debug'
-        working-directory: ${{github.workspace}}/build/Debug/bin
-        run: |
-          rem mkdir dumps
-          call conda activate einsums-env
-          set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          rem ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
-          InitializeFinalize_test.exe --einsums:log-level 0
-          rem cd dumps
-          rem for %%f in (*.dmp) do ( type %%f )
-
 
       - name: Test (CTest)
         shell: cmd
@@ -154,5 +130,5 @@ jobs:
         working-directory: "${{github.workspace}}/installed"
         run: |
           call conda activate einsums-env
-          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;%CONDA_PREFIX%/lib"
+          set "PYTHONPATH=%PYTHONPATH%;${{github.workspace}}\installed\lib;${{github.workspaec}}\installed\lib\einsums;%CONDA_PREFIX%/lib"
           pytest "${{github.workspace}}/installed"
