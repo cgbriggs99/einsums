@@ -53,11 +53,17 @@ jobs:
       - name: Merge Conda YAML files
         working-directory: src/devtools/conda-envs
         run: python merge_yml.py windows openblas
+        
+      - name: Get Week
+        id: get-date
+        run: echo "week=$(/bin/date -u '+%W')" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Cache Conda env
         uses: actions/cache@v6
         with:
           path: ${{ env.CONDA }}/envs
+          # key: conda-${{ runner.os }}-${{ runner.arch }}-${{steps.get-date.outputs.week}}-${{ hashFiles('src/devtools/conda-envs/conda.yml') }}
           key: conda-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('src/devtools/conda-envs/conda.yml') }}
         id: cache
 
@@ -122,7 +128,7 @@ jobs:
           call conda activate einsums-env
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
           rem ${{github.workspace}}\procdump64.exe -t -e -h -x ${{github.workspace}}\build\Debug\bin\dumps ^
-          CP_test.exe --einsums:log-level 0
+          InitializeFinalize_test.exe --einsums:log-level 0
           rem cd dumps
           rem for %%f in (*.dmp) do ( type %%f )
 
