@@ -51,6 +51,7 @@ FMT_NODISCARD FMT_INLINE auto formatted_size(fmt::text_style ts, fmt::format_str
     return buf.count();
 }
 
+// Windows thinks fmtlib does heap bashing. I don't think it does, but it still causes segfaults.
 template <typename... Args>
 inline std::string corrected_format(std::string_view const &format, Args &&...args) {
     std::string out;

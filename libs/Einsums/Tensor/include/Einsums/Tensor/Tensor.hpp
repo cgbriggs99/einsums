@@ -2158,8 +2158,8 @@ TensorView(std::string, Tensor<T, OtherRank> &, Dim<Rank> const &, Args...) -> T
  * @return A new tensor. By default, memory is not initialized to anything. It may be filled with garbage.
  */
 template <typename Type = double, typename... Args>
-auto create_tensor(std::string const &name, Args... args) {
-    EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(args...));
+auto create_tensor(std::string const &name, Args &&...args) {
+    EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(std::forward<Args>(args)...));
     return Tensor<Type, sizeof...(Args)>{name, args...};
 }
 
@@ -2187,8 +2187,8 @@ auto create_tensor(std::string const &name, Args... args) {
  * @return A new tensor. By default, memory is not initialized to anything. It may be filled with garbage.
  */
 template <typename Type = double, std::integral... Args>
-auto create_tensor(Args... args) {
-    return Tensor<Type, sizeof...(Args)>{"Temporary", args...};
+auto create_tensor(Args &&...args) {
+    return Tensor<Type, sizeof...(Args)>{"Temporary", std::forward<Args>(args)...};
 }
 
 namespace detail {
