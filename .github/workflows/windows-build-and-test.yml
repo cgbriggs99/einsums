@@ -5,6 +5,14 @@ on:
       build_ref:
         type: string
         required: false
+      build_cache_suffix:
+        type: string
+        required: false
+        default: "default"
+      build_cache_size:
+        type: string
+        required: false
+        default: 2G
       build_configure_extra_args:
         type: string
         required: false
@@ -20,6 +28,9 @@ jobs:
 
     name: "clang-cl • openblas • ${{ matrix.build_type }}"
     runs-on: windows-2022
+    env:
+      CCACHE_DIR: $GITHUB_WORKSPACE/build_cache_${{ inputs.build_cache_suffix }}
+      CCACHE_MAXSIZE: ${{ inputs.build_cache_size }}
     defaults:
       run:
         shell: bash -el {0}
@@ -28,6 +39,14 @@ jobs:
         with:
           ref: ${{ inputs.build_ref }}
           path: src
+          
+      - name: Cache Build Cache
+        uses: actions/cache@v6
+        with:
+          path: build_cache_${{ inputs.build_cache_suffix }}
+          key: einsums-${{ runner.os }}-${{ matrix.build_type }}-${{ inputs.build_cache_suffix }}-${{ github.sha }}
+          restore-keys: einsums-${{ runner.os }}-${{ matrix.build_type }}-${{ inputs.build_cache_suffix }}-
+
 
       # ---- Conda environment setup ----
       - name: Setup Miniforge
@@ -93,6 +112,8 @@ jobs:
             -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
             -D CMAKE_C_COMPILER="%CC%" ^
             -D CMAKE_CXX_COMPILER="%CXX%" ^
+            -D CMAKE_C_COMPILER_LAUNCHER=ccache ^
+            -D CMAKE_CXX_COMPILER_LAUNCHER=ccache ^
             -D CMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" ^
             -D EINSUMS_BUILD_PYTHON=ON ^
             -D EINSUMS_WITH_TESTS=ON ^
