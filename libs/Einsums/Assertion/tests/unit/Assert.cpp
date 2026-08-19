@@ -40,19 +40,19 @@ void test_assertion_handler(std::source_location const &loc, char const *expr, s
 //        std::fflush(stdout);
 #endif
 
-        std::puts("Copying the string to the global string variable.");
-        std::fflush(stdout);
+//        std::puts("Copying the string to the global string variable.");
+//        std::fflush(stdout);
 
         result_string = result.str();
 
-        std::puts("Here's what's in the global string variable:");
-        std::fflush(stdout);
-        std::puts(result_string.c_str());
-        std::fflush(stdout);
-    }
-
-    std::puts("Freed string stream.");
-    std::fflush(stdout);
+//        std::puts("Here's what's in the global string variable:");
+//        std::fflush(stdout);
+//        std::puts(result_string.c_str());
+//        std::fflush(stdout);
+//    }
+//
+//    std::puts("Freed string stream.");
+//    std::fflush(stdout);
 }
 
 TEST_CASE("assert") {
