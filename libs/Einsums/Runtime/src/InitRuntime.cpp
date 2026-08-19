@@ -15,6 +15,7 @@
 #include <Einsums/Runtime/Runtime.hpp>
 #include <Einsums/Version.hpp>
 
+#include <atomic>
 #include <csignal>
 #include <cstdlib>
 #include <functional>
@@ -25,7 +26,7 @@
 
 namespace einsums {
 
-static bool is_init = false;
+static std::atomic_bool is_init = false;
 
 template <typename F, typename... BoundArgs>
 struct bind_back_t {
