@@ -14,8 +14,9 @@
 #include <Einsums/Config/ExportDefinitions.hpp>
 
 #include <fmt/base.h>
-#include <fmt/format.h>
 #include <fmt/color.h>
+#include <fmt/format.h>
+#include <fmt/xchar.h>
 
 #include <cerrno>
 #include <cstdarg>
@@ -25,6 +26,7 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
+#include <string>
 #include <type_traits>
 
 #ifdef EINSUMS_WINDOWS
@@ -53,8 +55,8 @@ FMT_NODISCARD FMT_INLINE auto formatted_size(fmt::text_style ts, fmt::format_str
 
 // Windows thinks fmtlib does heap bashing. I don't think it does, but it still causes segfaults.
 template <typename... Args>
-inline std::string corrected_format(std::string_view const &format, Args &&...args) {
-    std::string out;
+inline std::basic_string<char> corrected_format(std::basic_string_view<char> const &format, Args &&...args) {
+    std::basic_string<char> out;
 
     auto runtime_format = fmt::runtime(format);
 
@@ -68,8 +70,38 @@ inline std::string corrected_format(std::string_view const &format, Args &&...ar
 }
 
 template <typename... Args>
-std::string corrected_format(fmt::text_style style, std::string_view const &format, Args &&...args) {
-    std::string out;
+inline std::basic_string<wchar_t> corrected_format(std::basic_string_view<wchar_t> const &format, Args &&...args) {
+    std::basic_string<wchar_t> out;
+
+    auto runtime_format = fmt::runtime(format);
+
+    size_t out_size = fmt::formatted_size(runtime_format, std::forward<Args>(args)...);
+
+    out.resize(out_size);
+
+    fmt::format_to(out.begin(), runtime_format, std::forward<Args>(args)...);
+
+    return out;
+}
+
+template <typename... Args>
+std::basic_string<char> corrected_format(fmt::text_style style, std::basic_string_view<char> const &format, Args &&...args) {
+    std::basic_string<char> out;
+
+    auto runtime_format = fmt::runtime(format);
+
+    size_t out_size = detail::formatted_size(style, runtime_format, std::forward<Args>(args)...);
+
+    out.resize(out_size);
+
+    fmt::format_to(out.begin(), style, runtime_format, std::forward<Args>(args)...);
+
+    return out;
+}
+
+template <typename... Args>
+std::basic_string<wchar_t> corrected_format(fmt::text_style style, std::basic_string_view<wchar_t> const &format, Args &&...args) {
+    std::basic_string<wchar_t> out;
 
     auto runtime_format = fmt::runtime(format);
 

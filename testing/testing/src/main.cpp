@@ -40,8 +40,10 @@ extern "C" void __cdecl einsums_invalid_parameter(wchar_t const *const expressio
     std::fputs(einsums::util::backtrace().c_str(), stderr);
 
     if (expression != nullptr && function_name != nullptr && file_name != nullptr) {
-        std::fputws(fmt::format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression).c_str(),
-                    stderr);
+        std::fputws(
+            einsums::detail::corrected_format(L"Einsums test: Error in {} at {}:{}: {}", function_name, file_name, line_number, expression)
+                .c_str(),
+            stderr);
     } else {
         std::fputs("Error at unknown location!", stderr);
     }

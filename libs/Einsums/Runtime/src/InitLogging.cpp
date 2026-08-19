@@ -25,7 +25,7 @@ namespace {
  * The logger can output the thread description to aid in debugging.
  */
 void spdlog_format_thread_id(int pid, spdlog::details::log_msg const &, std::tm const &, spdlog::memory_buf_t &dest) {
-    dest.append(fmt::format("{}/----", pid));
+    fmt::format_to(fmt::appender(dest), "{}/----", pid);
 }
 } // namespace
 
