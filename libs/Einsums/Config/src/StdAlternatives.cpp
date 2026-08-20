@@ -664,11 +664,11 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 
     // strncpy doesn't do the same thing that we need. We need simple truncation, strncpy backfills with zeros.
     for (std::size_t i = 0; i < buff_size; i++) {
+
+        buffer[i] = error_str[i];
         if (i == buff_size - 1) {
             buffer[i] = 0;
         }
-
-        buffer[i] = error_str[i];
 
         if (buffer[i] == 0) {
             break;
