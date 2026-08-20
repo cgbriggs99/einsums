@@ -19,6 +19,52 @@ except ImportError :
 
 import numpy as np
 
+import inspect
+import os
+import sys
+import datetime
+
+def log(level: int, msg: str, stack_info: Optional[inspect.FrameInfo] = None):
+    timestr = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    os.system("")
+    if stack_info is None :
+        stack_info = inspect.stack()[1]
+    
+    if level >= core.GlobalConfigMap.get_singleton().get_int("log-level", 3) :
+        print(f"\033[0m[{timestr}] [einsums]", end=" ")
+        
+        match(level):
+            case 0:
+                print("[trace   ]", end=" ")
+            case 1:
+                print("[\033[36mdebug   \033[0m]", end=" ")
+            case 2:
+                print("[\033[31minfo    \033[0m]", end=" ")
+            case 3:
+                print("[\033[1;33mwarning \033[0m]", end=" ")
+            case 4:
+                print("[\033[1;31merror   \033[0m]", end=" ")
+            case _:
+                print("[\033[1;37;41mcritical\033[0m]", end=" ")
+        print(f"[{os.path.basename(stack_info.filename)}:{stack_info.lineno}/{stack_info.function}] {msg}")
+
+def log_trace(msg: str):
+    log(0, str, inspect.stack()[1])
+    
+def log_debug(msg: str):
+    log(1, str, inspect.stack()[1])
+    
+def log_info(msg: str):
+    log(2, str, inspect.stack()[1])
+
+def log_warn(msg: str):
+    log(3, str, inspect.stack()[1])
+
+def log_error(msg: str):
+    log(4, str, inspect.stack()[1])
+
+def log_critical(msg: str):
+    log(5, str, inspect.stack()[1])
 
 def labeled_section(arg: typing.Union[str, typing.Callable]):
     """
