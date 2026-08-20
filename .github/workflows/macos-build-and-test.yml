@@ -134,11 +134,12 @@ jobs:
           export BINARIES="$(find . -name "*_test")"
           echo "PROFILES=$PROFILES"
           echo "BINARIES=$BINARIES"
+          echo `which llvm-profdata`
           llvm-profdata merge $PROFILES -o default.profdata
           llvm-cov export -format=lcov -ignore-filename-regex="_deps|einsums-env" -instr-profile=default.profdata $BINARIES > coverage.info
-
+          
       - name: Upload C++ coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           directory: "${{github.workspace}}/src"
           working-directory: "${{github.workspace}}/src"
@@ -148,7 +149,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload Python coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           directory: "${{github.workspace}}/installed"
           working-directory: "${{github.workspace}}/installed"
