@@ -164,27 +164,17 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
 }
 
 int run_impl(std::function<int()> f, std::vector<std::string> const &argv, InitParams const &params, bool blocking) {
-    std::puts("Getting the arguments.");
-    std::fflush(stdout);
     std::vector<std::string> const *pass_argv = &argv;
     if (argv.size() == 0) {
         pass_argv = &dummy_argv;
     }
 
     // register default handlers
-    std::puts("Setting the signal handler.");
-    std::fflush(stdout);
     [[maybe_unused]] auto signal_handler = std::signal(SIGABRT, on_abort);
-    std::puts("Setting the exit handler.");
-    std::fflush(stdout);
     [[maybe_unused]] auto exit_result = std::atexit(on_exit);
 #if defined(EINSUMS_HAVE_CXX11_STD_QUICK_EXIT)
-    std::puts("Setting the quick exit handler.");
-    std::fflush(stdout);
     [[maybe_unused]] auto quick_exit_result = std::at_quick_exit(on_exit);
 #endif
-    std::puts("Running the main function.");
-    std::fflush(stdout);
     return run(f, *pass_argv, params, blocking);
 }
 
@@ -312,11 +302,7 @@ void initialize(std::function<int()> f, std::vector<std::string> const &argv, In
 }
 
 void initialize(std::nullptr_t, std::vector<std::string> const &argv, InitParams const &params) {
-    std::puts("Creating an empty main function.");
-    std::fflush(stdout);
     std::function<int()> main_f;
-    std::puts("Initializing.");
-    std::fflush(stdout);
     if (detail::run_impl(std::move(main_f), argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
