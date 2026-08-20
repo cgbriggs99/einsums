@@ -32,7 +32,10 @@ bool gpu_enabled() {
 }
 
 void export_Core(py::module_ &mod) {
-    mod.def("gpu_enabled", gpu_enabled, "Check if Einsums was compiled with GPU capabilities.");
+    mod.def("gpu_enabled", gpu_enabled, "Check if Einsums was compiled with GPU capabilities.")
+        .def(
+            "initialize", [](std::vector<std::string> &argv) { einsums::initialize(argv); }, "Initialize the Einsums module.")
+        .def("finalize", einsums::finalize, "Clean up the Einsums module.");
 
     auto config_map = py::class_<einsums::GlobalConfigMap, std::shared_ptr<einsums::GlobalConfigMap>>(
         mod, "GlobalConfigMap", "Contains all of the options handled by Einsums.");
