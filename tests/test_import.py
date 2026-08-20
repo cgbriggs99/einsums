@@ -15,7 +15,7 @@ def test_find_core():
         
         for file in files :
             if re.match("core\\.[_a-zA-Z0-9-]+\\.(pyd|so)", file) :
-                print(f"Found {dir}/{file}")
+                print("Found " + dir + os.path.sep + "einsums" + os.path.sep + file)
                 einsums_is_findable = True
     assert einsums_is_findable
 
