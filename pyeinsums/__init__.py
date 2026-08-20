@@ -109,9 +109,11 @@ if __modpath not in sys.path:
     log_debug("Adding it to the PYTHONPATH.", __import_log_print)
     sys.path.append(__modpath)
     
-    if hasattr(os, "add_dll_directory"):
-        log_debug("Adding it to the Windows DLL search path.", __import_log_print)
-        os.add_dll_directory(__modpath)
+__mod_dll = None
+if hasattr(os, "add_dll_directory"):
+    log_debug("Adding it to the Windows DLL search path.", __import_log_print)
+    __mod_dll = os.add_dll_directory(__modpath)
+        
     
 try:
     log_debug("Trying to import from an Einsums installation.", __import_log_print)
@@ -126,6 +128,9 @@ except (ModuleNotFoundError, ImportError):
         raise ImportError(
             f"File is {__file__}, path is {sys.path} and version is {sys.version}"
         ) from e
+
+if __mod_dll is not None :
+    __mod_dll.close()
 
 from . import utils  # pylint: disable=wrong-import-position
 
