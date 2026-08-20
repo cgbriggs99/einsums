@@ -15,7 +15,7 @@ dependencies:
   - cpp-argparse
   - catch2
   - fftw
-  - fmt=11
+  - fmt
   - cpptrace
   - spdlog
   # HDF5
