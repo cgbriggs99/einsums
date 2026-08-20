@@ -160,12 +160,12 @@ void report(std::string const &fname, bool append) {
     auto error = einsums::fopen_s(&fp, fname.c_str(), append ? "a+" : "w+");
 
     if (error != 0) {
-        std::string buffer;
-        buffer.reserve(256);
+        char buffer[256];
 
         EINSUMS_LOG_ERROR("Error while opening the profile file.");
 
-        auto error2 = einsums::strerror_s(buffer.data(), buffer.capacity() + 1, error);
+        auto error2 = einsums::strerror_s(buffer, sizeof(buffer), error);
+        
 
         if (error2 != 0) {
             EINSUMS_LOG_ERROR("Error while creating the error report for opening the profile file.");
