@@ -29,3 +29,7 @@ def test_import() :
     print("Imported einsums.", flush=True)
 
     assert True
+    
+if __name__ == "__main__":
+    test_find_core()
+    test_import()
