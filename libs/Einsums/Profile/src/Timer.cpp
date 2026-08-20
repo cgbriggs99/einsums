@@ -175,7 +175,7 @@ void report(std::string const &fname, bool append) {
                 static_cast<int>(error), static_cast<int>(error2));
         }
 
-        EINSUMS_LOG_ERROR("Could not open file: {}");
+        EINSUMS_LOG_ERROR("Could not open file: {}", buffer);
 
         EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file: {}", buffer);
     }
