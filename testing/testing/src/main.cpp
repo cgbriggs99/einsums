@@ -5,6 +5,7 @@
 
 #include <Einsums/Config/CompilerSpecific.hpp>
 #include <Einsums/Config/Debug.hpp>
+#include <Einsums/Config/StdAlternatives.hpp>
 #ifdef EINSUMS_HAVE_BACKTRACES
 #    include <Einsums/Debugging/Backtrace.hpp>
 
@@ -55,6 +56,9 @@ int einsums_main(int argc, char *const *const argv) {
     {
 #pragma omp single
         {
+            einsums::GlobalConfigMap::get_singleton().set_string("profiler-filename",
+                                                              einsums::detail::corrected_format("profile.{}.txt", einsums::getpid()));
+
             Catch::Session session;
             session.applyCommandLine(argc, argv);
 
