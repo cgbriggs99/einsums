@@ -16,6 +16,9 @@ __modpath = os.path.dirname(__file__)
 
 if __modpath not in sys.path:
     sys.path.append(__modpath)
+    
+    if hasattr(os, "add_dll_directory") :
+        os.add_dll_directory(__modpath)
 
 try:
     from . import core
