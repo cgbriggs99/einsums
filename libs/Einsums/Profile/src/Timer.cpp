@@ -157,7 +157,7 @@ void report(std::string const &fname, bool append) {
 
     EINSUMS_LOG_TRACE("Creating/opening the profile file ({}).", fname);
 
-    auto error = einsums::fopen_s(&fp, fname.c_str(), append ? "w+" : "w");
+    auto error = einsums::fopen_s(&fp, fname.c_str(), append ? "a+" : "w+");
 
     if (error != 0) {
         std::string buffer;
@@ -174,6 +174,8 @@ void report(std::string const &fname, bool append) {
                 "Could not open file! When processing fopen error {}, another error occurred! Second error code is error {}.",
                 static_cast<int>(error), static_cast<int>(error2));
         }
+
+        EINSUMS_LOG_ERROR("Could not open file: {}");
 
         EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not open file: {}", buffer);
     }
