@@ -149,7 +149,7 @@ jobs:
         shell: bash
         working-directory: "${{github.workspace}}/installed"
         run:
-            ldd lib/einsums/core.*.pyd
+            ldd lib/einsums/core.*.dll
 
       # - name: Test (pytest) - unit tests
       #   shell: cmd
