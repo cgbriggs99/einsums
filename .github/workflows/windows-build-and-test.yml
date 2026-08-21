@@ -157,17 +157,17 @@ jobs:
         shell: cmd
         working-directory: "${{github.workspace}}/installed"
         run: |
-            conda activate einsums-env
+            call conda activate einsums-env
             conda install ldd
             ldd lib/einsums/core.*
 
-      # - name: Test (pytest) - unit tests
-      #   shell: cmd
-      #   working-directory: "${{github.workspace}}/installed"
-      #   run: |
-      #     call conda activate einsums-env
-      #     set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
-      #     set "PATH=%PATH%;${{github.workspace}}\installed\lib\einsums"
-      #     set "EINSUMS_DEBUG_IMPORT=ON"
-      #     python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
-      #     pytest "${{github.workspace}}/installed"
+      - name: Test (pytest) - unit tests
+        shell: cmd
+        working-directory: "${{github.workspace}}/installed"
+        run: |
+          call conda activate einsums-env
+          set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
+          set "PATH=%PATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums"
+          set "EINSUMS_DEBUG_IMPORT=ON"
+          python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
+          pytest "${{github.workspace}}\installed\lib\einsums"
