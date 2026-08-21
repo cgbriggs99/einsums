@@ -156,7 +156,7 @@ jobs:
       - name: Check the dependencies of core.pyd.
         shell: cmd
         working-directory: "${{github.workspace}}/installed"
-        run:
+        run: |
             conda activate einsums-env
             conda install ldd
             ldd lib/einsums/core.*
