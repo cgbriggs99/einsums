@@ -150,7 +150,7 @@ jobs:
         shell: cmd
         working-directory: "${{github.workspace}}/installed"
         run:
-            dumpbin /DEPENDENTS lib/einsums/core.*
+            dumpbin.exe /DEPENDENTS lib/einsums/core.*
           
       - name: Check the dependencies of core.pyd.
         shell: bash
