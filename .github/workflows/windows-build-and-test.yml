@@ -154,19 +154,25 @@ jobs:
             dumpbin.exe /DEPENDENTS lib/einsums/core.* & echo "done"
             
       - name: Find the dependencies so I know what the path needs to be.
-        shell: bash
-        working-directory: "${{github.workspace}}"
+        shell: cmd
+        working-directory: "${{github.workspace}}/installed/lib"
         run: |
-          find "C:\" "D:\" -iname "python314.dll" -o -iname "Einsumsd.dll" -o -iname "Einsums.dll" \
-          -o -iname "libomp.dll" -o -iname "spdlog.dll" -o -iname "hdf5.dll" -o -iname "fmt.dll" \
-          -o -iname "MSVCP140D.dll" -o -iname "MSVCP140.dll" -o -iname "KERNEL32.dll" \
-          -o -iname "VCRUNTIME140D.dll" -o -iname "VCRUNTIME140.dll" -o -iname "VCRUNTIME140_1D.dll" \
-          -o -iname "VCRUNTIME140_1.dll" -o -iname "ucrtbased.dll"
+          call conda activate einsums-env
+          where /r C:\ Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
+          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll ^
+          VCRUNTIME140_1.dll ucrtbased.dll ucrtbase.dll & ^
+          where /r D:\ Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
+          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll ^
+          VCRUNTIME140_1.dll ucrtbased.dll ucrtbase.dll & ^
+          echo "Searching on the path variable to see if they are already findable."
+          where Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
+          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll ^
+          VCRUNTIME140_1.dll ucrtbased.dll ucrtbase.dll
 
 
       - name: Test (pytest) - unit tests
         shell: cmd
-        working-directory: "${{github.workspace}}/installed"
+        working-directory: "${{github.workspace}}/installed/lib"
         run: |
           call conda activate einsums-env
           set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
