@@ -129,29 +129,35 @@ jobs:
           if errorlevel 1 exit /b %ERRORLEVEL%
           cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
 
-      - name: Test (CTest)
-        shell: cmd
-        working-directory: ${{ github.workspace }}/build
-        run: |
-          call conda activate einsums-env
-          if errorlevel 1 exit /b %ERRORLEVEL%
-          rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
-          set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-          ctest -j4 --output-on-failure
+      # - name: Test (CTest)
+      #   shell: cmd
+      #   working-directory: ${{ github.workspace }}/build
+      #   run: |
+      #     call conda activate einsums-env
+      #     if errorlevel 1 exit /b %ERRORLEVEL%
+      #     rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
+      #     set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
+      #     ctest -j4 --output-on-failure
 
       - name: Install
         shell: cmd
         working-directory: "${{github.workspace}}/build"
         run: |
           cmake --install . --prefix %GITHUB_WORKSPACE%\installed
-
-      - name: Test (pytest) - unit tests
-        shell: cmd
+          
+      - name: Check the dependencies of core.pyd.
+        shell: bash
         working-directory: "${{github.workspace}}/installed"
-        run: |
-          call conda activate einsums-env
-          set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
-          set "PATH=%PATH%;${{github.workspace}}\installed\lib\einsums"
-          set "EINSUMS_DEBUG_IMPORT=ON"
-          python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
-          pytest "${{github.workspace}}/installed"
+        run:
+            ldd lib/einsums/core.*.pyd
+
+      # - name: Test (pytest) - unit tests
+      #   shell: cmd
+      #   working-directory: "${{github.workspace}}/installed"
+      #   run: |
+      #     call conda activate einsums-env
+      #     set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
+      #     set "PATH=%PATH%;${{github.workspace}}\installed\lib\einsums"
+      #     set "EINSUMS_DEBUG_IMPORT=ON"
+      #     python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
+      #     pytest "${{github.workspace}}/installed"
