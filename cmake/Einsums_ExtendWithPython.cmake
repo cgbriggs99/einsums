@@ -28,7 +28,7 @@ function(einsums_extend_with_python target)
                                                       "${CMAKE_INSTALL_RPATH};\$ORIGIN/${_ein_pymod_relDir}"
     )
   else()
-    set_target_properties(${target} PROPERTIES PREFIX "" DEBUG_POSTFIX "")
+    set_target_properties(${target} PROPERTIES PREFIX "" DEBUG_POSTFIX "" SUFFIX ".dll")
     target_link_libraries(${target} PRIVATE pybind11::windows_extras pybind11::lto)
   endif()
 endfunction()
