@@ -157,11 +157,11 @@ jobs:
         shell: bash
         working-directory: "${{github.workspace}}"
         run: |
-          find / -iname "python314.dll" -o -iname "Einsumsd.dll" -o -iname "Einsums.dll" \
+          find "C:\" "D:\" -iname "python314.dll" -o -iname "Einsumsd.dll" -o -iname "Einsums.dll" \
           -o -iname "libomp.dll" -o -iname "spdlog.dll" -o -iname "hdf5.dll" -o -iname "fmt.dll" \
           -o -iname "MSVCP140D.dll" -o -iname "MSVCP140.dll" -o -iname "KERNEL32.dll" \
           -o -iname "VCRUNTIME140D.dll" -o -iname "VCRUNTIME140.dll" -o -iname "VCRUNTIME140_1D.dll" \
-          -o -iname "VCRUNTIME140_1.dll" -o -iname "ucrtbased.dll" 2>&/dev/null
+          -o -iname "VCRUNTIME140_1.dll" -o -iname "ucrtbased.dll"
 
 
       - name: Test (pytest) - unit tests
