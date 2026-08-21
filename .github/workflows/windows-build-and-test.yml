@@ -143,17 +143,20 @@ jobs:
         shell: cmd
         working-directory: "${{github.workspace}}/build"
         run: |
+          call conda activate einsums-env
           cmake --install . --prefix %GITHUB_WORKSPACE%\installed
           
       - name: Install binwalk for debugging this binary.
         shell: cmd
-        run:
+        run: |
+            call conda activate einsums-env
             conda install binwalk
             
       - name: Binwalk the pyd so I know what kind of file it is.
         shell: cmd
         working-directory: "${{github.workspace}}/installed"
-        run:
+        run: |
+            call conda activate einsums-env
             binwalk lib/einsums/core.*
             
       - name: Try dumpbin. It should be available.
