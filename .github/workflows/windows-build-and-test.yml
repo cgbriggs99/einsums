@@ -157,8 +157,9 @@ jobs:
         shell: bash
         working-directory: "${{github.workspace}}/installed"
         run:
-            call conda activate einsums-env
-            objdump -p lib/einsums/core.* & echo "done"
+            conda activate einsums-env
+            conda install ldd
+            ldd lib/einsums/core.*
 
       # - name: Test (pytest) - unit tests
       #   shell: cmd
