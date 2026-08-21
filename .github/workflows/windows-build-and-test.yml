@@ -145,11 +145,28 @@ jobs:
         run: |
           cmake --install . --prefix %GITHUB_WORKSPACE%\installed
           
+      - name: Install binwalk for debugging this binary.
+        shell: cmd
+        run:
+            conda install binwalk
+            
+      - name: Binwalk the pyd so I know what kind of file it is.
+        shell: cmd
+        working-directory: "${{github.workspace}}/installed"
+        run:
+            binwalk lib/einsums/core.*
+            
+      - name: Try dumpbin. It should be available.
+        shell: cmd
+        working-directory: "${{github.workspace}}/installed"
+        run:
+            dumpbin /DEPENDENTS lib/einsums/core.*
+          
       - name: Check the dependencies of core.pyd.
         shell: bash
         working-directory: "${{github.workspace}}/installed"
         run:
-            ldd lib/einsums/core.*.dll
+            objdump -p lib/einsums/core.*
 
       # - name: Test (pytest) - unit tests
       #   shell: cmd
