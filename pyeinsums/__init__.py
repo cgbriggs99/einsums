@@ -117,9 +117,11 @@ if hasattr(os, "add_dll_directory"):
     log_debug(f"Also adding {os.path.dirname(__modpath)} to the DLL search path.")
     __mod_dlls.append(os.add_dll_directory(os.path.dirname(__modpath)))
     for dir in sys.path:
-        __mod_dlls.append(os.add_dll_directory(dir))
+        if os.path.isdir(dir) :
+            __mod_dlls.append(os.add_dll_directory(dir))
     for dir in os.environ["PATH"].split(';') :
-        __mod_dlls.append(os.add_dll_directory(dir))
+        if os.path.isdir(dir) :
+            __mod_dlls.append(os.add_dll_directory(dir))
     
 try:
     log_debug("Trying to import from an Einsums installation.", __import_log_print)
