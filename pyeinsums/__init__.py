@@ -17,7 +17,7 @@ import datetime
 import typing
 
 
-def log(level: int, msg: str, always_print: bool = False, stack_info: typing.Optional[inspect.FrameInfo]=None):
+def log(level: int, msg: str, always_print: bool=False, stack_info: typing.Optional[inspect.FrameInfo]=None):
     """
 Log a message with a given level of urgency. Level 0 is for trace statements, 1 is for debugging statements,
 2 is for general information, 3 is for recoverable warnings, 4 is for unrecoverable errors, 5 is for critical
@@ -65,39 +65,40 @@ If none, then the logger will use the frame info of the function that called it.
         print(f"[{os.path.basename(stack_info.filename)}:{stack_info.lineno}/{stack_info.function}] {msg}")
 
 
-def log_trace(msg: str, always_print: bool = False):
+def log_trace(msg: str, always_print: bool=False):
     log(0, msg, always_print, inspect.stack()[1])
 
     
-def log_debug(msg: str, always_print: bool = False):
+def log_debug(msg: str, always_print: bool=False):
     log(1, msg, always_print, inspect.stack()[1])
 
     
-def log_info(msg: str, always_print: bool = False):
+def log_info(msg: str, always_print: bool=False):
     log(2, msg, always_print, inspect.stack()[1])
 
 
-def log_warn(msg: str, always_print: bool = False):
+def log_warn(msg: str, always_print: bool=False):
     log(3, msg, always_print, inspect.stack()[1])
 
 
-def log_error(msg: str, always_print: bool = False):
+def log_error(msg: str, always_print: bool=False):
     log(4, msg, always_print, inspect.stack()[1])
 
 
-def log_critical(msg: str, always_print: bool = False):
+def log_critical(msg: str, always_print: bool=False):
     log(5, msg, always_print, inspect.stack()[1])
+
 
 __import_log_print = False
 
 # Set the EINSUMS_DEBUG_IMPORT environment variable to debug the import process.
-if "EINSUMS_DEBUG_IMPORT" in os.environ :
+if "EINSUMS_DEBUG_IMPORT" in os.environ:
     __affirmative = ["on", "yes", "true", "1"]
     __negative = ["off", "no", "false", "0"]
     
-    if os.environ["EINSUMS_DEBUG_IMPORT"].lower() in __affirmative :
+    if os.environ["EINSUMS_DEBUG_IMPORT"].lower() in __affirmative:
         __import_log_print = True
-    elif os.environ["EINSUMS_DEBUG_IMPORT"].lower() in __negative :
+    elif os.environ["EINSUMS_DEBUG_IMPORT"].lower() in __negative:
         __import_log_print = False
     del __affirmative
     del __negative
@@ -109,14 +110,16 @@ if __modpath not in sys.path:
     log_debug("Adding it to the PYTHONPATH.", __import_log_print)
     sys.path.append(__modpath)
     
-__mod_dll1 = None
-__mod_dll2 = None
+__mod_dlls = []
 if hasattr(os, "add_dll_directory"):
     log_debug("Adding it to the Windows DLL search path.", __import_log_print)
-    __mod_dll1 = os.add_dll_directory(__modpath)
+    __mod_dlls.append(os.add_dll_directory(__modpath))
     log_debug(f"Also adding {os.path.dirname(__modpath)} to the DLL search path.")
-    __mod_dll2 = os.add_dll_directory(os.path.dirname(__modpath))
-        
+    __mod_dlls.append(os.add_dll_directory(os.path.dirname(__modpath)))
+    for dir in sys.path:
+        __mod_dlls.append(os.add_dll_directory(dir))
+    for dir in os.environ["PATH"].split(';') :
+        __mod_dlls.append(os.add_dll_directory(dir))
     
 try:
     log_debug("Trying to import from an Einsums installation.", __import_log_print)
@@ -132,11 +135,9 @@ except (ModuleNotFoundError, ImportError):
             f"File is {__file__}, path is {sys.path} and version is {sys.version}"
         ) from e
 
-if __mod_dll1 is not None :
-    __mod_dll1.close()
-    
-if __mod_dll2 is not None :
-    __mod_dll2.close()
+for fp in __mod_dlls :
+    fp.close()
+del __mod_dlls
 
 from . import utils  # pylint: disable=wrong-import-position
 
@@ -163,5 +164,4 @@ def initialize():
 initialize()
 
 atexit.register(core.finalize)
-
 

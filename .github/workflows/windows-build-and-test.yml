@@ -152,14 +152,6 @@ jobs:
         run: |
             call conda activate einsums-env
             dumpbin.exe /DEPENDENTS lib/einsums/core.* & echo "done"
-          
-      - name: Check the dependencies of core.pyd.
-        shell: cmd
-        working-directory: "${{github.workspace}}/installed"
-        run: |
-            call conda activate einsums-env
-            conda install lld
-            lld lib/einsums/core.*
 
       - name: Test (pytest) - unit tests
         shell: cmd
