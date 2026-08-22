@@ -151,23 +151,27 @@ jobs:
         working-directory: "${{github.workspace}}/installed"
         run: |
             call conda activate einsums-env
-            dumpbin.exe /DEPENDENTS lib/einsums/core.* & echo "done"
+            dumpbin.exe /DEPENDENTS lib/Einsumsd.dll & echo "done"
+            
+      # Dependencies are:
+      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\spdlog.dll
+      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\hdf5.dll
+      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\fmt.dll
+      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\libomp.dll
+      # C:\Windows\System32\kernel32.dll
+      # C:\Windows\System32\vcruntime140d.dll
+      # C:\Windows\System32\msvcp140d.dll
+      # C:\Windows\System32\ucrtbased.dll
             
       - name: Find the dependencies so I know what the path needs to be.
         shell: cmd
         working-directory: "${{github.workspace}}/installed/lib"
         run: |
           call conda activate einsums-env
-          where /r C:\ Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
-          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll ^
-          VCRUNTIME140_1.dll ucrtbased.dll ucrtbase.dll & ^
-          where /r D:\ Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
-          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll ^
-          VCRUNTIME140_1.dll ucrtbased.dll ucrtbase.dll & ^
+          where /r C:\ python314.dll & ^
+          where /r D:\ python314.dll & ^
           echo "Searching on the path variable to see if they are already findable."
-          where Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
-          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll ^
-          VCRUNTIME140_1.dll ucrtbased.dll ucrtbase.dll
+          where python314.dll
 
 
       - name: Test (pytest) - unit tests

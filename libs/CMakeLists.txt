@@ -113,6 +113,10 @@ foreach(lib ${EINSUMS_LIBS})
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${lib}
   )
+  if(WIN32)
+    install(CODE [[ file(GET_RUNTIME_DEPENDENCIES MODULES ${lib} DIRECTORIES ${CMAKE_PREFIX_PATH}) ]]
+      COMPONENT ${lib})
+  endif()
   einsums_export_targets(${lib})
 
   add_subdirectory(${lib})
@@ -150,6 +154,11 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
       RUNTIME DESTINATION ${EINSUMS_INSTALL_PYMODDIR}/einsums
       COMPONENT ${lib}
     )
+    
+    if(WIN32)
+      install(CODE [[ file(GET_RUNTIME_DEPENDENCIES MODULES ${lib} DIRECTORIES ${CMAKE_PREFIX_PATH}) ]]
+        COMPONENT ${lib})
+    endif()
     einsums_export_targets(${lib})
 
     add_subdirectory(${lib})
