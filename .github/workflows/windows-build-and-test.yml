@@ -173,7 +173,6 @@ jobs:
           set "PATH=%PATH%;${{github.workspace}}\installed\bin"
           echo "%PATH%"
           echo "%PYTHONPATH%"
-
           echo "Searching on the path variable to see if they are already findable."
           where python314.dll Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
           MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll VCRUNTIME140_1.dll ^
