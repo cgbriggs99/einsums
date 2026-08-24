@@ -114,8 +114,8 @@ foreach(lib ${EINSUMS_LIBS})
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${lib}
   )
   if(WIN32)
-    install(CODE [[ file(GET_RUNTIME_DEPENDENCIES MODULES ${lib} DIRECTORIES ${CMAKE_PREFIX_PATH}) ]]
-      COMPONENT ${lib})
+    add_custom_command(TARGET ${lib} POST_BUILD COMMAND ${CMAKE_COMMAND} 
+      -E copy -t $<TARGET_FILE_DIR:${lib}> $<TARGET_RUNTIME_DLLS:${lib}> COMMAND_EXPAND_LISTS)
   endif()
   einsums_export_targets(${lib})
 

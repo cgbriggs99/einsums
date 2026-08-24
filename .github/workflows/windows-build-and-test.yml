@@ -129,15 +129,15 @@ jobs:
           if errorlevel 1 exit /b %ERRORLEVEL%
           cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
 
-      # - name: Test (CTest)
-      #   shell: cmd
-      #   working-directory: ${{ github.workspace }}/build
-      #   run: |
-      #     call conda activate einsums-env
-      #     if errorlevel 1 exit /b %ERRORLEVEL%
-      #     rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
-      #     set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
-      #     ctest -j4 --output-on-failure
+      - name: Test (CTest)
+        shell: cmd
+        working-directory: ${{ github.workspace }}/build
+        run: |
+          call conda activate einsums-env
+          if errorlevel 1 exit /b %ERRORLEVEL%
+          rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
+          set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
+          ctest -j4 --output-on-failure
 
       - name: Install
         shell: cmd
@@ -145,39 +145,6 @@ jobs:
         run: |
           call conda activate einsums-env
           cmake --install . --prefix %GITHUB_WORKSPACE%\installed
-            
-      - name: Try dumpbin. It should be available.
-        shell: cmd
-        working-directory: "${{github.workspace}}/installed"
-        run: |
-            call conda activate einsums-env
-            dumpbin.exe /DEPENDENTS lib/einsums/core.*
-            dumpbin.exe /DEPENDENTS lib/Einsumsd.lib & echo "done"
-            
-      # Dependencies are:
-      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\spdlog.dll
-      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\hdf5.dll
-      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\fmt.dll
-      # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\libomp.dll
-      # C:\Windows\System32\kernel32.dll
-      # C:\Windows\System32\vcruntime140d.dll
-      # C:\Windows\System32\msvcp140d.dll
-      # C:\Windows\System32\ucrtbased.dll
-            
-      - name: Find the dependencies so I know what the path needs to be.
-        shell: cmd
-        working-directory: "${{github.workspace}}/installed/lib"
-        run: |
-          call conda activate einsums-env
-          set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
-          set "PATH=%PATH%;${{github.workspace}}\installed\bin"
-          echo "%PATH%"
-          echo "%PYTHONPATH%"
-          echo "Searching on the path variable to see if they are already findable."
-          where python314.dll Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
-          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll VCRUNTIME140_1.dll ^
-          ucrtbased.dll ucrtbase.dll
-
 
       - name: Test (pytest) - unit tests
         shell: cmd

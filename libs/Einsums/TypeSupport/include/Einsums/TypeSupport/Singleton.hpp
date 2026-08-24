@@ -13,7 +13,7 @@
  * class and does not contain any code. Make sure to use a matching \c EINSUMS_SINGLETON_IMPL somewhere else to
  * get the code to compile.
  *
- * This will provide thE <tt>Type &get_singleton()</tt> method..
+ * This will provide the <tt>Type &get_singleton()</tt> method..
  *
  * @param Type The type of singleton to construct.
  */
