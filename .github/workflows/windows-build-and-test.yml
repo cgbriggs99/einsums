@@ -169,10 +169,15 @@ jobs:
         working-directory: "${{github.workspace}}/installed/lib"
         run: |
           call conda activate einsums-env
-          where /r C:\ python314.dll & ^
-          where /r D:\ python314.dll & ^
+          set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
+          set "PATH=%PATH%;${{github.workspace}}\installed\bin"
+          echo "%PATH%"
+          echo "%PYTHONPATH%"
+
           echo "Searching on the path variable to see if they are already findable."
-          where python314.dll
+          where python314.dll Einsumsd.dll Einsums.dll libomp.dll spdlog.dll hdf5.dll fmt.dll MSVCP140D.dll ^
+          MSVCP140.dll KERNEL32.dll VCRUNTIME140D.dll VCRUNTIME140.dll VCRUNTIME140_1D.dll VCRUNTIME140_1.dll ^
+          ucrtbased.dll ucrtbase.dll
 
 
       - name: Test (pytest) - unit tests
@@ -181,7 +186,9 @@ jobs:
         run: |
           call conda activate einsums-env
           set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
-          set "PATH=%PATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums"
+          set "PATH=%PATH%;${{github.workspace}}\installed\bin"
+          echo "%PATH%"
+          echo "%PYTHONPATH%"
           set "EINSUMS_DEBUG_IMPORT=ON"
           python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
           pytest "${{github.workspace}}\installed\lib\einsums"
