@@ -155,4 +155,4 @@ jobs:
           set "PATH=%PATH%;${{github.workspace}}\installed\bin"
           echo "%PATH%"
           echo "%PYTHONPATH%"
-          pytest "${{github.workspace}}\installed\lib\einsums"
+          pytest --rootdir "${{github.workspace}}\installed\lib\einsums" -m "not slow"

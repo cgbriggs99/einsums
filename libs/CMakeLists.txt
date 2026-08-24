@@ -165,16 +165,6 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
   endforeach()
 
   install(
-    DIRECTORY
-      ../tests
-    DESTINATION
-      ${EINSUMS_INSTALL_PYMODDIR}/einsums
-    USE_SOURCE_PERMISSIONS
-    COMPONENT EinsumsPy
-    FILES_MATCHING
-      PATTERN "test_*.py"
-  )
-  install(
     FILES
       ../pyeinsums/__init__.py
       ../pyeinsums/utils.py
@@ -182,6 +172,27 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
       ${EINSUMS_INSTALL_PYMODDIR}/einsums
     COMPONENT EinsumsPy
   )
+  
+  if(EINSUMS_WITH_TESTS)
+    install(
+      DIRECTORY
+        ../tests
+      DESTINATION
+        ${EINSUMS_INSTALL_PYMODDIR}/einsums
+      USE_SOURCE_PERMISSIONS
+      COMPONENT EinsumsPy
+      FILES_MATCHING
+        PATTERN "test_*.py"
+    )
+    install(
+      FILES
+        ../pytest.ini
+      DESTINATION
+        ${EINSUMS_INSTALL_PYMODDIR}/einsums
+      COMPONENT EinsumsPy
+    )
+  endif()
+  
   set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "${_old_default_comp}")
 endif()
 
