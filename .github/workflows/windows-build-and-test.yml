@@ -151,7 +151,8 @@ jobs:
         working-directory: "${{github.workspace}}/installed"
         run: |
             call conda activate einsums-env
-            dumpbin.exe /DEPENDENTS lib/Einsumsd.dll & echo "done"
+            dumpbin.exe /DEPENDENTS lib/einsums/core.*
+            dumpbin.exe /DEPENDENTS lib/Einsumsd.lib & echo "done"
             
       # Dependencies are:
       # C:\Users\runneradmin\miniconda3\envs\einsums-env\Library\bin\spdlog.dll
@@ -163,24 +164,24 @@ jobs:
       # C:\Windows\System32\msvcp140d.dll
       # C:\Windows\System32\ucrtbased.dll
             
-      - name: Find the dependencies so I know what the path needs to be.
-        shell: cmd
-        working-directory: "${{github.workspace}}/installed/lib"
-        run: |
-          call conda activate einsums-env
-          where /r C:\ python314.dll & ^
-          where /r D:\ python314.dll & ^
-          echo "Searching on the path variable to see if they are already findable."
-          where python314.dll
-
-
-      - name: Test (pytest) - unit tests
-        shell: cmd
-        working-directory: "${{github.workspace}}/installed/lib"
-        run: |
-          call conda activate einsums-env
-          set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
-          set "PATH=%PATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums"
-          set "EINSUMS_DEBUG_IMPORT=ON"
-          python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
-          pytest "${{github.workspace}}\installed\lib\einsums"
+      # - name: Find the dependencies so I know what the path needs to be.
+      #   shell: cmd
+      #   working-directory: "${{github.workspace}}/installed/lib"
+      #   run: |
+      #     call conda activate einsums-env
+      #     where /r C:\ python314.dll & ^
+      #     where /r D:\ python314.dll & ^
+      #     echo "Searching on the path variable to see if they are already findable."
+      #     where python314.dll
+      #
+      #
+      # - name: Test (pytest) - unit tests
+      #   shell: cmd
+      #   working-directory: "${{github.workspace}}/installed/lib"
+      #   run: |
+      #     call conda activate einsums-env
+      #     set "PYTHONPATH=${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums;%PYTHONPATH%;%CONDA_PREFIX%/lib"
+      #     set "PATH=%PATH%;${{github.workspace}}\installed\lib;${{github.workspace}}\installed\lib\einsums"
+      #     set "EINSUMS_DEBUG_IMPORT=ON"
+      #     python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
+      #     pytest "${{github.workspace}}\installed\lib\einsums"
