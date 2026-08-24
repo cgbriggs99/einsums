@@ -600,11 +600,6 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
         return EINVAL;
     }
 
-    if (dest[dest_size - 1] != 0) {
-        errno = EINVAL;
-        return EINVAL;
-    }
-
     if (src == nullptr) {
         dest[0] = 0; // I don't know why Windows does this. It would be better to leave the string unmodified.
         errno   = EINVAL;
@@ -701,7 +696,7 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 }
 
 [[nodiscard]] errno_t strncat_s(char *dest, std::size_t dest_size, char const *src, std::size_t count) {
-    if (dest == nullptr || dest[dest_size - 1] == 0) {
+    if (dest == nullptr) {
         errno = EINVAL;
         std::raise(SIGSEGV);
         return EINVAL;

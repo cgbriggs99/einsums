@@ -374,8 +374,9 @@ TEST_CASE("strncpy_s, strncat_s", "[windows-overrides][strncpy_s][strncat_s]") {
     REQUIRE_NOTHROW(error = einsums::strncpy_s(string, 32, "Hello, World", 7));
 
     REQUIRE(error == 0);
+    string[7] = 0;
 
-    REQUIRE_NOTHROW(error = einsums::strncat_s(string, 32, suff, 7));
+    REQUIRE_NOTHROW(error = einsums::strncat_s(string, 32, suff, 8));
 
     REQUIRE(error == 0);
 
