@@ -155,6 +155,4 @@ jobs:
           set "PATH=%PATH%;${{github.workspace}}\installed\bin"
           echo "%PATH%"
           echo "%PYTHONPATH%"
-          set "EINSUMS_DEBUG_IMPORT=ON"
-          python "${{github.workspace}}\installed\lib\einsums\tests\test_import.py"
           pytest "${{github.workspace}}\installed\lib\einsums"
