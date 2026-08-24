@@ -343,7 +343,7 @@ EINSUMS_EXPORT void qsort_s(void *base, std::size_t elements, std::size_t width,
 
 [[nodiscard]] EINSUMS_EXPORT errno_t strncat_s(char *dest, std::size_t dest_size, char const *src, std::size_t count);
 
-[[nodiscard]] EINSUMS_EXPORT errno_t strcpy_s(char *dest, std::size_t dest_size, char const *src, std::size_t count);
+[[nodiscard]] EINSUMS_EXPORT errno_t strncpy_s(char *dest, std::size_t dest_size, char const *src, std::size_t count);
 
 [[nodiscard]] EINSUMS_EXPORT char *strtok_s(char *str, char const *delimiters, StrtokContext *context);
 

@@ -17,42 +17,42 @@ using einsums::errno_t;
 #    define FAIL_TAG "[!shouldfail][!nonportable]"
 #endif
 
-//TEST_CASE("asctime_s null buffer", "[windows-overrides][asctime_s]") {
-//    std::time_t    curr = std::time(nullptr);
-//    struct std::tm time_struct;
+// TEST_CASE("asctime_s null buffer", "[windows-overrides][asctime_s]") {
+//     std::time_t    curr = std::time(nullptr);
+//     struct std::tm time_struct;
 //
-//    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
-//    REQUIRE(einsums::asctime_s(nullptr, 0, &time_struct) == EINVAL);
-//}
+//     REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+//     REQUIRE(einsums::asctime_s(nullptr, 0, &time_struct) == EINVAL);
+// }
 //
-//TEST_CASE("asctime_s no data", "[windows-overrides][asctime_s]") {
-//    std::array<char, 256> buffer;
-//    std::time_t           curr = std::time(nullptr);
-//    struct std::tm        time_struct;
+// TEST_CASE("asctime_s no data", "[windows-overrides][asctime_s]") {
+//     std::array<char, 256> buffer;
+//     std::time_t           curr = std::time(nullptr);
+//     struct std::tm        time_struct;
 //
-//    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
-//    REQUIRE(einsums::asctime_s(buffer.data(), 0, &time_struct) == EINVAL);
-//}
+//     REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+//     REQUIRE(einsums::asctime_s(buffer.data(), 0, &time_struct) == EINVAL);
+// }
 
-//TEST_CASE("asctime_s buffer too small", "[windows-overrides][asctime_s]") {
-//    std::array<char, 256> buffer;
-//    buffer[0]           = 'A';
-//    buffer[5]           = 'A';
-//    std::time_t    curr = std::time(nullptr);
-//    struct std::tm time_struct;
+// TEST_CASE("asctime_s buffer too small", "[windows-overrides][asctime_s]") {
+//     std::array<char, 256> buffer;
+//     buffer[0]           = 'A';
+//     buffer[5]           = 'A';
+//     std::time_t    curr = std::time(nullptr);
+//     struct std::tm time_struct;
 //
-//    REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
-//    REQUIRE(einsums::asctime_s(buffer.data(), 5, &time_struct) == EINVAL);
-//    REQUIRE(buffer[0] == 0);
-//    REQUIRE(buffer[5] == 'A');
-//}
+//     REQUIRE(einsums::localtime_s(&time_struct, &curr) == 0);
+//     REQUIRE(einsums::asctime_s(buffer.data(), 5, &time_struct) == EINVAL);
+//     REQUIRE(buffer[0] == 0);
+//     REQUIRE(buffer[5] == 'A');
+// }
 
-//TEST_CASE("asctime_s no time pointer", "[windows-overrides][asctime_s][!shouldfail]") {
-//    std::array<char, 256> buffer;
-//    buffer[0] = 'A';
-//    REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), nullptr) == EINVAL);
-//    REQUIRE(buffer[0] == 0);
-//}
+// TEST_CASE("asctime_s no time pointer", "[windows-overrides][asctime_s][!shouldfail]") {
+//     std::array<char, 256> buffer;
+//     buffer[0] = 'A';
+//     REQUIRE(einsums::asctime_s(buffer.data(), buffer.size(), nullptr) == EINVAL);
+//     REQUIRE(buffer[0] == 0);
+// }
 
 TEST_CASE("asctime_s proper inputs", "[windows-override][asctime_s]") {
     std::array<char, 256> buffer;
@@ -208,26 +208,26 @@ TEST_CASE("bsearch_s", "[windows-overrides][qsort_s][bsearch_s]") {
 //    REQUIRE(einsums::clearerr_s(nullptr) == EINVAL);
 //}
 
-//TEST_CASE("fopen_s null output", "[windows-override][fopen_s][!shouldfail]") {
-//    REQUIRE(einsums::fopen_s(nullptr, nullptr, nullptr) == EINVAL);
-//}
+// TEST_CASE("fopen_s null output", "[windows-override][fopen_s][!shouldfail]") {
+//     REQUIRE(einsums::fopen_s(nullptr, nullptr, nullptr) == EINVAL);
+// }
 
 // this causes a segfault.
-//TEST_CASE("fopen_s null file name", "[windows-override][fopen_s][!shouldfail]") {
+// TEST_CASE("fopen_s null file name", "[windows-override][fopen_s][!shouldfail]") {
 //    std::FILE *fp = nullptr;
 //    // Test opening.
 //    REQUIRE(einsums::fopen_s(&fp, nullptr, nullptr) == EINVAL);
 //    REQUIRE(fp == nullptr);
 //}
 //
-//TEST_CASE("fopen_s null mode", "[windows-override][fopen_s][!shouldfail]") {
+// TEST_CASE("fopen_s null mode", "[windows-override][fopen_s][!shouldfail]") {
 //    std::FILE *fp = nullptr;
 //    // Test opening.
 //    REQUIRE(einsums::fopen_s(&fp, "test.txt", nullptr) == EINVAL);
 //    REQUIRE(fp == nullptr);
 //}
 
-TEST_CASE("fopen_s, fprintf_s, freopen_s, fread_s", "[windows-override][fopen_s]") {
+TEST_CASE("fopen_s, fprintf_s, freopen_s, fread_s", "[windows-overrides][fopen_s]") {
     std::FILE *fp = nullptr;
     // Test opening.
     REQUIRE(einsums::fopen_s(&fp, "test.txt", "w+") == 0);
@@ -242,6 +242,168 @@ TEST_CASE("fopen_s, fprintf_s, freopen_s, fread_s", "[windows-override][fopen_s]
     // Test reading.
     std::array<char, 256> buffer;
     REQUIRE(einsums::fread_s(reinterpret_cast<void *>(buffer.data()), buffer.size(), sizeof(char), 23, fp) == 23);
+
+    REQUIRE_NOTHROW(std::fclose(fp));
+}
+
+TEST_CASE("getenv_s", "[windows-overrides][getenv_s]") {
+    size_t needed_size;
+
+    errno_t error;
+
+    REQUIRE_NOTHROW(error = einsums::getenv_s(&needed_size, nullptr, 0, "PATH"));
+    REQUIRE(error == 0);
+
+    std::vector<char> buffer;
+
+    buffer.resize(needed_size);
+
+    REQUIRE_NOTHROW(error = einsums::getenv_s(&needed_size, buffer.data(), needed_size, "PATH"));
+    REQUIRE(error == 0);
+
+    INFO(std::string_view(buffer.data()));
+}
+
+TEST_CASE("getpid", "[windows-overrides][getpid]") {
+    int pid;
+
+    REQUIRE_NOTHROW(pid = einsums::getpid());
+
+    REQUIRE(pid != 0);
+
+    INFO(pid);
+}
+
+TEST_CASE("getppid", "[windows-overrides][getppid]") {
+    int ppid;
+
+    REQUIRE_NOTHROW(ppid = einsums::getppid());
+
+    INFO(ppid);
+}
+
+TEST_CASE("gmtime_s", "[windows-overrides][gmtime_s]") {
+    struct std::tm time_struct;
+    std::time_t    time;
+
+    errno_t error;
+
+    time = std::time(nullptr);
+
+    REQUIRE_NOTHROW(error = einsums::gmtime_s(&time_struct, &time));
+    REQUIRE(error == 0);
+}
+
+TEST_CASE("localtime_s", "[windows-overrides][localtime_s]") {
+    struct std::tm time_struct;
+    std::time_t    time;
+
+    errno_t error;
+
+    time = std::time(nullptr);
+
+    REQUIRE_NOTHROW(error = einsums::localtime_s(&time_struct, &time));
+    REQUIRE(error == 0);
+}
+
+TEST_CASE("memcpy_s", "[windows-overrides][memcpy_s]") {
+    std::vector<int> data_1(100), data_2(100);
+
+    std::default_random_engine         engine;
+    std::uniform_int_distribution<int> random_dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+
+    for (int i = 0; i < data_1.size(); i++) {
+        data_1[i] = random_dist(engine);
+    }
+
+    errno_t error;
+
+    REQUIRE_NOTHROW(error = einsums::memcpy_s(data_2.data(), data_2.size() * sizeof(int), data_1.data(), data_1.size() * sizeof(int)));
+
+    REQUIRE(error == 0);
+
+    REQUIRE_THAT(data_1, Catch::Matchers::Equals(data_2));
+}
+
+TEST_CASE("memmove_s", "[windows-overrides][memmove_s]") {
+    std::vector<int> data_1(100), data_2(100);
+
+    std::default_random_engine         engine;
+    std::uniform_int_distribution<int> random_dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+
+    for (int i = 0; i < data_1.size(); i++) {
+        data_1[i] = random_dist(engine);
+    }
+
+    errno_t error;
+
+    REQUIRE_NOTHROW(error = einsums::memmove_s(data_2.data(), data_2.size() * sizeof(int), data_1.data(), data_1.size() * sizeof(int)));
+
+    REQUIRE(error == 0);
+
+    REQUIRE_THAT(data_1, Catch::Matchers::Equals(data_2));
+}
+
+TEST_CASE("strcpy_s, strcat_s", "[windows-overrides][strcpy_s][strcat_s]") {
+    char const suff[] = "World!\n";
+
+    char *string = new char[32];
+
+    errno_t error;
+
+    REQUIRE_NOTHROW(error = einsums::strcpy_s(string, 32, "Hello, "));
+
+    REQUIRE(error == 0);
+
+    REQUIRE_NOTHROW(error = einsums::strcat_s(string, 32, suff));
+
+    REQUIRE(error == 0);
+
+    REQUIRE_THAT(std::string{string}, Catch::Matchers::Equals(std::string{"Hello, World!\n"}));
+
+    delete[] string;
+}
+
+TEST_CASE("strncpy_s, strncat_s", "[windows-overrides][strncpy_s][strncat_s]") {
+    char const suff[] = "World!\n";
+
+    char *string = new char[32];
+
+    errno_t error;
+
+    REQUIRE_NOTHROW(error = einsums::strncpy_s(string, 32, "Hello, World", 7));
+
+    REQUIRE(error == 0);
+
+    REQUIRE_NOTHROW(error = einsums::strncat_s(string, 32, suff, 7));
+
+    REQUIRE(error == 0);
+
+    REQUIRE_THAT(std::string{string}, Catch::Matchers::Equals(std::string{"Hello, World!\n"}));
+
+    delete[] string;
+}
+
+TEST_CASE("strtok_s", "[windows-overrides][strtok_s]") {
+    einsums::StrtokContext context;
+
+    char string[] = "foo;bar;baz";
+
+    REQUIRE_THAT(std::string{einsums::strtok_s(string, ";", &context)}, Catch::Matchers::Equals("foo"));
+    REQUIRE_THAT(std::string{einsums::strtok_s(nullptr, ";", &context)}, Catch::Matchers::Equals("bar"));
+    REQUIRE_THAT(std::string{einsums::strtok_s(nullptr, ";", &context)}, Catch::Matchers::Equals("baz"));
+    REQUIRE(einsums::strtok_s(nullptr, ";", &context) == nullptr);
+}
+
+TEST_CASE("tmpfile_s", "[windows-overrides][tmpfile_s]") {
+    std::FILE *fp;
+
+    errno_t error;
+
+    REQUIRE_NOTHROW(error = einsums::tmpfile_s(&fp));
+
+    REQUIRE(error == 0);
+    REQUIRE(fp != nullptr);
 
     REQUIRE_NOTHROW(std::fclose(fp));
 }

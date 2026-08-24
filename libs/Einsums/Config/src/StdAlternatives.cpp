@@ -314,6 +314,7 @@ namespace detail {
 [[nodiscard]] errno_t freopen_s(std::FILE **fp, char const *filename, char const *mode, std::FILE *old_fp) {
     if (old_fp == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -369,18 +370,21 @@ namespace detail {
 [[nodiscard]] errno_t getenv_s(std::size_t *needed_size, char *buffer, std::size_t buffer_size, char const *var_name) {
     if (needed_size == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
     if (buffer == nullptr) {
         if (buffer_size > 0) {
             errno = EINVAL;
+            std::raise(SIGSEGV);
             return EINVAL;
         }
     }
 
     if (var_name == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -420,6 +424,7 @@ namespace detail {
 [[nodiscard]] errno_t gmtime_s(struct std::tm *tm_out, std::time_t const *time) {
     if (tm_out == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -440,6 +445,9 @@ namespace detail {
 #    endif
 
         errno = EINVAL;
+        if(time == nullptr) {
+            std::raise(SIGSEGV);
+        }
         return EINVAL;
     }
 
@@ -461,6 +469,7 @@ namespace detail {
 [[nodiscard]] errno_t localtime_s(struct std::tm *tm_out, std::time_t const *time) {
     if (tm_out == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -481,6 +490,7 @@ namespace detail {
 #    endif
 
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -500,6 +510,7 @@ namespace detail {
 [[nodiscard]] errno_t memcpy_s(void *dest, std::size_t dest_size, void const *src, std::size_t count) {
     if (count != 0 && (dest == nullptr || src == nullptr)) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -524,6 +535,7 @@ namespace detail {
 [[nodiscard]] errno_t memmove_s(void *dest, std::size_t dest_size, void const *src, std::size_t count) {
     if (count != 0 && (dest == nullptr || src == nullptr)) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -584,6 +596,7 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 [[nodiscard]] errno_t strcat_s(char *dest, std::size_t dest_size, char const *src) {
     if (dest == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -595,6 +608,7 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
     if (src == nullptr) {
         dest[0] = 0; // I don't know why Windows does this. It would be better to leave the string unmodified.
         errno   = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -620,12 +634,14 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 [[nodiscard]] errno_t strcpy_s(char *dest, std::size_t dest_size, char const *src) {
     if (dest == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return errno;
     }
 
     if (src == nullptr) {
         dest[0] = 0;
         errno   = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -650,6 +666,7 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 
 [[nodiscard]] errno_t strerror_s(char *buffer, std::size_t buff_size, errno_t error_code) {
     if (buffer == nullptr) {
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -686,11 +703,13 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 [[nodiscard]] errno_t strncat_s(char *dest, std::size_t dest_size, char const *src, std::size_t count) {
     if (dest == nullptr || dest[dest_size - 1] == 0) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
     if (src == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -715,12 +734,14 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 [[nodiscard]] errno_t strncpy_s(char *dest, std::size_t dest_size, char const *src, std::size_t count) {
     if (dest == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return errno;
     }
 
     if (src == nullptr) {
         dest[0] = 0;
         errno   = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
@@ -747,16 +768,19 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 [[nodiscard]] char *strtok_s(char *str, char const *delimiters, StrtokContext *context) {
     if (context == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return nullptr;
     }
 
     if (str == nullptr && *context == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return nullptr;
     }
 
     if (delimiters == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return nullptr;
     }
 
@@ -795,6 +819,7 @@ EINSUMS_CHECK_FORMAT(printf, 1, 2) int printf_s(char const *format, ...) {
 [[nodiscard]] errno_t tmpfile_s(std::FILE **fp) {
     if (fp == nullptr) {
         errno = EINVAL;
+        std::raise(SIGSEGV);
         return EINVAL;
     }
 
