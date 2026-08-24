@@ -124,27 +124,19 @@ struct BufferAllocator {
     pointer allocate(size_type n) {
         EINSUMS_LOG_DEBUG("Allocating {} elements ({} bytes).", n, n * type_size);
         if (n == 0) {
-            EINSUMS_LOG_TRACE("No elements requested. Returning null.");
             return nullptr;
         }
 
         pointer out;
 
-        EINSUMS_LOG_TRACE("Reserving the bytes.");
-
         if (!reserve(n)) {
-            EINSUMS_LOG_TRACE("Could not reserve bytes.");
             EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                     "Could not allocate enough memory for buffers. Requested {} elements or {} bytes, but only {} bytes "
                                     "available out of {} bytes maximum.",
                                     n, n * type_size, available_size(), max_size());
         }
 
-        EINSUMS_LOG_TRACE("Allocating the bytes.");
-
         out = static_cast<pointer>(std::malloc(n * type_size));
-
-        EINSUMS_LOG_TRACE("New pointer is at {}.", static_cast<void const *>(out));
 
         if (out == nullptr) {
             EINSUMS_THROW_EXCEPTION(
@@ -152,8 +144,6 @@ struct BufferAllocator {
                 "Could not allocate enough memory for buffers. Requested {} elements or {} bytes, but malloc returned a null pointer.", n,
                 n * type_size);
         }
-
-        EINSUMS_LOG_TRACE("Finished allocating.");
 
         return out;
     }
@@ -173,14 +163,10 @@ struct BufferAllocator {
     reserve(size_type n) {
         EINSUMS_LOG_DEBUG("Reserving {} elements ({} bytes).", n, n * type_size);
         if (n == 0) {
-            EINSUMS_LOG_TRACE("No elements requested. Returning success.");
             return true;
         }
 
-        EINSUMS_LOG_TRACE("Getting the BufferAllocator settings.");
         auto &vars = detail::Einsums_BufferAllocator_vars::get_singleton();
-
-        EINSUMS_LOG_TRACE("Requesting bytes and returning whether that succeeded.");
 
         return vars.request_bytes(n * type_size);
     }
@@ -196,17 +182,12 @@ struct BufferAllocator {
     void release(size_type n) {
         EINSUMS_LOG_DEBUG("Releasing {} elements ({} bytes).", n, n * type_size);
         if (n == 0) {
-            EINSUMS_LOG_TRACE("Nothing to release.");
             return;
         }
 
-        EINSUMS_LOG_TRACE("Getting the BufferAllocator settings structure.");
         auto &vars = detail::Einsums_BufferAllocator_vars::get_singleton();
 
-        EINSUMS_LOG_TRACE("Logging the release.");
         vars.release_bytes(n * type_size);
-
-        EINSUMS_LOG_TRACE("Release logged.");
     }
 
     /**
@@ -216,18 +197,11 @@ struct BufferAllocator {
      * @param n The number of elements the pointer points to.
      */
     void deallocate(pointer p, size_type n) {
-        EINSUMS_LOG_TRACE("Deallocating {} elements ({} bytes) at pointer {}.", static_cast<void const *>(p), n, n * type_size);
+        EINSUMS_LOG_DEBUG("Deallocating {} elements ({} bytes) at pointer {}.", static_cast<void const *>(p), n, n * type_size);
         release(n);
 
-        EINSUMS_LOG_TRACE("Checking for nullness.");
-
         if (p != nullptr) {
-
-            EINSUMS_LOG_TRACE("Freeing pointer.");
             std::free(static_cast<void *>(p));
-            EINSUMS_LOG_TRACE("Pointer freed.");
-        } else {
-            EINSUMS_LOG_TRACE("Tried to free a null pointer. Exiting.");
         }
     }
 

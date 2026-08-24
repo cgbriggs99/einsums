@@ -49,8 +49,6 @@ template <typename T = double, bool Normalize = false, typename Distribution, st
         { dist(einsums::random_engine()) } -> std::same_as<T>;
     }
 auto create_random_tensor(std::string const &name, Distribution &&distribution, MultiIndex... index) -> Tensor<T, sizeof...(MultiIndex)> {
-    EINSUMS_LOG_TRACE("creating random tensor {}, {}", name, std::forward_as_tuple(index...));
-
     Tensor<T, sizeof...(MultiIndex)> A(name, std::forward<MultiIndex>(index)...);
     EINSUMS_OMP_PARALLEL_FOR
     for (size_t i = 0; i < A.size(); i++) {
@@ -127,8 +125,6 @@ auto create_random_tensor(std::string const &name, MultiIndex... index) -> Tenso
  */
 template <typename T = double, bool Normalize = false, typename Distribution, Container Indices>
 auto create_random_tensor(std::string const &name, Distribution &&dist, Indices const &indices) -> RuntimeTensor<T> {
-    EINSUMS_LOG_TRACE("creating random runtime tensor {}, {}", name, indices);
-
     RuntimeTensor<T> A(name, indices);
 
     EINSUMS_OMP_PARALLEL_FOR

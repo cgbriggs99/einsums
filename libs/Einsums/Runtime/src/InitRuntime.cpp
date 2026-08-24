@@ -101,43 +101,25 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
         init_logging(config);
     }
 
-    EINSUMS_LOG_TRACE("Logging initialized. Getting configuration parameters.");
-
     auto &global_config = GlobalConfigMap::get_singleton();
-
-    EINSUMS_LOG_TRACE("The global configuration is at {}.", static_cast<void const *>(std::addressof(global_config)));
-    EINSUMS_LOG_TRACE("The global bool map is at {}.", static_cast<void const *>(global_config.get_bool_map().get()));
 
     // Report build settings.
     {
         auto version_str = build_string();
         EINSUMS_LOG_INFO("Starting Einsums: {}", version_str);
-
-        EINSUMS_LOG_TRACE("Version string's data is at {}. Trying to clear it.", static_cast<void const *>(version_str.data()));
-
-        version_str.clear();
-        version_str.shrink_to_fit();
-        EINSUMS_LOG_TRACE("Version string cleared. Trying to delete it.");
     }
 
     if (global_config.get_bool("install-signal-handlers", false)) {
-        EINSUMS_LOG_TRACE("Installing signal handlers...");
         set_signal_handlers();
     }
-
-    EINSUMS_LOG_TRACE("Initializing the profiler.");
 
     // This is the only initialization routine that needs to be explicitly called here.
     // This is because the runtime environment depends on the profiler. If the profiler
     // depended on the runtime environment, then there would be a dependency issue.
     profile::initialize();
 
-    EINSUMS_LOG_TRACE("Disabling HDF5 reporting.");
-
     // Disable HDF5 diagnostic reporting
     H5Eset_auto(0, nullptr, nullptr);
-
-    EINSUMS_LOG_TRACE("Creating the runtime instance.")
 
     // Build and configure this runtime instance.
     std::unique_ptr<Runtime> rt = std::make_unique<Runtime>(std::move(config), !is_init);
@@ -152,13 +134,9 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     run(f, *rt, params);
 
     // pointer to runtime is stored in TLS
-    EINSUMS_LOG_INFO("Releasing the runtime pointer.");
     Runtime *p = rt.release();
 
-    EINSUMS_LOG_TRACE("Registering the runtime pointer for eventual deletion.");
     detail::register_free_pointer([p]() { delete p; });
-
-    EINSUMS_LOG_TRACE("Returning from the run function. Starting to shut down.");
 
     return 0;
 }
@@ -171,7 +149,7 @@ int run_impl(std::function<int()> f, std::vector<std::string> const &argv, InitP
 
     // register default handlers
     [[maybe_unused]] auto signal_handler = std::signal(SIGABRT, on_abort);
-    [[maybe_unused]] auto exit_result = std::atexit(on_exit);
+    [[maybe_unused]] auto exit_result    = std::atexit(on_exit);
 #if defined(EINSUMS_HAVE_CXX11_STD_QUICK_EXIT)
     [[maybe_unused]] auto quick_exit_result = std::at_quick_exit(on_exit);
 #endif

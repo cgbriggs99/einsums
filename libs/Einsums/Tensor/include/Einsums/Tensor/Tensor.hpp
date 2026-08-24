@@ -2159,7 +2159,6 @@ TensorView(std::string, Tensor<T, OtherRank> &, Dim<Rank> const &, Args...) -> T
  */
 template <typename Type = double, typename... Args>
 auto create_tensor(std::string const &name, Args &&...args) {
-    EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(std::forward<Args>(args)...));
     return Tensor<Type, sizeof...(Args)>{name, args...};
 }
 
