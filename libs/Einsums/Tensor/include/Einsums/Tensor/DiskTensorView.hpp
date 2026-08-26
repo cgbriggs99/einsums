@@ -277,9 +277,11 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
             EINSUMS_THROW_EXCEPTION(access_denied, "Attempting to write data to a read only disk view.");
         }
 
+        std::lock_guard lock{*this};
+
         fetch();
 
-        std::memcpy(_tensor.data(), other, _tensor.size() * sizeof(T));
+        std::memcpy(_tensor->data(), other, _tensor->size() * sizeof(T));
 
         return *this;
     }
@@ -293,6 +295,8 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
         if (_readOnly) {
             EINSUMS_THROW_EXCEPTION(access_denied, "Attempting to write data to a read only disk view.");
         }
+
+        std::lock_guard lock{*this};
 
         // Check dims
         for (int i = 0; i < rank; i++) {
@@ -320,11 +324,10 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     void cache() const {
         auto lock = std::lock_guard(*this);
-        if (!_constructed) {
-            _tensor      = BufferTensor<T, Rank>{true, _dims};
-            _constructed = true;
+        if (!_tensor) {
+            _tensor = std::make_unique<BufferTensor<T, Rank>>(true, _dims);
 
-            auto err = H5Dread(_dataset, _data_type, _mem_dataspace, _dataspace, H5P_DEFAULT, _tensor.data());
+            auto err = H5Dread(_dataset, _data_type, _mem_dataspace, _dataspace, H5P_DEFAULT, _tensor->data());
 
             if (err < 0) {
                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not read tensor data!");
@@ -342,12 +345,11 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     void fetch() const {
         auto lock = std::lock_guard(*this);
-        if (!_constructed) {
-            _tensor      = BufferTensor<T, Rank>{true, _dims};
-            _constructed = true;
+        if (!_tensor) {
+            _tensor = std::make_unique<BufferTensor<T, Rank>>(true, _dims);
         }
 
-        auto err = H5Dread(_dataset, _data_type, _mem_dataspace, _dataspace, H5P_DEFAULT, _tensor.data());
+        auto err = H5Dread(_dataset, _data_type, _mem_dataspace, _dataspace, H5P_DEFAULT, _tensor->data());
 
         if (err < 0) {
             EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not read tensor data!");
@@ -359,7 +361,7 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     [[nodiscard]] auto get() -> BufferTensor<T, rank> & {
         cache();
-        return _tensor;
+        return *_tensor;
     }
 
     /**
@@ -367,7 +369,7 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     [[nodiscard]] auto get() const -> BufferTensor<T, rank> const & {
         cache();
-        return _tensor;
+        return *_tensor;
     }
 
     /**
@@ -376,7 +378,7 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     [[nodiscard]] auto get_update() -> BufferTensor<T, rank> & {
         fetch();
-        return _tensor;
+        return *_tensor;
     }
 
     /**
@@ -385,7 +387,7 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     [[nodiscard]] auto get_update() const -> BufferTensor<T, rank> const & {
         fetch();
-        return _tensor;
+        return *_tensor;
     }
 
     /**
@@ -394,11 +396,10 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     void unget() {
         auto lock = std::lock_guard(*this);
-        if (_constructed) {
+        if (_tensor) {
             put();
 
-            _tensor.~BufferTensor<T, rank>();
-            _constructed = false;
+            _tensor.reset();
         }
     }
 
@@ -407,9 +408,9 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     void put() {
         auto lock = std::lock_guard(*this);
-        if (!_readOnly && _constructed) {
-            _tensor.tensor_from_gpu();
-            H5Dwrite(_dataset, _data_type, _mem_dataspace, _dataspace, H5P_DEFAULT, _tensor.data());
+        if (!_readOnly && _tensor) {
+            _tensor->tensor_from_gpu();
+            H5Dwrite(_dataset, _data_type, _mem_dataspace, _dataspace, H5P_DEFAULT, _tensor->data());
         }
     }
 
@@ -655,12 +656,23 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
     /**
      * Set all of the values of the tensor to zero.
      */
-    void zero() { _tensor.zero(); }
+    void zero() {
+        if (!_tensor) {
+            fetch();
+        }
+
+        _tensor->zero();
+    }
 
     /**
      * Set all of the values of the tensor to the passed value.
      */
-    void set_all(T value) { _tensor.set_all(value); }
+    void set_all(T value) {
+        if (!_tensor) {
+            fetch();
+        }
+        _tensor->set_all(value);
+    }
 
     /**
      * Gets whether the view is showing the whole tensor.
@@ -715,7 +727,7 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      *
      * This is the in-core representation of the view.
      */
-    mutable BufferTensor<T, rank> _tensor;
+    mutable std::unique_ptr<BufferTensor<T, rank>> _tensor{nullptr};
 
     /**
      * @var _name
@@ -737,10 +749,6 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      * Indicates whether this view sees the entire data space that it was built on.
      */
     bool _full_view{false};
-
-    mutable bool _constructed{false};
-
-    // std::unique_ptr<Tensor<ViewRank, T>> _tensor;
 };
 
 TENSOR_EXPORT(DiskView)
