@@ -33,7 +33,7 @@ class PyBlockTensor : public RuntimeBlockTensor<T> {
 
     using typename RuntimeBlockTensor<T>::ValueType;
 
-    using RuntimeBlockTensor<T>::BlockTensor;
+    using RuntimeBlockTensor<T>::RuntimeBlockTensor;
 
     void zero() override { PYBIND11_OVERRIDE(void, RuntimeBlockTensor<T>, zero); }
 

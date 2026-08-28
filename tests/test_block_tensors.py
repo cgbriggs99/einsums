@@ -32,9 +32,9 @@ def test_creation(tensor_type):
     
     assert A.name == "A"
     
-    assert A.rank == 2
-    assert B.rank == 2
-    assert C.rank == 2
+    assert A.rank() == 2
+    assert B.rank() == 2
+    assert C.rank() == 2
     
     A[0, 0] = 1.0
     A[0, 1] = 2.0
@@ -54,7 +54,7 @@ def test_creation(tensor_type):
     assert C.dim() == 3
     assert C.num_blocks() == 2
     assert len(C) == 2
-    assert C.rank == 2
+    assert C.rank() == 2
     
     for i in range(3):
         for j in range(3):
