@@ -232,7 +232,7 @@ pybind11::tuple qr_work(pybind11::buffer const &_A) {
 
     // Extract Matrix Q out of QR factorization
     // blas::int_t info2 = blas::orgqr(m, n, tau.dim(0), A.data(), n, const_cast<const double *>(tau.data()));
-    return py::make_tuple(PyTensor<T>(std::move(A)), PyTensor<T>(std::move(tau)));
+    return py::make_tuple(RuntimeTensor<T>(std::move(A)), RuntimeTensor<T>(std::move(tau)));
 }
 
 py::tuple qr(pybind11::buffer const &A) {

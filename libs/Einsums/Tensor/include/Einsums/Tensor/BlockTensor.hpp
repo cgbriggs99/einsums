@@ -67,6 +67,11 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      */
     BlockTensor() = default;
 
+    BlockTensor(size_t rank) : BlockTensor() {
+        static_assert(TensorConcept<TensorType>);
+        _rank = rank;
+    }
+
     /**
      * Copy constructs a new BlockTensor object.
      */
@@ -100,7 +105,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
         : _name{std::move(name)}, _dim{(static_cast<size_t>(block_dims) + ... + 0)}, _blocks(), _ranges(), _dims(sizeof...(Dims)),
           _rank{rank} {
         auto dim_array   = Dim<sizeof...(Dims)>{block_dims...};
-        auto _block_dims = std::vector<ptrdiff_t>(rank);
+        auto _block_dims = std::vector<size_t>(rank);
         _blocks.reserve(sizeof...(Dims));
 
         for (int i = 0; i < sizeof...(Dims); i++) {
@@ -132,7 +137,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
     explicit BlockTensor(std::string name, size_t rank, ArrayArg const &block_dims)
         : _name{std::move(name)}, _dim{0}, _blocks(), _ranges(), _dims(block_dims.cbegin(), block_dims.cend()), _rank{rank} {
 
-        auto _block_dims = std::vector<ptrdiff_t>(rank);
+        auto _block_dims = std::vector<size_t>(rank);
         _blocks.reserve(block_dims.size());
 
         for (int i = 0; i < block_dims.size(); i++) {
@@ -164,7 +169,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
     explicit BlockTensor(std::string name, size_t rank, std::initializer_list<IntType> block_dims)
         : _name{std::move(name)}, _dim{0}, _blocks(), _ranges(), _dims(block_dims.begin(), block_dims.end()), _rank{rank} {
 
-        auto _block_dims = std::vector<ptrdiff_t>();
+        auto _block_dims = std::vector<size_t>();
         _blocks.reserve(block_dims.size());
 
         for (int i = 0; i < block_dims.size(); i++) {
@@ -194,12 +199,12 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
     template <typename ArrayArg>
     explicit BlockTensor(size_t rank, ArrayArg const &block_dims)
         : _blocks(), _ranges(), _dims(block_dims.cbegin(), block_dims.cend()), _rank{rank} {
-        auto _block_dims = std::vector<ptrdiff_t>(rank);
+        auto _block_dims = std::vector<size_t>(rank);
 
         _blocks.reserve(block_dims.size());
 
         for (int i = 0; i < block_dims.size(); i++) {
-            _block_dims.assign(rank, _block_dims[i]);
+            _block_dims.assign(rank, block_dims[i]);
 
             _blocks.emplace_back(_block_dims);
         }
@@ -225,7 +230,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
     template <std::convertible_to<size_t> IntType>
     explicit BlockTensor(size_t rank, std::initializer_list<IntType> block_dims)
         : _blocks(), _ranges(), _dims(block_dims.begin(), block_dims.end()), _rank{rank} {
-        auto _block_dims = std::vector<ptrdiff_t>(rank);
+        auto _block_dims = std::vector<size_t>(rank);
 
         _blocks.reserve(block_dims.size());
 
@@ -269,10 +274,33 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
         EINSUMS_THROW_EXCEPTION(std::out_of_range, "Index out of range!");
     }
 
+    template <std::integral Arg0, std::integral... Args>
+    bool is_inside_block(Arg0 &&arg0, Args &&...args) const {
+        int block_0 = block_of(arg0);
+
+        return ((block_0 == block_of(args)) && ... && true);
+    }
+
+    template <Container Index>
+    bool is_inside_block(Index const &index) const {
+        if (index.size() == 0) {
+            return true;
+        }
+        int block_0 = block_of(*index.begin());
+
+        for (auto ind : index) {
+            if (block_0 != block_of(ind)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @brief Zeroes out the tensor data.
      */
-    void zero() {
+    virtual void zero() {
         EINSUMS_OMP_PARALLEL_FOR
         for (int i = 0; i < _blocks.size(); i++) {
             _blocks[i].zero();
@@ -286,7 +314,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      *
      * @param value Value to set the elements to.
      */
-    void set_all(T value) {
+    virtual void set_all(T value) {
         EINSUMS_OMP_PARALLEL_FOR
         for (int i = 0; i < _blocks.size(); i++) {
             _blocks[i].set_all(value);
@@ -300,10 +328,10 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      * @return The block requested.
      * @throws std::out_of_range if \p id is outside of the list of blocks.
      */
-    TensorType const &block(int id) const { return _blocks.at(id); }
+    virtual TensorType const &block(int id) const { return _blocks.at(id); }
 
     /// @copydoc block(int) const
-    TensorType &block(int id) { return _blocks.at(id); }
+    virtual TensorType &block(int id) { return _blocks.at(id); }
 
     /**
      * @brief Return the first block with the given name.
@@ -312,31 +340,31 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      * @return The requested block.
      * @throws std::out_of_range if no block with the given name is contained in this tensor.
      */
-    TensorType const &block(std::string const &name) const {
+    virtual TensorType const &block(std::string const &name) const {
         for (int i = 0; i < _blocks.size(); i++) {
             if (_blocks[i].name() == name) {
                 return _blocks[i];
             }
         }
         if (_blocks.size() == 0) {
-            EINSUMS_THROW_EXCEPTION(std::out_of_range, "Could not find block with the name {}: no blocks in tensor", name);
+            EINSUMS_THROW_EXCEPTION(std::out_of_range, fmt::runtime("Could not find block with the name {}: no blocks in tensor"), name);
         }
-        EINSUMS_THROW_EXCEPTION(std::out_of_range, "Could not find block with the name {}: no blocks with given name", name);
+        EINSUMS_THROW_EXCEPTION(std::out_of_range, fmt::runtime("Could not find block with the name {}: no blocks with given name"), name);
     }
 
     /**
      * @copydoc block(std::string const &) const
      */
-    TensorType &block(std::string const &name) {
+    virtual TensorType &block(std::string const &name) {
         for (int i = 0; i < _blocks.size(); i++) {
             if (_blocks[i].name() == name) {
                 return _blocks[i];
             }
         }
         if (_blocks.size() == 0) {
-            EINSUMS_THROW_EXCEPTION(std::out_of_range, "Could not find block with the name {}: no blocks in tensor", name);
+            EINSUMS_THROW_EXCEPTION(std::out_of_range, fmt::runtime("Could not find block with the name {}: no blocks in tensor"), name);
         }
-        EINSUMS_THROW_EXCEPTION(std::out_of_range, "Could not find block with the name {}: no blocks with given name", name);
+        EINSUMS_THROW_EXCEPTION(std::out_of_range, fmt::runtime("Could not find block with the name {}: no blocks with given name"), name);
     }
 
     /**
@@ -345,7 +373,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      * @param value The tensor to push.
      * @throws dimension_error if the tensor being pushed is not square.
      */
-    void push_block(TensorType value) {
+    virtual void push_block(TensorType const &value) {
         if (_rank != value.rank()) {
             EINSUMS_THROW_EXCEPTION(rank_error, "Can only push tensors of the correct rank!");
         }
@@ -366,7 +394,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      * @param value The tensor to insert.
      * @throws dimension_error if the tensor being pushed is not square.
      */
-    void insert_block(int pos, TensorType value) {
+    virtual void insert_block(int pos, TensorType const &value) {
         if (_rank != value.rank()) {
             EINSUMS_THROW_EXCEPTION(rank_error, "Can only push tensors of the correct rank!");
         }
@@ -626,9 +654,6 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
                 // Remap the index to be in the block.
                 index_list[i] -= _ranges.at(block)[0];
             } else {
-                if (_zero_value != T(0.0)) {
-                    _zero_value = T(0.0);
-                }
                 return _zero_value;
             }
         }
@@ -717,7 +742,9 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
 
 #ifndef DOXYGEN
 #    define OPERATOR(OP)                                                                                                                   \
-        auto operator OP(const T &b)->BlockTensor<T, TensorType> & {                                                                       \
+        template <typename TOther>                                                                                                         \
+            requires(!TensorConcept<TOther>)                                                                                               \
+        auto operator OP(const TOther &b)->BlockTensor<T, TensorType> & {                                                                  \
             for (int i = 0; i < _blocks.size(); i++) {                                                                                     \
                 if (block_dim(i) == 0) {                                                                                                   \
                     continue;                                                                                                              \
@@ -726,8 +753,9 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
             }                                                                                                                              \
             return *this;                                                                                                                  \
         }                                                                                                                                  \
-                                                                                                                                           \
-        auto operator OP(const BlockTensor<T, TensorType> &b)->BlockTensor<T, TensorType> & {                                              \
+        template <typename TOther>                                                                                                         \
+            requires(BlockTensorConcept<TOther>)                                                                                           \
+        auto operator OP(const TOther &b)->BlockTensor<T, TensorType> & {                                                                  \
             if (_rank != b._rank) {                                                                                                        \
                 EINSUMS_THROW_EXCEPTION(rank_error, "Can not operate between tensors of different rank!");                                 \
             }                                                                                                                              \
@@ -759,17 +787,22 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
 #    undef OPERATOR
 #endif
 
+    virtual auto operator=(T value) -> BlockTensor<T, TensorType> & {
+        set_all(value);
+        return *this;
+    }
+
     /**
      * @brief Convert block tensor into a normal tensor.
      */
     explicit operator TensorType() const {
-        std::vector<size_t> block_dims(_rank);
+        std::vector<size_t> _block_dims(_rank);
 
         for (int i = 0; i < _rank; i++) {
-            block_dims[i] = _dim;
+            _block_dims[i] = _dim;
         }
 
-        TensorType out(block_dims);
+        TensorType out(_block_dims);
 
         out.set_name(_name);
 
@@ -793,13 +826,13 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      */
     explicit operator TensorType() {
         update_dims();
-        std::vector<size_t> block_dims(_rank);
+        std::vector<size_t> _block_dims(_rank);
 
         for (int i = 0; i < _rank; i++) {
-            block_dims[i] = _dim;
+            _block_dims[i] = _dim;
         }
 
-        TensorType out(block_dims);
+        TensorType out(_block_dims);
 
         out.set_name(_name);
 
@@ -826,7 +859,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
     /**
      * @brief Return the dimensions of each block.
      */
-    [[nodiscard]] auto block_dims() const -> std::vector<size_t> const { return _dims; }
+    [[nodiscard]] auto block_dims() const -> std::vector<size_t> const & { return _dims; }
 
     /**
      * @brief Return a list containing the ranges for each block.
@@ -892,6 +925,26 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      */
     size_t dim() const { return _dim; }
 
+    virtual auto dims() const -> std::remove_cvref_t<decltype(std::declval<TensorType>().dims())> {
+        using OutType = std::remove_cvref_t<decltype(std::declval<TensorType>().dims())>;
+
+        if constexpr (IsRankTensorV<TensorType>) {
+            Dim<TensorType::Rank> out;
+
+            for (int i = 0; i < _rank; i++) {
+                out[i] = _dim;
+            }
+            return out;
+        } else {
+            std::vector<size_t> out(_rank);
+
+            for (int i = 0; i < _rank; i++) {
+                out[i] = _dim;
+            }
+            return out;
+        }
+    }
+
     /**
      * @brief Return the dimensions of each of the blocks.
      */
@@ -901,6 +954,9 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
         for (int i = 0; i < out.size(); i++) {
             out[i] = _blocks[i].dim(0);
         }
+
+        auto dims_test = dims();
+        static_assert(TensorConcept<BlockTensor<T, TensorType>>);
 
         return out;
     }
@@ -960,17 +1016,54 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
     /**
      * @brief Lock the tensor.
      */
-    void lock() const { Lockable::lock(); }
+    void lock() const {
+        Lockable::lock();
+        if constexpr (einsums::IsLockableV<TensorType>) {
+            for (auto const &block : _blocks) {
+                block.lock();
+            }
+        }
+    }
 
     /**
      * @brief Unlock the tensor.
      */
-    void unlock() const { Lockable::unlock(); }
+    void unlock() const {
+        Lockable::unlock();
+        if constexpr (einsums::IsLockableV<TensorType>) {
+            for (auto const &block : _blocks) {
+                block.unlock();
+            }
+        }
+    }
 
     /**
      * @brief Try to lock the tensor, returning true if successful.
      */
-    bool try_lock() const { return Lockable::try_lock(); }
+    bool try_lock() const {
+        bool out = Lockable::try_lock();
+        if constexpr (einsums::IsLockableV<TensorType>) {
+            if (!out) {
+                return out;
+            }
+            int stopped_at = 0;
+
+            for (int i = 0; i < _blocks.size(); i++, stopped_at++) {
+                if (!_blocks.at(i).try_lock()) {
+                    out = false;
+                    break;
+                }
+            }
+
+            if (!out) {
+                for (int i = 0; i < stopped_at; i++) {
+                    _blocks.at(i).unlock();
+                }
+                Lockable::unlock();
+            }
+        }
+        return out;
+    }
 
     /**
      * Lock a specific block.
@@ -1068,6 +1161,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
      * dimensions match the actual dimensions.
      */
     void update_dims() {
+        EINSUMS_LOG_DEBUG("Updating block tensor dimensions.");
         if (_dims.size() != _blocks.size()) {
             _dims.resize(_blocks.size());
         }
@@ -1083,6 +1177,7 @@ struct BlockTensor : public BlockTensorNoExtra, public design_pats::Lockable<std
             sum += _dims[i];
         }
 
+        EINSUMS_LOG_DEBUG("New dimension is {}", sum);
         _dim = sum;
     }
 };
@@ -1103,9 +1198,7 @@ struct BlockTensor : public tensor_base::BlockTensor<T, Tensor<T, rank>>, tensor
     /**
      * @brief Construct a new BlockTensor object. Default constructor.
      */
-    BlockTensor() : tensor_base::BlockTensor<T, Tensor<T, rank>>() {
-		this->_rank = Rank;
-	}
+    BlockTensor() : tensor_base::BlockTensor<T, Tensor<T, rank>>() { this->_rank = Rank; }
 
     /**
      * @brief Construct a new BlockTensor object. Default copy constructor
@@ -1213,6 +1306,9 @@ struct BlockTensor : public tensor_base::BlockTensor<T, Tensor<T, rank>>, tensor
         return out;
     }
 };
+
+template <typename T>
+using RuntimeBlockTensor = tensor_base::BlockTensor<T, RuntimeTensor<T>>;
 
 #ifdef EINSUMS_COMPUTE_CODE
 /**
