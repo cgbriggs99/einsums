@@ -445,7 +445,7 @@ void export_tensor(pybind11::module &mod) {
         .def("__len__", &RuntimeTensor<T>::size)
         .def("__iter__", [](RuntimeTensor<T> const &tensor) { return std::make_shared<PyTensorIterator<T>>(tensor); })
         .def("__reversed__", [](RuntimeTensor<T> const &tensor) { return std::make_shared<PyTensorIterator<T>>(tensor, true); })
-        .def_property_readonly("rank", &RuntimeTensor<T>::rank)
+        .def("rank", &RuntimeTensor<T>::rank)
         .def("__copy__", [](RuntimeTensor<T> const &self) { return RuntimeTensor<T>(self); })
         .def("__deepcopy__", [](RuntimeTensor<T> const &self) { return RuntimeTensor<T>(self); })
         .def("copy", [](RuntimeTensor<T> const &self) { return RuntimeTensor<T>(self); })
@@ -741,7 +741,7 @@ void export_tensor(pybind11::module &mod) {
         .def("__len__", &RuntimeTensorView<T>::size)
         .def("__iter__", [](RuntimeTensorView<T> const &tensor) { return std::make_shared<PyTensorIterator<T>>(tensor); })
         .def("__reversed__", [](RuntimeTensorView<T> const &tensor) { return std::make_shared<PyTensorIterator<T>>(tensor, true); })
-        .def_property_readonly("rank", &RuntimeTensorView<T>::rank)
+        .def("rank", &RuntimeTensorView<T>::rank)
         .def("__str__",
              [](RuntimeTensorView<T> const &self) {
                  std::stringstream stream;

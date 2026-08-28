@@ -123,7 +123,7 @@ void export_block_tensor(pybind11::module &mod) {
                       static_cast<void (RuntimeBlockTensor<T>::*)(std::string const &)>(&RuntimeBlockTensor<T>::set_name),
                       pybind11::return_value_policy::copy)
         .def("size", &RuntimeBlockTensor<T>::size)
-        .def_property_readonly("rank", &RuntimeBlockTensor<T>::rank)
+        .def("rank", &RuntimeBlockTensor<T>::rank)
         .def("__str__",
              [](RuntimeBlockTensor<T> const &self) -> std::string {
                  std::stringstream stream;
