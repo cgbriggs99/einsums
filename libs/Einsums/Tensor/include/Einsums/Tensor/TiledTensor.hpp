@@ -91,6 +91,8 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
      */
     TiledTensor() : _tile_offsets(), _tile_sizes(), _tiles(), _size(0), _dims{}, _grid_size{0}, _rank{0} {}
 
+    TiledTensor(size_t rank) : _tile_offsets(rank), _tile_sizes(rank), _tiles(), _size(0), _dims(rank, 0), _grid_size{0}, _rank{rank} {}
+
     /**
      * Create a new empty tiled tensor with the given grid. If only one grid is given, the grid is applied to all dimensions.
      * Otherwise, the number of grids must match the rank.
@@ -743,6 +745,8 @@ struct TiledTensorView final : public tensor_base::TiledTensor<T, einsums::Tenso
     using tensor_base::TiledTensor<T, einsums::TensorView<T, rank>, std::array<size_t, rank>>::TiledTensor;
 
     TiledTensorView() = default;
+
+    TiledTensorView(size_t __rank__) = delete; // Don't allow this constructor, but allow the others.
 
     /**
      * @brief Create an empty view with the given name and grid specification.

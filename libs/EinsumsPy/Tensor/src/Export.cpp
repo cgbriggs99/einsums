@@ -33,6 +33,9 @@ void export_tensor_typeless(py::module_ &mod) {
 
     pybind11::class_<einsums::tensor_base::BlockTensorNoExtra, std::shared_ptr<einsums::tensor_base::BlockTensorNoExtra>>(mod,
                                                                                                                           "BlockTensor");
+
+    pybind11::class_<einsums::tensor_base::TiledTensorNoExtra, std::shared_ptr<einsums::tensor_base::TiledTensorNoExtra>>(mod,
+                                                                                                                          "TiledTensor");
 }
 
 } // namespace einsums::python

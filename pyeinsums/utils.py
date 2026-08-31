@@ -197,7 +197,7 @@ def create_tensor(*args, dtype=float):
 
 def create_block_tensor(*args, dtype=float):
     """
-    Create a tensor. The arguments will be passed to the constructor.
+    Create a block tensor. The arguments will be passed to the constructor.
     The data type can also be specified.
 
     :param args: The arguments to pass to the constructor.
@@ -211,6 +211,25 @@ def create_block_tensor(*args, dtype=float):
         return core.BlockTensorC(*args)
     if dtype in __complex_doubles:
         return core.BlockTensorZ(*args)
+    raise ValueError(f"Can not create tensor with data type {dtype}!")
+
+
+def create_tiled_tensor(*args, dtype=float):
+    """
+    Create a tiled tensor. The arguments will be passed to the constructor.
+    The data type can also be specified.
+
+    :param args: The arguments to pass to the constructor.
+    :param dtype: The data type to be stored. Can only be single or double precision real or complex floating points.
+    """
+    if dtype in __singles:
+        return core.TiledTensorF(*args)
+    if dtype in __doubles:
+        return core.TiledTensorD(*args)
+    if dtype in __complex_singles:
+        return core.TiledTensorC(*args)
+    if dtype in __complex_doubles:
+        return core.TiledTensorZ(*args)
     raise ValueError(f"Can not create tensor with data type {dtype}!")
 
 
@@ -314,10 +333,46 @@ def create_random_block_tensor(name: str, rank: int, block_dims: list[int], dtyp
     :raises ValueError: if the data type is not a real or complex floating point type.
     """
     
-    out = create_block_tensor(name, rank)
+    out = create_block_tensor(name, rank, dtype=dtype)
     
     for index, dim in enumerate(block_dims):
         out.push_block(create_random_tensor(f"block {index}", [dim for _ in range(rank)], dtype))
+    return out
+
+
+def create_random_tiled_tensor(name: str, grid: list[list[int]], dtype=float, fill_ratio: float=1.0):
+    """
+    Creates a new Einsums tiled tensor and fills it with random data. The ratio of empty blocks can be specified.
+    
+    :param name: The name for the tensor.
+    :param grid: A grid specification.
+    :param dtype: The data type for the tensor to store.
+    :param fill_ratio: The ratio of tiles to populate. Defaults to 1, which populates all tiles.
+    """
+    
+    out = create_tiled_tensor(name, grid, dtype=dtype)
+    
+    index = [0 for _ in range(len(grid))]
+    
+    done = False 
+    
+    while not done:
+        
+        trial = random.random()
+        
+        if trial < fill_ratio:
+            out.set_tile(index, create_random_tensor(f"tile {index}", [grid[i][index[i]] for i in range(len(grid))], dtype=dtype))
+        
+        curr_pos = 0
+        index[0] += 1
+        for i in range(len(index) - 1):
+            if index[i] >= len(grid[i]):
+                index[i] = 0
+                index[i + 1] += 1
+            else:
+                break
+        if index[-1] >= len(grid[-1]):
+            done = True
     return out
 
 

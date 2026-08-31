@@ -153,7 +153,7 @@ TiledTensor<T, TensorType, KeyType> &TiledTensor<T, TensorType, KeyType>::operat
 
         // Turn sentinel into an index.
         for (int j = 0; j < _rank; j++) {
-            tile_index[i] = remaining % _tile_offsets[j].size();
+            tile_index[j] = remaining % _tile_offsets[j].size();
             remaining /= _tile_offsets[j].size();
         }
 

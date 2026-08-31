@@ -41,9 +41,9 @@ void export_tiled_tensor(pybind11::module_ &mod) {
 
     auto PyTiledTensor =
         py::class_<RuntimeTiledTensor<T>, std::shared_ptr<RuntimeTiledTensor<T>>>(mod, ("TiledTensor" + suffix).c_str())
-            .def(py::init<>())
             .def(py::init<RuntimeTiledTensor<T> const &>())
-            .def(py::init<std::string const &, std::vector<std::vector<size_t>>>())
+            .def(py::init<std::string const &, size_t, std::vector<size_t> const &>())
+            .def(py::init<std::string const &, std::vector<std::vector<size_t>> const &>())
             .def(
                 "tile",
                 [](RuntimeTiledTensor<T> &self, py::args args) -> RuntimeTensor<T> & {
@@ -74,6 +74,26 @@ void export_tiled_tensor(pybind11::module_ &mod) {
                     return self.tile(index);
                 },
                 py::return_value_policy::reference_internal)
+            .def("set_tile",
+                 [](RuntimeTiledTensor<T> &self, std::vector<ptrdiff_t> const &index, RuntimeTensor<T> const &copy) {
+                     if (index.size() != self.rank()) {
+                         EINSUMS_THROW_EXCEPTION(num_argument_error,
+                                                 "Wrong number of indices passed to tiled tensor to get tile! Expected {}, got {}.",
+                                                 self.rank(), index.size());
+                     }
+
+                     self.tile(index) = copy;
+                 })
+            .def("set_tile",
+                 [](RuntimeTiledTensor<T> &self, std::vector<ptrdiff_t> const &index, RuntimeTensorView<T> const &copy) {
+                     if (index.size() != self.rank()) {
+                         EINSUMS_THROW_EXCEPTION(num_argument_error,
+                                                 "Wrong number of indices passed to tiled tensor to get tile! Expected {}, got {}.",
+                                                 self.rank(), index.size());
+                     }
+
+                     self.tile(index) = copy;
+                 })
             .def("has_tile",
                  [](RuntimeTiledTensor<T> &self, py::args args) -> bool {
                      if (args.size() != self.rank()) {
@@ -204,12 +224,17 @@ void export_tiled_tensor(pybind11::module_ &mod) {
             .def("__len__", &RuntimeTiledTensor<T>::num_filled)
             .def("full_view_of_underlying", &RuntimeTiledTensor<T>::full_view_of_underlying)
             .def_property_readonly("shape", &RuntimeTiledTensor<T>::dims)
-            .def("__iter__", [](RuntimeTiledTensor<T> &self) { return py::make_iterator(self.tiles().begin(), self.tiles().end()); });
+            .def("__iter__", [](RuntimeTiledTensor<T> &self) { return py::make_iterator(self.tiles().begin(), self.tiles().end()); })
+            .def("copy", [](RuntimeTiledTensor<T> const &self) -> RuntimeTiledTensor<T> { return self; })
+            .def("__copy__", [](RuntimeTiledTensor<T> const &self) -> RuntimeTiledTensor<T> { return self; })
+            .def("deepcopy", [](RuntimeTiledTensor<T> const &self) -> RuntimeTiledTensor<T> { return self; })
+            .def("__deepcopy__", [](RuntimeTiledTensor<T> const &self) -> RuntimeTiledTensor<T> { return self; })
+            .def("rank", &RuntimeTiledTensor<T>::rank);
 
     auto PyTiledTensorView =
         py::class_<RuntimeTiledTensorView<T>, std::shared_ptr<RuntimeTiledTensorView<T>>>(mod, ("TiledTensorView" + suffix).c_str())
-            .def(py::init<>())
             .def(py::init<RuntimeTiledTensorView<T> const &>())
+            .def(py::init<std::string const &, size_t, std::vector<size_t> const &>())
             .def(py::init<std::string const &, std::vector<std::vector<size_t>>>())
             .def(
                 "tile",
@@ -241,6 +266,26 @@ void export_tiled_tensor(pybind11::module_ &mod) {
                     return self.tile(index);
                 },
                 py::return_value_policy::reference_internal)
+            .def("set_tile",
+                 [](RuntimeTiledTensorView<T> &self, std::vector<ptrdiff_t> const &index, RuntimeTensor<T> const &copy) {
+                     if (index.size() != self.rank()) {
+                         EINSUMS_THROW_EXCEPTION(num_argument_error,
+                                                 "Wrong number of indices passed to tiled tensor to get tile! Expected {}, got {}.",
+                                                 self.rank(), index.size());
+                     }
+
+                     self.tile(index) = copy;
+                 })
+            .def("set_tile",
+                 [](RuntimeTiledTensorView<T> &self, std::vector<ptrdiff_t> const &index, RuntimeTensorView<T> const &copy) {
+                     if (index.size() != self.rank()) {
+                         EINSUMS_THROW_EXCEPTION(num_argument_error,
+                                                 "Wrong number of indices passed to tiled tensor to get tile! Expected {}, got {}.",
+                                                 self.rank(), index.size());
+                     }
+
+                     self.tile(index) = copy;
+                 })
             .def("has_tile",
                  [](RuntimeTiledTensorView<T> &self, py::args args) -> bool {
                      if (args.size() != self.rank()) {
@@ -373,7 +418,12 @@ void export_tiled_tensor(pybind11::module_ &mod) {
             .def_property_readonly("shape", &RuntimeTiledTensorView<T>::dims)
             .def("insert_tile", static_cast<void (RuntimeTiledTensorView<T>::*)(std::vector<size_t> const &, RuntimeTensorView<T> const &)>(
                                     &RuntimeTiledTensorView<T>::insert_tile))
-            .def("__iter__", [](RuntimeTiledTensorView<T> &self) { return py::make_iterator(self.tiles().begin(), self.tiles().end()); });
+            .def("__iter__", [](RuntimeTiledTensorView<T> &self) { return py::make_iterator(self.tiles().begin(), self.tiles().end()); })
+            .def("copy", [](RuntimeTiledTensorView<T> const &self) -> RuntimeTiledTensorView<T> { return self; })
+            .def("__copy__", [](RuntimeTiledTensorView<T> const &self) -> RuntimeTiledTensorView<T> { return self; })
+            .def("deepcopy", [](RuntimeTiledTensorView<T> const &self) -> RuntimeTiledTensorView<T> { return self; })
+            .def("__deepcopy__", [](RuntimeTiledTensorView<T> const &self) -> RuntimeTiledTensorView<T> { return self; })
+            .def("rank", &RuntimeTiledTensorView<T>::rank);
 }
 
 } // namespace einsums::python
