@@ -95,7 +95,7 @@ struct TiledTensorNoExtra {};
 
 #ifndef DOXYGEN
 // Large class. See TiledTensor.hpp for code.
-template <typename T, size_t Rank, typename TensorType>
+template <typename T, typename TensorType, typename KeyType = std::vector<size_t>>
 struct TiledTensor;
 #endif
 

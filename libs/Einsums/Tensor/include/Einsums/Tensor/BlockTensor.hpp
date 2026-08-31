@@ -1268,7 +1268,7 @@ struct BlockTensor : public tensor_base::BlockTensor<T, Tensor<T, rank>>, tensor
 
         TiledTensorView<T, Rank> out{"block view", block_dims};
 
-        std::array<int, Rank> index;
+        std::array<size_t, Rank> index;
 
         for (int i = 0; i < this->_blocks.size(); i++) {
             index.fill(i);
@@ -1287,7 +1287,7 @@ struct BlockTensor : public tensor_base::BlockTensor<T, Tensor<T, rank>>, tensor
 
         TiledTensorView<T, Rank> out{"block view", block_dims};
 
-        std::array<int, Rank> index;
+        std::array<size_t, Rank> index;
 
         for (int i = 0; i < this->_blocks.size(); i++) {
             index.fill(i);

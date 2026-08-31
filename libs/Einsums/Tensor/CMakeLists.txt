@@ -15,6 +15,11 @@ set(TensorHeaders
     Einsums/Tensor/FunctionTensor.hpp
     Einsums/Tensor/RuntimeTensor.hpp
     Einsums/Tensor/TiledTensor.hpp
+    Einsums/Tensor/Backends/TiledTensor.hpp
+    Einsums/Tensor/Backends/TiledTensor/Constructors.hpp
+    Einsums/Tensor/Backends/TiledTensor/Operations.hpp
+    Einsums/Tensor/Backends/TiledTensor/Subscripting.hpp
+    Einsums/Tensor/Backends/TiledTensor/TileQuery.hpp
 )
 
 set(TensorSources TensorDefs.cpp Requirements.cpp)
