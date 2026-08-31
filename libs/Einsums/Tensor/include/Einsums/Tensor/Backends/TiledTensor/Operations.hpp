@@ -189,7 +189,7 @@ TiledTensor<T, TensorType, KeyType> &TiledTensor<T, TensorType, KeyType>::operat
         EINSUMS_THROW_EXCEPTION(tensor_compat_error, "Tiled tensors do not have the same layouts.");
     }
 
-    for (auto const &tile : other._tiles) {
+    for (auto &tile : other._tiles) {
         if (has_tile(tile.first)) {
             _tiles.at(tile.first) += tile.second;
         } else {
@@ -207,7 +207,7 @@ TiledTensor<T, TensorType, KeyType> &TiledTensor<T, TensorType, KeyType>::operat
         EINSUMS_THROW_EXCEPTION(tensor_compat_error, "Tiled tensors do not have the same layouts.");
     }
 
-    for (auto const &tile : other._tiles) {
+    for (auto &tile : other._tiles) {
         if (has_tile(tile.first)) {
             _tiles.at(tile.first) -= tile.second;
         } else {
@@ -226,7 +226,7 @@ TiledTensor<T, TensorType, KeyType> &TiledTensor<T, TensorType, KeyType>::operat
         EINSUMS_THROW_EXCEPTION(tensor_compat_error, "Tiled tensors do not have the same layouts.");
     }
 
-    for (auto const &tile : _tiles) {
+    for (auto &tile : _tiles) {
         if (other.has_tile(tile.first)) {
             tile.second *= other._tiles.at(tile.first);
         } else {
@@ -243,11 +243,11 @@ TiledTensor<T, TensorType, KeyType> &TiledTensor<T, TensorType, KeyType>::operat
         EINSUMS_THROW_EXCEPTION(tensor_compat_error, "Tiled tensors do not have the same layouts.");
     }
 
-    for (auto const &tile : _tiles) {
+    for (auto &tile : _tiles) {
         if (other.has_tile(tile.first)) {
             tile.second /= other._tiles.at(tile.first);
         } else {
-            tile.second /= T{0};
+            tile.second /= T{0.0};
         }
     }
 

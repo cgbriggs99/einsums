@@ -100,7 +100,7 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
      */
     template <ContainerOrInitializer... Sizes>
         requires(!ContainerOrInitializer<typename Sizes::value_type> && ... && true)
-    TiledTensor(std::string name, size_t rank, Sizes const &...sizes);
+    TiledTensor(std::string const &name, size_t rank, Sizes const &...sizes);
 
     /**
      * @brief Create a new empty tiled tensor with the given grid.
@@ -111,7 +111,7 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
     template <ContainerOrInitializer ContainerType>
         requires(ContainerOrInitializer<typename ContainerType::value_type> &&
                  std::is_integral_v<typename ContainerType::value_type::value_type>)
-    TiledTensor(std::string name, ContainerType const &sizes);
+    TiledTensor(std::string const &name, ContainerType const &sizes);
 
     /**
      * Copy a tiled tensor.
@@ -420,7 +420,7 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
     /**
      * Returns the tile offsets.
      */
-    std::vector<std::vector<int>> const &tile_offsets() const { return _tile_offsets; }
+    std::vector<std::vector<size_t>> const &tile_offsets() const { return _tile_offsets; }
 
     /**
      * Returns the tile offsets along a given dimension.
@@ -428,12 +428,12 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
      * @param i The axis to retrieve.
      *
      */
-    std::vector<int> const &tile_offset(int i = 0) const { return _tile_offsets.at(i); }
+    std::vector<size_t> const &tile_offset(int i = 0) const { return _tile_offsets.at(i); }
 
     /**
      * Returns the tile sizes.
      */
-    std::vector<std::vector<int>> const &tile_sizes() const { return _tile_sizes; }
+    std::vector<std::vector<size_t>> const &tile_sizes() const { return _tile_sizes; }
 
     /**
      * Returns the tile sizes along a given dimension.
@@ -441,7 +441,7 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
      * @param i The axis to retrieve.
      *
      */
-    std::vector<int> const &tile_size(int i = 0) const { return _tile_sizes.at(i); }
+    std::vector<size_t> const &tile_size(int i = 0) const { return _tile_sizes.at(i); }
 
     /**
      * Get a reference to the tile map.
@@ -502,6 +502,8 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
      */
     std::vector<size_t> const &dims() const { return _dims; }
 
+    size_t rank() const { return _rank; }
+
     /**
      * Convert to the underlying tensor type.
      */
@@ -530,7 +532,7 @@ struct TiledTensor : public TiledTensorNoExtra, design_pats::Lockable<std::recur
      *
      * @brief A list of the lengths of the tiles along the axes.
      */
-    std::vector<std::vector<int>> _tile_offsets, _tile_sizes;
+    std::vector<std::vector<size_t>> _tile_offsets, _tile_sizes;
 
     /**
      * @property _tiles
@@ -613,8 +615,8 @@ struct TiledTensor final : public tensor_base::TiledTensor<T, einsums::Tensor<T,
 
   public:
     static constexpr size_t Rank = rank;
-    using tensor_base::TiledTensor<T, Tensor<T, rank>, std::array<size_t, rank>>::ValueType;
-    using tensor_base::TiledTensor<T, Tensor<T, rank>, std::array<size_t, rank>>::StoredType;
+    using typename tensor_base::TiledTensor<T, Tensor<T, rank>, std::array<size_t, rank>>::ValueType;
+    using typename tensor_base::TiledTensor<T, Tensor<T, rank>, std::array<size_t, rank>>::StoredType;
 
     TiledTensor() : tensor_base::TiledTensor<T, Tensor<T, Rank>, std::array<size_t, Rank>>() { this->_rank = rank; }
 
@@ -775,9 +777,19 @@ struct TiledTensorView final : public tensor_base::TiledTensor<T, einsums::Tenso
      *
      * This does not add a tile to the viewed tensor, only to the view.
      */
-    void insert_tile(std::array<size_t, Rank> pos, einsums::TensorView<T, Rank> &&view) {
+    void insert_tile(std::array<size_t, Rank> const &pos, einsums::TensorView<T, Rank> &&view) {
         std::lock_guard lock(*this);
         this->_tiles.emplace(pos, view);
+    }
+
+    /**
+     * @brief Add a tile to the view.
+     *
+     * This does not add a tile to the viewed tensor, only to the view.
+     */
+    void insert_tile(std::array<size_t, Rank> const &pos, einsums::TensorView<T, Rank> const &view) {
+        std::lock_guard lock(*this);
+        this->_tiles.insert(std::pair(pos, view));
     }
 };
 

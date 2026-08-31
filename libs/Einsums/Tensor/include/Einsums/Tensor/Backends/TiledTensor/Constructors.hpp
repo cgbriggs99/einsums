@@ -28,7 +28,7 @@ namespace einsums::tensor_base {
 template <typename T, typename TensorType, typename KeyType>
 template <ContainerOrInitializer... Sizes>
     requires(!ContainerOrInitializer<typename Sizes::value_type> && ... && true)
-TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string name, size_t rank, Sizes const &...sizes)
+TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string const &name, size_t rank, Sizes const &...sizes)
     : _name(name), _tile_offsets(rank), _tile_sizes(rank), _tiles(), _size(0), _dims(rank), _rank{rank} {
 
     _size = 1;
@@ -37,16 +37,16 @@ TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string name, size_t rank, 
         for_sequence<sizeof...(Sizes)>([&](auto i) {
             auto &size = std::get<i>(size_tuple);
 
-            this->_tile_sizes[(int)i] = std::vector<int>(size.size());
-            for (int j = 0; j < size.size(); j++) {
-                this->_tile_sizes[(int)i][j] = size[j];
+            this->_tile_sizes[static_cast<size_t>(i)] = std::vector<size_t>(size.size());
+            for (size_t j = 0; j < size.size(); j++) {
+                this->_tile_sizes[static_cast<size_t>(i)][j] = size[j];
             }
         });
     } else if constexpr (sizeof...(Sizes) == 1) {
-        for (int i = 0; i < rank; i++) {
-            _tile_sizes[i] = std::vector<int>(sizes.size()...);
+        for (size_t i = 0; i < rank; i++) {
+            _tile_sizes[i] = std::vector<size_t>(sizes.size()...);
 
-            for (int j = 0; j < _tile_sizes[i].size(); j++) {
+            for (size_t j = 0; j < _tile_sizes[i].size(); j++) {
                 _tile_sizes[i][j] = (sizes[j] + ...); // Expand the parameter pack to make the compiler happy.
             }
         }
@@ -54,12 +54,12 @@ TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string name, size_t rank, 
         EINSUMS_THROW_EXCEPTION(num_argument_error, "The wrong number of arguments was passed to constructor! Must either be one argument "
                                                     "for a square tensor or the same number of arguments as the rank.");
     }
-    for (int i = 0; i < rank; i++) {
-        _tile_offsets[i] = std::vector<int>();
+    for (size_t i = 0; i < rank; i++) {
+        _tile_offsets[i] = std::vector<size_t>();
         _tile_offsets[i].reserve(_tile_sizes[i].size());
 
-        int sum = 0;
-        for (int j = 0; j < _tile_sizes[i].size(); j++) {
+        size_t sum = 0;
+        for (size_t j = 0; j < _tile_sizes[i].size(); j++) {
             _tile_offsets[i].push_back(sum);
             sum += _tile_sizes[i].at(j);
         }
@@ -69,7 +69,7 @@ TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string name, size_t rank, 
 
     _grid_size = 1;
 
-    for (int i = 0; i < rank; i++) {
+    for (size_t i = 0; i < rank; i++) {
         _grid_size *= _tile_offsets[i].size();
     }
 }
@@ -78,21 +78,21 @@ template <typename T, typename TensorType, typename KeyType>
 template <ContainerOrInitializer ContainerType>
     requires(ContainerOrInitializer<typename ContainerType::value_type> &&
              std::is_integral_v<typename ContainerType::value_type::value_type>)
-TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string name, ContainerType const &sizes)
+TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string const &name, ContainerType const &sizes)
     : _name(name), _tile_offsets(sizes.size()), _tile_sizes(sizes.size()), _tiles(), _size(0), _dims(sizes.size()), _rank{sizes.size()} {
-    for (int i = 0; i < _rank; i++) {
-        _tile_sizes[i] = std::vector<int>(sizes[i].size());
+    for (size_t i = 0; i < _rank; i++) {
+        _tile_sizes[i] = std::vector<size_t>(sizes[i].size());
 
-        for (int j = 0; j < sizes[i].size(); j++) {
+        for (size_t j = 0; j < sizes[i].size(); j++) {
             _tile_sizes[i][j] = sizes[i][j];
         }
     }
     _size = 1;
-    for (int i = 0; i < _rank; i++) {
-        _tile_offsets[i] = std::vector<int>();
+    for (size_t i = 0; i < _rank; i++) {
+        _tile_offsets[i] = std::vector<size_t>();
         _tile_offsets[i].reserve(_tile_sizes[i].size());
-        int sum = 0;
-        for (int j = 0; j < _tile_sizes[i].size(); j++) {
+        size_t sum = 0;
+        for (size_t j = 0; j < _tile_sizes[i].size(); j++) {
             _tile_offsets[i].push_back(sum);
             sum += _tile_sizes[i].at(j);
         }
@@ -102,7 +102,7 @@ TiledTensor<T, TensorType, KeyType>::TiledTensor(std::string name, ContainerType
 
     _grid_size = 1;
 
-    for (int i = 0; i < _rank; i++) {
+    for (size_t i = 0; i < _rank; i++) {
         _grid_size *= _tile_offsets[i].size();
     }
 }

@@ -20,6 +20,7 @@ set(TensorHeaders
     Einsums/Tensor/Backends/TiledTensor/Operations.hpp
     Einsums/Tensor/Backends/TiledTensor/Subscripting.hpp
     Einsums/Tensor/Backends/TiledTensor/TileQuery.hpp
+    Einsums/Tensor/RuntimeTiledTensor.hpp
 )
 
 set(TensorSources TensorDefs.cpp Requirements.cpp)

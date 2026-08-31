@@ -7,6 +7,7 @@
 
 #include <EinsumsPy/Tensor/BlockTensorExport.hpp>
 #include <EinsumsPy/Tensor/PyTensor.hpp>
+#include <EinsumsPy/Tensor/PyTiledTensor.hpp>
 #include <EinsumsPy/Tensor/TensorExport.hpp>
 #include <complex>
 #include <pybind11/pybind11.h>
@@ -22,4 +23,6 @@ void EXPORT_FUNCTION(export_Tensor, EINSUMS_EXPORT_TYPE_SUFFIX)(py::module_ &mod
     einsums::python::export_tensor<EINSUMS_EXPORT_TYPE>(mod);
 
     einsums::python::export_block_tensor<EINSUMS_EXPORT_TYPE>(mod);
+
+    einsums::python::export_tiled_tensor<EINSUMS_EXPORT_TYPE>(mod);
 }
