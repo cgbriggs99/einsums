@@ -97,8 +97,8 @@ struct RuntimeTiledTensorView final : public tensor_base::TiledTensor<T, Runtime
      */
     using underlying_type = RuntimeTiledTensor<T>;
 
-    using typename tensor_base::TiledTensor<T, RuntimeTensor<T>, std::vector<size_t>>::ValueType;
-    using typename tensor_base::TiledTensor<T, RuntimeTensor<T>, std::vector<size_t>>::StoredType;
+    using typename tensor_base::TiledTensor<T, RuntimeTensorView<T>, std::vector<size_t>>::ValueType;
+    using typename tensor_base::TiledTensor<T, RuntimeTensorView<T>, std::vector<size_t>>::StoredType;
 
     using tensor_base::TiledTensor<T, RuntimeTensorView<T>, std::vector<size_t>>::TiledTensor;
 

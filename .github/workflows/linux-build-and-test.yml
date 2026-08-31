@@ -130,6 +130,7 @@ jobs:
 
       - name: Configure CMake
         run: |
+          echo "$CONDA_PREFIX"
           cmake \
             -G Ninja \
             -S "$GITHUB_WORKSPACE/src" \
