@@ -127,6 +127,12 @@ jobs:
 
       - name: Configure CMake
         run: |
+          conda activate einsums-env
+          echo $PYTHONPATH
+          which python
+          which python3
+          echo $PATH
+          
           cmake \
             -G Ninja \
             -S "$GITHUB_WORKSPACE/src" \
