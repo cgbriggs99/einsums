@@ -80,7 +80,7 @@ jobs:
           restore-keys: einsums-${{ runner.os }}-${{ matrix.build_type }}-${{ inputs.build_cache_suffix }}-${{ matrix.compiler }}-${{ matrix.blas }}-${{ matrix.variant }}-
 
       # From https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#caching-environments
-      - name: Setup Miniforge
+      - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
@@ -127,11 +127,11 @@ jobs:
 
       - name: Configure CMake
         run: |
-          conda activate einsums-env
           echo $PYTHONPATH
           which python
           which python3
           echo $PATH
+          echo $CMAKE_PREFIX_PATH
           
           cmake \
             -G Ninja \
