@@ -131,6 +131,11 @@ jobs:
           which python
           which python3
           echo $PATH
+          
+          if [[ -z "$CMAKE_PREFIX_PATH" ]]; then
+            export CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/cmake
+          fi
+          
           echo $CMAKE_PREFIX_PATH
           
           cmake \
