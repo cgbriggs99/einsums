@@ -350,7 +350,17 @@ void scale_column(size_t col, typename AType::ValueType scale, AType *A) {
  */
 template <MatrixConcept AType>
 auto pow(AType const &a, typename AType::ValueType alpha,
-         typename AType::ValueType cutoff = std::numeric_limits<typename AType::ValueType>::epsilon()) -> RemoveViewT<AType> {
+         typename AType::ValueType cutoff = std::ldexp(std::numeric_limits<typename AType::ValueType>::epsilon(), 8))
+    -> RemoveViewT<AType> {
+    LabeledSection0();
+
+    return detail::pow(a, alpha, cutoff);
+}
+
+template <MatrixConcept AType, std::integral Int>
+auto pow(AType const &a, Int alpha,
+         typename AType::ValueType cutoff = std::ldexp(std::numeric_limits<typename AType::ValueType>::epsilon(), 8))
+    -> RemoveViewT<AType> {
     LabeledSection0();
 
     return detail::pow(a, alpha, cutoff);
@@ -499,18 +509,7 @@ template <MatrixConcept TensorType>
 auto getrf(TensorType *A, std::vector<blas::int_t> *pivot) -> int {
     LabeledSection0();
 
-    if (pivot->size() < std::min(A->dim(0), A->dim(1))) {
-        // println("getrf: resizing pivot vector from {} to {}", pivot->size(), std::min(A->dim(0), A->dim(1)));
-        pivot->resize(std::min(A->dim(0), A->dim(1)));
-    }
-    int result = blas::getrf(A->dim(0), A->dim(1), A->data(), A->stride(0), pivot->data());
-
-    if (result < 0) {
-        println_warn("getrf: argument {} has an invalid value", -result);
-        abort();
-    }
-
-    return result;
+    return detail::getrf(A, pivot);
 }
 
 /**
@@ -529,12 +528,7 @@ template <MatrixConcept TensorType>
 auto getri(TensorType *A, std::vector<blas::int_t> const &pivot) -> int {
     LabeledSection0();
 
-    int result = blas::getri(A->dim(0), A->data(), A->stride(0), pivot.data());
-
-    if (result < 0) {
-        println_warn("getri: argument {} has an invalid value", -result);
-    }
-    return result;
+    return detail::getri(A, pivot);
 }
 
 /**
@@ -559,14 +553,16 @@ void invert(TensorType *A) {
         std::vector<blas::int_t> pivot(A->dim(0));
         int                      result = getrf(A, &pivot);
         if (result > 0) {
-            println_abort("invert: getrf: the ({}, {}) element of the factor U or L is zero, and the inverse could not be computed", result,
-                          result);
+            EINSUMS_THROW_EXCEPTION(
+                std::runtime_error,
+                "invert: getrf: the ({}, {}) element of the factor U or L is zero, and the inverse could not be computed", result, result);
         }
 
         result = getri(A, pivot);
         if (result > 0) {
-            println_abort("invert: getri: the ({}, {}) element of the factor U or L i zero, and the inverse could not be computed", result,
-                          result);
+            EINSUMS_THROW_EXCEPTION(
+                std::runtime_error,
+                "invert: getri: the ({}, {}) element of the factor U or L i zero, and the inverse could not be computed", result, result);
         }
     }
 }

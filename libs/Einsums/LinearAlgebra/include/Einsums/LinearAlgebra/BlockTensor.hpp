@@ -353,4 +353,21 @@ auto pow(AType const &a, typename AType::ValueType alpha,
     return out;
 }
 
+template <BlockTensorConcept AType, std::integral Int>
+    requires MatrixConcept<AType>
+auto pow(AType const &a, Int alpha, typename AType::ValueType cutoff = std::numeric_limits<typename AType::ValueType>::epsilon())
+    -> RemoveViewT<AType> {
+    RemoveViewT<AType> out{"pow result", a.vector_dims()};
+
+    EINSUMS_OMP_PARALLEL_FOR
+    for (int i = 0; i < a.num_blocks(); i++) {
+        if (a.block_dim(i) == 0) {
+            continue;
+        }
+        out[i] = pow(a[i], alpha, cutoff);
+    }
+
+    return out;
+}
+
 } // namespace einsums::linear_algebra::detail

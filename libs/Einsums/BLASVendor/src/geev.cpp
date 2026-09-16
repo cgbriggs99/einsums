@@ -181,6 +181,59 @@ GEEV_complex(double, z, Z);
     /**/
 
 GEEV(float, s, S);
-GEEV(double, d, D);
+auto dgeev(char jobvl, char jobvr, int_t n, double *a, int_t lda, std ::complex<double> *w, double *vl, int_t ldvl, double *vr, int_t ldvr)
+    -> int_t {
+    LabeledSection0();
+    int_t                info  = 0;
+    int_t                lwork = -1;
+    std ::vector<double> work;
+    double               work_query;
+    int_t                lda_t  = std ::max(int_t{1}, n);
+    int_t                ldvl_t = std ::max(int_t{1}, n);
+    int_t                ldvr_t = std ::max(int_t{1}, n);
+    std ::vector<double> a_t;
+    std ::vector<double> vl_t;
+    std ::vector<double> vr_t;
+    std ::vector<double> wr(n), wi(n);
+    if (lda < n) {
+        println_warn("geev warning: lda < n, lda = {}, n = {}", lda, n);
+        return -5;
+    }
+    if (ldvl < 1 || (lsame(jobvl, 'v') && ldvl < n)) {
+        println_warn("geev warning: ldvl < 1 or (jobvl = 'v' and ldvl < n), ldvl = {}, n = {}", ldvl, n);
+        return -9;
+    }
+    if (ldvr < 1 || (lsame(jobvr, 'v') && ldvr < n)) {
+        println_warn("geev warning: ldvr < 1 or (jobvr = 'v' and ldvr < n), ldvr = {}, n = {}", ldvr, n);
+        return -11;
+    }
+    dgeev_(&jobvl, &jobvr, &n, a, &lda_t, wr.data(), wi.data(), vl, &ldvl_t, vr, &ldvr_t, &work_query, &lwork, &info);
+    lwork = (int_t)work_query;
+    work.resize(lwork);
+    a_t.resize(lda_t * std ::max(int_t{1}, n));
+    if (lsame(jobvl, 'v')) {
+        vl_t.resize(ldvl_t * std ::max(int_t{1}, n));
+    }
+    if (lsame(jobvr, 'v')) {
+        vr_t.resize(ldvr_t * std ::max(int_t{1}, n));
+    }
+    transpose<OrderMajor ::Row>(n, n, a, lda, a_t, lda_t);
+    dgeev_(&jobvl, &jobvr, &n, a_t.data(), &lda_t, wr.data(), wi.data(), vl_t.data(), &ldvl_t, vr_t.data(), &ldvr_t, work.data(), &lwork,
+           &info);
+    if (info < 0) {
+        return info;
+    }
+    transpose<OrderMajor ::Column>(n, n, a_t, lda_t, a, lda);
+    if (lsame(jobvl, 'v')) {
+        transpose<OrderMajor ::Column>(n, n, vl_t, ldvl_t, vl, ldvl);
+    }
+    if (lsame(jobvr, 'v')) {
+        transpose<OrderMajor ::Column>(n, n, vr_t, ldvr_t, vr, ldvr);
+    }
+    for (int_t i = 0; i < n; i++) {
+        w[i] = std ::complex<float>(wr[i], wi[i]);
+    }
+    return 0;
+};
 
 } // namespace einsums::blas::vendor

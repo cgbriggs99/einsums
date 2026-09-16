@@ -84,13 +84,39 @@ template <bool ComputeLeftRightEigenvectors = true, CoreBasicTensorConcept AType
 void geev(AType *A, WType *W, AType *lvecs, AType *rvecs) {
     EINSUMS_ASSERT(A->dim(0) == A->dim(1));
     EINSUMS_ASSERT(W->dim(0) == A->dim(0));
-    EINSUMS_ASSERT(A->dim(0) == lvecs->dim(0));
-    EINSUMS_ASSERT(A->dim(1) == lvecs->dim(1));
-    EINSUMS_ASSERT(A->dim(0) == rvecs->dim(0));
-    EINSUMS_ASSERT(A->dim(1) == rvecs->dim(1));
 
-    blas::geev(ComputeLeftRightEigenvectors ? 'v' : 'n', ComputeLeftRightEigenvectors ? 'v' : 'n', A->dim(0), A->data(), A->stride(0),
-               W->data(), lvecs->data(), lvecs->stride(0), rvecs->data(), rvecs->stride(0));
+    using T = typename AType::ValueType;
+
+    T          *l_data{nullptr}, *r_data{nullptr};
+    blas::int_t ldvl = 1, ldvr = 1;
+
+    char l_compute = 'N', r_compute = 'N';
+
+    if constexpr (ComputeLeftRightEigenvectors) {
+        if (lvecs != nullptr) {
+            l_compute = 'V';
+            l_data    = lvecs->data();
+            ldvl      = lvecs->stride(0);
+            EINSUMS_ASSERT(A->dim(0) == lvecs->dim(0));
+            EINSUMS_ASSERT(A->dim(1) == lvecs->dim(1));
+        }
+
+        if (rvecs != nullptr) {
+            r_compute = 'V';
+            r_data    = rvecs->data();
+            ldvr      = rvecs->stride(0);
+            EINSUMS_ASSERT(A->dim(0) == rvecs->dim(0));
+            EINSUMS_ASSERT(A->dim(1) == rvecs->dim(1));
+        }
+    }
+
+    auto res = blas::geev(l_compute, r_compute, A->dim(0), A->data(), A->stride(0), W->data(), l_data, ldvl, r_data, ldvr);
+
+    if (res < 0) {
+        EINSUMS_THROW_EXCEPTION(std::invalid_argument, "The {} argument to geev was invalid!", print::ordinal(-res));
+    } else if (res > 0) {
+        EINSUMS_THROW_EXCEPTION(std::runtime_error, "The QR algorithm failed to converge for {} eigenvalues.", res);
+    }
 }
 
 template <bool ComputeEigenvectors = true, CoreBasicTensorConcept AType, CoreBasicTensorConcept WType>
@@ -407,6 +433,38 @@ void symm_gemm(AType const &A, BType const &B, CType *C) {
     gemm<!TransB, false>(typename AType::ValueType{1.0}, B, temp, typename CType::ValueType{0.0}, C);
 }
 
+template <MatrixConcept TensorType>
+    requires(CoreBasicTensorConcept<TensorType>)
+auto getrf(TensorType *A, std::vector<blas::int_t> *pivot) -> int {
+    LabeledSection0();
+
+    if (pivot->size() < std::min(A->dim(0), A->dim(1))) {
+        // println("getrf: resizing pivot vector from {} to {}", pivot->size(), std::min(A->dim(0), A->dim(1)));
+        pivot->resize(std::min(A->dim(0), A->dim(1)));
+    }
+    int result = blas::getrf(A->dim(0), A->dim(1), A->data(), A->stride(0), pivot->data());
+
+    if (result < 0) {
+        EINSUMS_LOG_WARN("getrf: argument {} has an invalid value", -result);
+        abort();
+    }
+
+    return result;
+}
+
+template <MatrixConcept TensorType>
+    requires(CoreBasicTensorConcept<TensorType>)
+auto getri(TensorType *A, std::vector<blas::int_t> const &pivot) -> int {
+    LabeledSection0();
+
+    int result = blas::getri(A->dim(0), A->data(), A->stride(0), pivot.data());
+
+    if (result < 0) {
+        EINSUMS_LOG_WARN("getri: argument {} has an invalid value", -result);
+    }
+    return result;
+}
+
 template <CoreBasicTensorConcept AType, CoreBasicTensorConcept BType, CoreBasicTensorConcept CType>
     requires SameUnderlyingAndRank<AType, BType, CType>
 void direct_product(typename AType::ValueType alpha, AType const &A, BType const &B, typename CType::ValueType beta, CType *C) {
@@ -416,7 +474,7 @@ void direct_product(typename AType::ValueType alpha, AType const &A, BType const
 
     // Ensure the various tensors passed in are the same dimensionality
     if (((C->dims() != A.dims()) || C->dims() != B.dims())) {
-        println_abort("direct_product: at least one tensor does not have same dimensionality as destination");
+        EINSUMS_THROW_EXCEPTION(dimension_error, "direct_product: at least one tensor does not have same dimensionality as destination");
     }
 
     // Horrible hack. For some reason, in the for loop below, the result could be
@@ -453,6 +511,326 @@ void direct_product(typename AType::ValueType alpha, AType const &A, BType const
     }
 }
 
+// template <CoreBasicTensorConcept AType>
+// auto sqrt(AType const &a, typename AType::ValueType cutoff = std::numeric_limits<typename AType::ValueType>::epsilon())
+//     -> Tensor<typename AType::ValueType, 2> {
+//
+//     assert(a.dim(0) == a.dim(1));
+//
+//     using T = typename AType::ValueType;
+//
+//     if constexpr (IsComplexV<typename AType::ValueType>) {
+//         // Special algorithm for a complex matrix. See Björk and Hammerling, 1983
+//
+//         // First, compute the Schur canonical form of A.
+//         Tensor<T, 2> X{a.dims()}, Q{a.dims()}, U{a.dims()};
+//         Tensor<T, 1> eigvals{"eigenvalues", a.dim(0)};
+//
+//         size_t const n = a.dim(0);
+//
+//         // Transpose the tensor.
+//         for (size_t i = 0; i < n; i++) {
+//             for (size_t j = 0; j < n; j++) {
+//                 X(i, j) = a(j, i);
+//             }
+//         }
+//
+//         blas::int_t sdim;
+//
+//         auto res = blas::gees('V', n, X.data(), X.stride(0), &sdim, eigvals.data(), Q.data(), Q.stride(0));
+//
+//         if (res < 0) {
+//             EINSUMS_THROW_EXCEPTION(std::runtime_error, "The {} argument to [c,z]gees had an invalid value!", print::ordinal(-res));
+//         } else if (res > 0 && res <= n) {
+//             EINSUMS_THROW_EXCEPTION(std::runtime_error, "The QR algorithm failed to converge!");
+//         } else if (res == n + 1) {
+//             EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not reorder eigenvalues! This should not be thrown!");
+//         } else if (res == n + 2) {
+//             EINSUMS_LOG_WARN("Roundoff errors have changed eigenvalues after reordering in gees. Results may be unstable!");
+//         }
+//
+//         // Sort the matrix so that all of the zero eigenvalues are at the back.
+//         size_t num_zeros = 0;
+//
+//         for (size_t i = 0; i < n; i++) {
+//             if (std::abs(eigvals(i)) < cutoff) {
+//                 size_t const end = n - 1 - num_zeros;
+//                 // Swap the eigenvalue to the end of the list.
+//                 std::swap(eigvals(i), eigvals(end));
+//
+//                 // Now, perform the swap of the Schur vectors.
+//                 T const a = X(i, i), b = X(i, end), c = X(end, end);
+//                 T const R   = std::sqrt(std::abs(a - c) * std::abs(a - c) + std::abs(b) * std::abs(b));
+//                 T const cos = b / R, sin = (a - c) / R;
+//
+//                 T const p = Q(i, i), q = Q(end, i), r = Q(i, end), s = Q(end, end);
+//
+//                 Q(i, i)     = p * cos - q * sin;
+//                 Q(end, i)   = p * sin + q * cos;
+//                 Q(i, end)   = r * cos - s * sin;
+//                 Q(end, end) = r * sin + s * cos;
+//
+//                 // X(end, i) and X(i, end) are not affected by design.
+//                 std::swap(X(i, i), X(end, end));
+//                 num_zeros++;
+//             }
+//         }
+//
+//         // Then, check to see if the matrix does in fact have a square root.
+//         if (num_zeros > 1) {
+//             for (size_t i = n - num_zeros; i < n; i++) {
+//                 for (size_t j = i + 1; j < n; j++) {
+//                     if (std::abs(X(j, i)) > cutoff) {
+//                         EINSUMS_THROW_EXCEPTION(std::domain_error, "Matrix does not have a square root due to having too many zero "
+//                                                                    "eigenvalues that are off-balanced by non-zero off-diagonal
+//                                                                    elements!");
+//                     }
+//                 }
+//             }
+//         }
+//
+//         // Now, iterate until convergence.
+//         bool converged = false;
+//
+//         U.zero();
+//
+//         // Initial guess is a diagonal matrix whose entries are the square roots of the eigenvalues.
+//         // The diagonal entries never change.
+//         for (size_t i = 0; i < n; i++) {
+//             U(i, i) = std::sqrt(X(i, i));
+//         }
+//
+//         size_t const zero_tail = n - num_zeros;
+//
+//         while (!converged) {
+//             converged = true;
+//             // Convert the equations to column-major form.
+//             for (size_t j = 0; j < n; j++) {
+//                 for (size_t i = 0; i < j; i++) {
+//                     if (i >= zero_tail) {
+//                         // Special rule if there are close eigenvalues.
+//                         U(j, i) = T{0.0};
+//                     } else {
+//                         // Compute the new value.
+//                         T new_value{X(j, i)};
+//                         for (size_t k = i + 1; k < j; k++) {
+//                             new_value -= U(k, i) * U(j, k);
+//                         }
+//                         new_value /= U(i, i) + U(j, j);
+//
+//                         // Check convergence.
+//                         if (std::abs(new_value - U(j, i)) > cutoff) {
+//                             converged = false;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//
+//         // Back-transform to the solution.
+//         blas::gemm('N', 'N', n, n, n, T{1.0}, Q.data(), Q.stride(0), U.data(), U.stride(0), T{0.0}, X.data(), X.stride(0));
+//         blas::gemm('N', 'C', n, n, n, T{1.0}, X.data(), X.stride(0), Q.data(), Q.stride(0), T{0.0}, U.data(), U.stride(0));
+//
+//         // Finally, transpose.
+//         for (size_t i = 0; i < n; i++) {
+//             for (size_t j = 0; j < n; j++) {
+//                 X(i, j) = U(j, i);
+//             }
+//         }
+//
+//         return X;
+//     } else {
+//         // Otherwise, for real values, use Sylvester decomposition.
+//
+//         // Start with a guess.
+//         Tensor<T, 2> X{a.dims()}, Q{a.dims()}, S{a.dims()}, temp{a.dims()}, C{a.dims()};
+//         Tensor<T, 1> real_eig{"real eigenvalue components", a.dim(0)}, imag_eig{"imaginary eigenvalue components", a.dim(0)};
+//
+//         X.zero();
+//
+//         size_t const n = a.dim(0);
+//
+//         for (size_t i = 0; i < n; i++) {
+//             X(i, i) = T{1.0};
+//         }
+//
+//         bool converged = false;
+//
+//         std::vector<RemoveComplexT<typename AType::ValueType>> work(4 * a.dim(0), 0.0);
+//         size_t                                                 iter = 0;
+//
+//         while (!converged) {
+//             // Decompose X.
+//             blas::int_t sdim;
+//             S        = X;
+//             auto res = blas::gees('V', n, S.data(), S.stride(0), &sdim, real_eig.data(), imag_eig.data(), Q.data(), Q.stride(0));
+//
+//             if (res < 0) {
+//                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "The {} argument to [s,d]gees had an invalid value!", print::ordinal(-res));
+//             } else if (res > 0 && res <= n) {
+//                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "The QR algorithm failed to converge!");
+//             } else if (res == n + 1) {
+//                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "Could not reorder eigenvalues! This should not be thrown!");
+//             } else if (res == n + 2) {
+//                 EINSUMS_LOG_WARN("Roundoff errors have changed eigenvalues after reordering in gees. Results may be unstable!");
+//             }
+//
+//             // Compute the C matrix.
+//             gemm<true, false>(T{1.0}, Q, a, T{0.0}, &temp); // Do this in case A has non-unit stride.
+//
+//             // Everything has unit stride here, so use the raw BLAS calls.
+//             blas::gemm('N', 'N', n, n, n, T{1.0}, S.data(), S.stride(0), S.data(), S.stride(0), T{0.0}, C.data(), C.stride(0));
+//             blas::gemm('T', 'T', n, n, n, T{1.0}, temp.data(), temp.stride(0), Q.data(), Q.stride(0), T{-1.0}, C.data(), C.stride(0));
+//
+//             // Solve for the transformed error matrix.
+//             T scale;
+//             res = blas::trsyl('N', 'N', 1, n, n, S.data(), S.stride(0), S.data(), S.stride(0), C.data(), C.stride(0), &scale);
+//
+//             if (res < 0) {
+//                 EINSUMS_THROW_EXCEPTION(std::runtime_error, "The {} argument to trsyl had an invalid value!", print::ordinal(-res));
+//             } else if (res == 1) {
+//                 EINSUMS_LOG_INFO("The matrices passed to trsyl had very close eigenvalues. The matrices were perturbed. This does not "
+//                                  "affect the matrices themselves. Loss of precision may have occurred.");
+//             }
+//
+//             // Back-transform to get the error matrix.
+//             blas::gemm('N', 'N', n, n, n, T{1.0}, Q.data(), Q.stride(0), C.data(), C.stride(0), T{0.0}, temp.data(), temp.stride(0));
+//             blas::gemm('N', 'T', n, n, n, T{1.0}, temp.data(), temp.stride(0), Q.data(), Q.stride(0), T{0.0}, C.data(), C.stride(0));
+//
+//             // Check for convergence.
+//             auto conv_check = blas::lange('M', n, n, C.data(), C.stride(0), work.data()) / scale;
+//             iter++;
+//             EINSUMS_LOG_DEBUG("{} Convergence criterion: {}", iter, conv_check);
+//             if (conv_check < cutoff) {
+//                 converged = true;
+//             }
+//
+//             axpy(T{1.0} / scale, C, &X);
+//         }
+//
+//         // Transpose the output.
+//         for (size_t i = 0; i < n; i++) {
+//             for (size_t j = 0; j < n; j++) {
+//                 C(j, i) = X(i, j);
+//             }
+//         }
+//         return C;
+//     }
+// }
+
+template <CoreBasicTensorConcept AType>
+auto sqrt(AType const                              &a,
+          RemoveComplexT<typename AType::ValueType> cutoff = std::numeric_limits<RemoveComplexT<typename AType::ValueType>>::epsilon())
+    -> Tensor<typename AType::ValueType, 2>;
+
+extern template auto EINSUMS_EXPORT sqrt(Tensor<float, 2> const &a, float cutoff = std::numeric_limits<float>::epsilon())
+    -> Tensor<float, 2>;
+
+extern template auto EINSUMS_EXPORT sqrt(Tensor<double, 2> const &a, double cutoff = std::numeric_limits<double>::epsilon())
+    -> Tensor<double, 2>;
+
+extern template auto EINSUMS_EXPORT sqrt(Tensor<std::complex<float>, 2> const &a, float cutoff = std::numeric_limits<float>::epsilon())
+    -> Tensor<std::complex<float>, 2>;
+
+extern template auto EINSUMS_EXPORT sqrt(Tensor<std::complex<double>, 2> const &a, double cutoff = std::numeric_limits<double>::epsilon())
+    -> Tensor<std::complex<double>, 2>;
+
+template <CoreBasicTensorConcept AType>
+    requires MatrixConcept<AType>
+auto real_pow(AType const &a, RemoveComplexT<typename AType::ValueType> alpha,
+              typename AType::ValueType cutoff = std::numeric_limits<typename AType::ValueType>::epsilon())
+    -> Tensor<typename AType::ValueType, 2> {
+
+    using T = typename AType::ValueType;
+
+    // Start by extracting the components of alpha.
+
+    RemoveComplexT<T> mantissa;
+    int               exponent;
+
+    mantissa = frexp(alpha, &exponent);
+
+    EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+
+    Tensor<T, 2> out{a.dims()}, temp{a.dims()}, mult{a.dims()};
+
+    for (size_t i = 0; i < a.dim(0); i++) {
+        for (size_t j = 0; j < a.dim(1); j++) {
+            if (i == j) {
+                out(i, j) = T{1.0};
+            } else {
+                out(i, j) = T{0.0};
+            }
+        }
+    }
+    if (alpha == T{0.0}) {
+        return out;
+    }
+
+    mult = a;
+
+    if (mantissa < T{0.0}) {
+        std::vector<blas::int_t> pivot(a.dim(0));
+        int                      result = getrf(&mult, &pivot);
+        if (result > 0) {
+            EINSUMS_THROW_EXCEPTION(std::runtime_error,
+                                    "getrf: the ({}, {}) element of the factor U or L is zero, and the inverse could not be computed",
+                                    result, result);
+        }
+
+        result = getri(&mult, pivot);
+        if (result > 0) {
+            EINSUMS_THROW_EXCEPTION(std::runtime_error,
+                                    "getri: the ({}, {}) element of the factor U or L i zero, and the inverse could not be computed",
+                                    result, result);
+        }
+
+        mantissa = std::abs(mantissa);
+    }
+
+    // Next, as long as the mantissa is not zero, we use a recurrence relation.
+    while (mantissa != T{0.0}) {
+        EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+        if (mantissa >= T{1.0}) {
+            gemm<false, false>(T{0.5}, mult, out, T{0.0}, &temp);
+            gemm<false, false>(T{0.5}, out, mult, T{1.0}, &temp); // For stability.
+            out = temp;
+            mantissa -= T{1.0};
+        }
+
+        if (exponent >= 0) {
+            gemm<false, false>(T{1.0}, mult, mult, T{0.0}, &temp);
+            mult = temp;
+            exponent--;
+        } else if (exponent < 0) {
+            mult = sqrt(mult, cutoff);
+            exponent += 1;
+        }
+
+        mantissa = std::ldexp(mantissa, 1);
+        exponent--;
+    }
+    EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+
+    // Then, handle the 2^expo. For positive exponents, this is repeated squaring.
+    while (exponent > 0) {
+        EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+        gemm<false, false>(T{1.0}, out, out, T{0.0}, &temp);
+        out = temp;
+        exponent--;
+    }
+    EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+
+    // For negative arguments, it's square roots.
+    while (exponent < 0) {
+        EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+        out = sqrt(out, cutoff);
+        exponent++;
+    }
+    EINSUMS_LOG_DEBUG("Mantissa: {}, exponent: {}", mantissa, exponent);
+    return out;
+}
+
 template <CoreBasicTensorConcept AType>
     requires MatrixConcept<AType>
 auto pow(AType const &a, typename AType::ValueType alpha,
@@ -462,48 +840,110 @@ auto pow(AType const &a, typename AType::ValueType alpha,
 
     using T = typename AType::ValueType;
 
-    size_t             n      = a.dim(0);
-    RemoveViewT<AType> a1     = a;
-    RemoveViewT<AType> result = create_tensor_like(a);
-    result.set_name("pow result");
-    Tensor<RemoveComplexT<T>, 1> e{"e", n};
-    result.zero();
-
-    // Diagonalize
-    if constexpr (IsComplexTensor<AType>) {
-        heev<true>(&a1, &e);
-    } else {
-        syev<true>(&a1, &e);
-    }
-
-    RemoveViewT<AType> a2(a1);
-
-    // Determine the largest magnitude of the eigenvalues to use as a scaling factor for the cutoff.
-
-    T max_e{0.0};
-    // Block tensors don't have sorted eigenvalues, so we can't make assumptions about ordering.
-    for (int i = 0; i < n; i++) {
-        if (std::fabs(e(i)) > max_e) {
-            max_e = std::fabs(e(i));
-        }
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        if (alpha < 0.0 && std::fabs(e(i)) < cutoff * max_e) {
-            e(i) = 0.0;
+    if constexpr (IsComplexV<T>) {
+        // If we have an imaginary part, deal with it.
+        if (std::imag(alpha) == RemoveComplexT<T>{0.0}) {
+            return real_pow(a, alpha, cutoff);
         } else {
-            e(i) = std::pow(e(i), alpha);
-            if (!std::isfinite(e(i))) {
-                e(i) = 0.0;
+            // If we have a complex power, there's nothing else we can really do other than diagonalize the matrix.
+
+            Tensor<T, 2> A_temp = a, L{a.dims()}, R{a.dims()};
+            Tensor<T, 1> eigvals{"eigenvalues", a.dim(0)};
+
+            geev<true>(&A_temp, &eigvals, &L, &R);
+
+            // Compute the actual eigenvectors that don't have the weird scaling applied.
+            for (size_t i = 0; i < a.dim(1); i++) {
+                T scale = true_dot(L(All, i), R(All, i));
+
+                T lscale, rscale;
+
+                lscale = std::sqrt(scale);
+                rscale = lscale;
+
+                for (size_t j = 0; j < a.dim(0); j++) {
+                    L(j, i) /= lscale;
+                    R(j, i) /= rscale;
+                }
             }
+
+            // Compute the output.
+            for (size_t i = 0; i < a.dim(0); i++) {
+                scale_row(i, std::pow(eigvals(i), alpha), &L);
+            }
+
+            gemm<true, false>(T{1.0}, L, R, T{0.0}, &A_temp);
+            return A_temp;
+        }
+    } else {
+        return real_pow(a, alpha, cutoff);
+    }
+}
+
+template <CoreBasicTensorConcept AType, std::integral Int>
+    requires MatrixConcept<AType>
+auto pow(AType const &a, Int alpha, typename AType::ValueType cutoff = std::numeric_limits<typename AType::ValueType>::epsilon())
+    -> Tensor<typename AType::ValueType, 2> {
+    assert(a.dim(0) == a.dim(1));
+
+    using T    = typename AType::ValueType;
+    using UInt = std::make_unsigned_t<Int>;
+
+    if (alpha < 0) {
+        Tensor<T, 2> inv = a;
+
+        std::vector<blas::int_t> pivot(a.dim(0));
+        int                      result = getrf(&inv, &pivot);
+        if (result > 0) {
+            EINSUMS_THROW_EXCEPTION(std::runtime_error,
+                                    "getrf: the ({}, {}) element of the factor U or L is zero, and the inverse could not be computed",
+                                    result, result);
         }
 
-        scale_row(i, e(i), &a2);
+        result = getri(&inv, pivot);
+        if (result > 0) {
+            EINSUMS_THROW_EXCEPTION(std::runtime_error,
+                                    "getri: the ({}, {}) element of the factor U or L i zero, and the inverse could not be computed",
+                                    result, result);
+        }
+
+        return pow(inv, static_cast<UInt>(-alpha), cutoff);
+    } else {
+        Tensor<T, 2> out{a.dims()}, temp{a.dims()}, pow_a{a.dims()};
+
+        // Create the initial value, the identity matrix.
+        out.zero();
+
+        size_t const stride = out.stride(0) + out.stride(1);
+
+        for (size_t i = 0; i < a.dim(0); i++) {
+            out.data()[i * stride] = T{1.0};
+        }
+
+        pow_a = a;
+
+        // Now, work through the binary representation of alpha.
+        UInt cast_alpha = static_cast<UInt>(alpha);
+
+        // Create the bit mask to find whether to square.
+        constexpr UInt bit_mask   = 0x1;
+        constexpr UInt max_cycles = 8 * sizeof(UInt);
+
+        for (unsigned int cycle = 0; cycle < max_cycles && cast_alpha != 0; cycle++) {
+            if ((cast_alpha & bit_mask) != 0) {
+                gemm<false, false>(T{0.5}, out, pow_a, T{0.0}, &temp);
+                gemm<false, false>(T{0.5}, pow_a, out, T{1.0}, &temp); // For stability
+                out = temp;
+            }
+
+            cast_alpha >>= 1;
+
+            gemm<false, false>(T{1.0}, pow_a, pow_a, T{0.0}, &temp);
+            pow_a = temp;
+        }
+
+        return out;
     }
-
-    gemm<true, false>(1.0, a2, a1, 0.0, &result);
-
-    return result;
 }
 
 } // namespace einsums::linear_algebra::detail
