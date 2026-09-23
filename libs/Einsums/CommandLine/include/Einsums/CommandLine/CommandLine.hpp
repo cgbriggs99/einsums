@@ -990,9 +990,9 @@ inline void print_help(std::string_view prog) {
 inline ParseResult parse_internal(std::vector<std::string> const &args, char const *programName, std::string_view version,
                                   std::map<std::string, std::string, std::less<>> *config,
                                   std::vector<std::string>                        *unknown_args = nullptr) {
-    Builtins                 _;
-    GlobalConfigMapLockScope __;
-    std::string              prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
+    Builtins    _;
+    auto        __   = GlobalConfigMap::get_locked_singleton();
+    std::string prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
 
     for (auto *o : Registry::instance().options) {
         o->finalize_default();
