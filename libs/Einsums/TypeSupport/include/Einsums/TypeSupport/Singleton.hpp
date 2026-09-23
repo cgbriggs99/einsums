@@ -5,6 +5,53 @@
 
 #pragma once
 
+#include <type_traits>
+
+namespace einsums {
+template <typename Singleton>
+class PointerWithLock {
+  public:
+    PointerWithLock(Singleton *ptr) : _ptr{ptr} {
+        if (ptr != nullptr) {
+            ptr->lock();
+        }
+    }
+
+    PointerWithLock(PointerWithLock const &) = delete;
+
+    PointerWithLock(PointerWithLock &&move) noexcept : _ptr{move._ptr} { move._ptr = nullptr; }
+
+    PointerWithLock &operator=(PointerWithLock const &) = delete;
+
+    PointerWithLock &operator=(PointerWithLock &&move) noexcept {
+        if (_ptr != nullptr) {
+            _ptr->unlock();
+        }
+        _ptr      = move._ptr;
+        move._ptr = nullptr;
+    }
+
+    ~PointerWithLock() {
+        if (_ptr != nullptr) {
+            _ptr->unlock();
+        }
+    }
+
+    Singleton &operator*() noexcept { return *_ptr; }
+
+    Singleton const &operator*() const noexcept { return *_ptr; }
+
+    Singleton *operator->() noexcept { return _ptr; }
+
+    Singleton const *operator->() const noexcept { return _ptr; }
+
+    operator bool() const noexcept { return _ptr; }
+
+  private:
+    mutable Singleton *_ptr;
+};
+} // namespace einsums
+
 /**
  * @def EINSUMS_SINGLETON_DEF
  *
@@ -27,6 +74,7 @@
     Type(PrivateConstructorStuff /*ignore*/) : Type() {                                                                                    \
     }                                                                                                                                      \
     static auto get_singleton() -> Type &;                                                                                                 \
+                                                                                                                                           \
     Type(const Type &) = delete;                                                                                                           \
     Type(Type &&)      = delete;
 
@@ -44,4 +92,51 @@
             singleton_instance = std::make_unique<Type>(PrivateConstructorStuff());                                                        \
         }                                                                                                                                  \
         return *singleton_instance;                                                                                                        \
+    }
+
+/**
+ * @def EINSUMS_LOCK_SINGLETON_DEF
+ *
+ * Turns a C++ class into a singleton. Place this at the beginning of the class. You will then need to define a private
+ * constructor with no arguments to actually construct the singleton stuff. This macro is only for the definition of the
+ * class and does not contain any code. Make sure to use a matching \c EINSUMS_LOCK_SINGLETON_IMPL somewhere else to
+ * get the code to compile.
+ *
+ * This will provide the <tt>Type &get_singleton()</tt> and <tt>einsums::PointerWithLock<Type> get_locked_singleton()</tt>
+ * static methods.
+ *
+ * @param Type The type of singleton to construct.
+ *
+ * @versionadded{2.0.0}
+ */
+#define EINSUMS_LOCK_SINGLETON_DEF(Type)                                                                                                   \
+  private:                                                                                                                                 \
+    class PrivateConstructorStuff {};                                                                                                      \
+                                                                                                                                           \
+  public:                                                                                                                                  \
+    Type(PrivateConstructorStuff /*ignore*/) : Type() {                                                                                    \
+    }                                                                                                                                      \
+    static auto get_singleton() -> Type &;                                                                                                 \
+    static auto get_locked_singleton() -> einsums::PointerWithLock<Type>;                                                                  \
+                                                                                                                                           \
+    Type(const Type &) = delete;                                                                                                           \
+    Type(Type &&)      = delete;
+
+/**
+ * @def EINSUMS_LOCK_SINGLETON_IMPL
+ *
+ * Creates the code for managing a locking singleton.
+ *
+ * @versionadded{2.0.0}
+ */
+#define EINSUMS_LOCK_SINGLETON_IMPL(Type)                                                                                                  \
+    auto Type::get_singleton() -> Type & {                                                                                                 \
+        static std::unique_ptr<Type> singleton_instance = std::make_unique<Type>(PrivateConstructorStuff());                               \
+        if (!singleton_instance) {                                                                                                         \
+            singleton_instance = std::make_unique<Type>(PrivateConstructorStuff());                                                        \
+        }                                                                                                                                  \
+        return *singleton_instance;                                                                                                        \
+    }                                                                                                                                      \
+    auto Type::get_locked_singleton() -> einsums::PointerWithLock<Type> {                                                                  \
+        return einsums::PointerWithLock<Type>(&Type::get_singleton());                                                                     \
     }

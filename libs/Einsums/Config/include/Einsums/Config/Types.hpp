@@ -265,7 +265,7 @@ using SharedConfigMap = std::shared_ptr<ConfigMap<Value>>;
  * @endversion
  */
 class EINSUMS_EXPORT GlobalConfigMap {
-    EINSUMS_SINGLETON_DEF(GlobalConfigMap)
+    EINSUMS_LOCK_SINGLETON_DEF(GlobalConfigMap)
   public:
 /**
  * @fn get_singleton()
@@ -572,15 +572,6 @@ class EINSUMS_EXPORT GlobalConfigMap {
      * @versionadded{1.0.1}
      */
     std::shared_ptr<ConfigMap<bool>> bool_map_;
-};
-
-struct GlobalConfigMapLockScope {
-    GlobalConfigMapLockScope() : _singleton(GlobalConfigMap::get_singleton()) { _singleton.lock(); }
-
-    ~GlobalConfigMapLockScope() { _singleton.unlock(); }
-
-  private:
-    GlobalConfigMap &_singleton;
 };
 
 } // namespace einsums
