@@ -6,7 +6,6 @@
 #include <Einsums/Config.hpp>
 
 #include <Einsums/Assert.hpp>
-#include <Einsums/Debugging/AttachDebugger.hpp>
 #include <Einsums/Errors/ThrowException.hpp>
 #include <Einsums/Logging.hpp>
 #include <Einsums/Profile.hpp>
@@ -22,98 +21,6 @@ namespace einsums {
 namespace detail {
 
 EINSUMS_SINGLETON_IMPL(RuntimeVars)
-
-#if defined(EINSUMS_WINDOWS)
-
-void handle_termination(char const *reason) {
-    if (runtime_config().einsums.attach_debugger) {
-        util::attach_debugger();
-    }
-
-    if (runtime_config().einsums.diagnostics_on_terminate) {
-        // Add more information here.
-        std::cerr << "{what}: " << (reason ? reason : "Unknown reason") << "\n";
-    }
-}
-
-EINSUMS_EXPORT BOOL WINAPI termination_handler(DWORD ctrl_type) {
-    switch (ctrl_type) {
-    case CTRL_C_EVENT:
-        handle_termination("Ctrl-C");
-        return TRUE;
-
-    case CTRL_BREAK_EVENT:
-        handle_termination("Ctrl-Break");
-        return TRUE;
-
-    case CTRL_CLOSE_EVENT:
-        handle_termination("Ctrl-Close");
-        return TRUE;
-
-    case CTRL_LOGOFF_EVENT:
-        handle_termination("Logoff");
-        return TRUE;
-
-    case CTRL_SHUTDOWN_EVENT:
-        handle_termination("Shutdown");
-        return TRUE;
-
-    default:
-        break;
-    }
-    return FALSE;
-}
-
-#else
-[[noreturn]] EINSUMS_EXPORT void termination_handler(int signum) {
-    bool attach = true;
-
-    try {
-        auto &global_config = GlobalConfigMap::get_singleton();
-        attach              = global_config.get_bool("attach-debugger", true);
-    } catch (...) {
-        attach = true;
-    }
-
-    if (signum != SIGINT && attach) {
-        util::attach_debugger();
-    }
-
-    /// @todo If einsums.diagnostics_on_terminate is true then print out a lot of information.
-
-    std::abort();
-}
-#endif
-
-static bool exit_called = false;
-
-void on_exit() noexcept {
-    exit_called = true;
-}
-
-void on_abort(int) noexcept {
-    exit_called = true;
-    std::exit(-1);
-}
-
-void set_signal_handlers() {
-#if defined(EINSUMS_WINDOWS)
-    SetConsoleCtrlHandler(termination_handler, TRUE);
-#else
-    struct sigaction new_action;
-    new_action.sa_handler = termination_handler;
-    sigemptyset(&new_action.sa_mask);
-    new_action.sa_flags = 0;
-
-    sigaction(SIGINT, &new_action, nullptr);  // Interrupted
-    sigaction(SIGBUS, &new_action, nullptr);  // Bus error
-    sigaction(SIGFPE, &new_action, nullptr);  // Floating point exception
-    sigaction(SIGILL, &new_action, nullptr);  // Illegal instruction
-    sigaction(SIGPIPE, &new_action, nullptr); // Bad pipe
-    sigaction(SIGSEGV, &new_action, nullptr); // Segmentation fault
-    sigaction(SIGSYS, &new_action, nullptr);  // Bad syscall
-#endif
-}
 
 Runtime::Runtime(RuntimeConfiguration &&rtcfg, bool initialize) : _rtcfg(std::move(rtcfg)) {
     LabeledSectionInternal("Runtime constructor");

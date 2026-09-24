@@ -129,11 +129,6 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
         }
     }
 
-    if (global_config.get_bool("install-signal-handlers")) {
-        EINSUMS_LOG_TRACE("Installing signal handlers...");
-        set_signal_handlers();
-    }
-
     // This is the only initialization routine that needs to be explicitly called here.
     // This is because the runtime environment depends on the profiler. If the profiler
     // depended on the runtime environment, then there would be a dependency issue.
@@ -165,12 +160,6 @@ int run_impl(std::function<int()> f, std::vector<std::string> const &argv, InitP
         pass_argv = &dummy_argv;
     }
 
-    // register default handlers
-    [[maybe_unused]] auto signal_handler = std::signal(SIGABRT, on_abort);
-    [[maybe_unused]] auto exit_result    = std::atexit(on_exit);
-#if defined(EINSUMS_HAVE_CXX11_STD_QUICK_EXIT)
-    [[maybe_unused]] auto quick_exit_result = std::at_quick_exit(on_exit);
-#endif
     return run(f, *pass_argv, params, blocking);
 }
 
@@ -186,23 +175,18 @@ int start(std::nullptr_t, std::vector<std::string> const &argv, InitParams const
 }
 
 int start(std::function<int(int, char **)> f, std::vector<std::string> &argv, InitParams const &params) {
-    std::vector<char *> copy_argv(argv.size()); // We do it this way so that the memory gets freed on return.
+    static std::list<std::vector<std::string>> saved_argv_list;
+    static std::mutex                          saved_argv_list_mutex;
+
+    saved_argv_list_mutex.lock();
+    saved_argv_list.push_back(argv);
+    auto &hold_argv = saved_argv_list.back();
+    saved_argv_list_mutex.unlock();
+
+    std::vector<char *> copy_argv(hold_argv.size()); // We do it this way so that the memory gets freed on return.
 
     for (ptrdiff_t i = 0; i < argv.size(); i++) {
-        /*BADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODE
-         *BADCODE                                                                             BADCODE
-         *BADCODE                              BAD CODE ALERT                                 BADCODE
-         *BADCODE                                                                             BADCODE
-         *BADCODE   ATTENTION: THIS IS BAD CODE. IT WILL NEED TO BE REWRITTEN IN THE FUTURE.  BADCODE
-         *BADCODE         MEMORY SAFETY IS NOT ONLY NOT GUARANTEED BUT OUTRIGHT FLOUTED.      BADCODE
-         *BADCODE         WHEN REWRITING, PLEASE ENSURE THAT THE MEMORY IS BOTH SAFE ON       BADCODE
-         *BADCODE         ENTRY TO THE CALL OF THE MAIN FUNCTION AND PROPERLY DESTROYED       BADCODE
-         *BADCODE         ON EXIT. THIS IS A TEMPORARY FIX ONLY.                              BADCODE
-         *BADCODE                                                                             BADCODE
-         *BADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODE
-         */
-        /// @todo Fix bad code.
-        copy_argv[i] = const_cast<char *>(argv[i].c_str());
+        copy_argv[i] = const_cast<char *>(hold_argv[i].c_str());
     }
 
     std::function<int()> main_f = std::bind(f, (int)copy_argv.size(), copy_argv.data());
@@ -251,23 +235,18 @@ int start(std::function<int(int, char const *const *)> f, int argc, char const *
 }
 
 void initialize(std::function<int(int, char **)> f, std::vector<std::string> &argv, InitParams const &params) {
-    std::vector<char *> copy_argv(argv.size()); // We do it this way so that the memory gets freed on return.
+    static std::list<std::vector<std::string>> saved_argv_list;
+    static std::mutex                          saved_argv_list_mutex;
 
-    for (ptrdiff_t i = 0; i < argv.size(); i++) {
-        /*BADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODE
-         *BADCODE                                                                             BADCODE
-         *BADCODE                              BAD CODE ALERT                                 BADCODE
-         *BADCODE                                                                             BADCODE
-         *BADCODE   ATTENTION: THIS IS BAD CODE. IT WILL NEED TO BE REWRITTEN IN THE FUTURE.  BADCODE
-         *BADCODE         MEMORY SAFETY IS NOT ONLY NOT GUARANTEED BUT OUTRIGHT FLOUTED.      BADCODE
-         *BADCODE         WHEN REWRITING, PLEASE ENSURE THAT THE MEMORY IS BOTH SAFE ON       BADCODE
-         *BADCODE         ENTRY TO THE CALL OF THE MAIN FUNCTION AND PROPERLY DESTROYED       BADCODE
-         *BADCODE         ON EXIT. THIS IS A TEMPORARY FIX ONLY.                              BADCODE
-         *BADCODE                                                                             BADCODE
-         *BADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODEBADCODE
-         */
-        /// @todo Fix bad code.
-        copy_argv[i] = const_cast<char *>(argv[i].c_str());
+    saved_argv_list_mutex.lock();
+    saved_argv_list.push_back(argv);
+    auto &hold_argv = saved_argv_list.back();
+    saved_argv_list_mutex.unlock();
+
+    std::vector<char *> copy_argv(hold_argv.size()); // We do it this way so that the memory gets freed on return.
+
+    for (ptrdiff_t i = 0; i < hold_argv.size(); i++) {
+        copy_argv[i] = const_cast<char *>(hold_argv[i].c_str());
     }
 
     std::function<int()> main_f = std::bind(f, (int)copy_argv.size(), copy_argv.data());
