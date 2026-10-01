@@ -191,13 +191,11 @@ struct OptionBase {
     OptionBase(StringRef longName, std::initializer_list<char> shorts, StringRef helpText, OptionCategory *cat)
         : long_name(longName.s), short_names(shorts), help(helpText.s), category(cat) {
         Registry::instance().add_option(this);
-        std::cout << "Option: " << longName.s << std::endl;
     }
 
     OptionBase(StringRef positional_name, Positional, StringRef helpText)
         : long_name(positional_name.s), help(helpText.s), is_positional(true) {
         Registry::instance().add_option(this);
-        std::cout << "Option: " << positional_name.s << std::endl;
     }
 
     virtual ~OptionBase() = default;
@@ -763,6 +761,7 @@ struct Alias : OptionBase {
 // -------------------------- Built-ins ----------------------------------- //
 
 struct Builtins {
+<<<<<<< HEAD
     EINSUMS_SINGLETON_DEF(Builtins);
   public:
     OptionCategory cat{"Help"};
@@ -1003,7 +1002,6 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
     std::string              prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
 
     for (auto *o : Registry::instance().options) {
-        std::printf("option pointer: %p\n", static_cast<void *>(o));
         if (o != nullptr) {
             o->finalize_default();
         }

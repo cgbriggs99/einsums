@@ -1188,7 +1188,6 @@ struct DiskView final : tensor_base::DiskTensor, design_pats::Lockable<std::recu
      */
     [[nodiscard]] auto get_update() const -> BufferTensor<T, rank> const & {
         update_cache();
-
         return _tensor;
     }
 

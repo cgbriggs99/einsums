@@ -9,7 +9,6 @@ namespace einsums::detail {
 
 EINSUMS_SINGLETON_IMPL(Einsums_Tensor_vars)
 
-
 std::string Einsums_Tensor_vars::get_temp_name() {
     constexpr static char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     static_assert(sizeof(base64_chars) >= 64);

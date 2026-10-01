@@ -160,6 +160,22 @@ jobs:
       #   shell: cmd /C CALL {0}
       #   run: objdump.exe -p objdir\stage\lib\psi4\core.*.pyd | grep dll
 
+      - name: Linked dependencies, ldd (L)
+        if: runner.os == 'Linux'
+        run: |
+          ldd -v ${{ github.workspace }}/installed/lib/einsums/core.*.so
+          nm -u ${{ github.workspace }}/installed/lib/einsums/core.*.so
+          ls -l ${CONDA_PREFIX}/lib | grep atomic
+
+      # - name: Linked dependencies, otool (M)
+      #   if: runner.os == 'macOS'
+      #   run: otool -L objdir/stage/lib/psi4/core.*.so
+
+      # - name: Linked dependencies, objdump (W)
+      #   if: runner.os == 'Windows'
+      #   shell: cmd /C CALL {0}
+      #   run: objdump.exe -p objdir\stage\lib\psi4\core.*.pyd | grep dll
+
       - name: Test (CTest) - Unit Tests
         working-directory: "${{ github.workspace }}/build"
         run: ctest --rerun-failed --output-on-failure -j4

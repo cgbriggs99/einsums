@@ -536,7 +536,7 @@ template <DeviceBasicTensorConcept AType, typename T>
     }
 void scale_column(size_t col, T alpha, AType *A) {
     using namespace einsums::gpu;
-    
+
     blas::gpu::scal(A->dim(0), alpha, (typename AType::ValueType *)A->gpu_data(0ul, col), A->stride(0));
     stream_wait();
 }
