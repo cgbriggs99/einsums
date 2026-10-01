@@ -761,7 +761,6 @@ struct Alias : OptionBase {
 // -------------------------- Built-ins ----------------------------------- //
 
 struct Builtins {
-<<<<<<< HEAD
     EINSUMS_SINGLETON_DEF(Builtins);
   public:
     OptionCategory cat{"Help"};

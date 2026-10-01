@@ -32,10 +32,7 @@
 #    include <cmath>
 #    include <complex>
 #    include <cstddef>
-<<<<<<< HEAD
 #    include <cstdlib>
-=======
->>>>>>> main
 #    include <memory>
 #    include <stdexcept>
 #    include <string>
@@ -80,7 +77,6 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
             if (std::get<a>(A_indices).letter == std::get<b>(B_indices).letter) {
                 if (dimA != dimB) {
 #    if !defined(EINSUMS_IS_TESTING)
-<<<<<<< HEAD
                     if constexpr (TensorConcept<CType>) {
                         EINSUMS_LOG_ERROR(std::abs(C_prefactor) > EINSUMS_ZERO
                                               ? einsums::detail::corrected_format(R"(einsum: "{}"{} = {} "{}"{} * "{}"{} + {} "{}"{})",
@@ -97,10 +93,6 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
                                               : einsums::detail::corrected_format(R"(einsum: "x"{} = {} "{}"{} * "{}"{})", C_indices,
                                                                                   AB_prefactor, A.name(), A_indices, B.name(), B_indices));
                     }
-=======
-                    EINSUMS_LOG_ERROR("{:f} {}({:}) += {:f} {}({:}) * {}({:})", C_prefactor, C->name(), print_tuple_no_type(C_indices),
-                                      AB_prefactor, A.name(), print_tuple_no_type(A_indices), B.name(), print_tuple_no_type(B_indices));
->>>>>>> main
 #    endif
                     runtime_indices_abort = true;
                 }
@@ -116,7 +108,6 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
             if (std::get<a>(A_indices).letter == std::get<c>(C_indices).letter) {
                 if (dimA != dimC) {
 #    if !defined(EINSUMS_IS_TESTING)
-<<<<<<< HEAD
                     if constexpr (TensorConcept<CType>) {
                         EINSUMS_LOG_ERROR(std::abs(C_prefactor) > EINSUMS_ZERO
                                               ? einsums::detail::corrected_format(R"(einsum: "{}"{} = {} "{}"{} * "{}"{} + {} "{}"{})",
@@ -133,10 +124,6 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
                                               : einsums::detail::corrected_format(R"(einsum: "x"{} = {} "{}"{} * "{}"{})", C_indices,
                                                                                   AB_prefactor, A.name(), A_indices, B.name(), B_indices));
                     }
-=======
-                    EINSUMS_LOG_ERROR("{:f} {}({:}) += {:f} {}({:}) * {}({:})", C_prefactor, C->name(), print_tuple_no_type(C_indices),
-                                      AB_prefactor, A.name(), print_tuple_no_type(A_indices), B.name(), print_tuple_no_type(B_indices));
->>>>>>> main
 #    endif
                     runtime_indices_abort = true;
                 }
@@ -155,7 +142,6 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
             if (std::get<b>(B_indices).letter == std::get<c>(C_indices).letter) {
                 if (dimB != dimC) {
 #    if !defined(EINSUMS_IS_TESTING)
-<<<<<<< HEAD
                     if constexpr (TensorConcept<CType>) {
                         EINSUMS_LOG_ERROR(std::abs(C_prefactor) > EINSUMS_ZERO
                                               ? einsums::detail::corrected_format(R"(einsum: "{}"{} = {} "{}"{} * "{}"{} + {} "{}"{})",
@@ -172,10 +158,6 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
                                               : einsums::detail::corrected_format(R"(einsum: "x"{} = {} "{}"{} * "{}"{})", C_indices,
                                                                                   AB_prefactor, A.name(), A_indices, B.name(), B_indices));
                     }
-=======
-                    EINSUMS_LOG_ERROR("{:f} {}({:}) += {:f} {}({:}) * {}({:})", C_prefactor, C->name(), print_tuple_no_type(C_indices),
-                                      AB_prefactor, A.name(), print_tuple_no_type(A_indices), B.name(), print_tuple_no_type(B_indices));
->>>>>>> main
 #    endif
 
                     runtime_indices_abort = true;
@@ -297,7 +279,6 @@ constexpr bool einsum_is_direct_product(std::tuple<CIndices...> const &, std::tu
  */
 template <bool ConjA, bool ConjB, typename... CIndices, typename... AIndices, typename... BIndices>
 constexpr bool einsum_is_outer_product(std::tuple<CIndices...> const &, std::tuple<AIndices...> const &, std::tuple<BIndices...> const &) {
-<<<<<<< HEAD
     constexpr auto A_indices                         = std::tuple<AIndices...>();
     constexpr auto B_indices                         = std::tuple<BIndices...>();
     constexpr auto C_indices                         = std::tuple<CIndices...>();
@@ -314,22 +295,6 @@ constexpr bool einsum_is_outer_product(std::tuple<CIndices...> const &, std::tup
 
     constexpr bool condition = std::tuple_size_v<decltype(linksAB)> == 0 && contiguous_target_position_in_A &&
                                contiguous_target_position_in_B && contiguous_A_target_position_in_C && contiguous_B_target_position_in_C;
-=======
-    constexpr auto A_indices                       = std::tuple<AIndices...>();
-    constexpr auto B_indices                       = std::tuple<BIndices...>();
-    constexpr auto C_indices                       = std::tuple<CIndices...>();
-    constexpr auto linksAB                         = IntersectT<std::tuple<AIndices...>, std::tuple<BIndices...>>();
-    constexpr auto C_unique                        = UniqueT<std::tuple<CIndices...>>();
-    constexpr auto target_position_in_A            = detail::find_type_with_position(C_unique, A_indices);
-    constexpr auto target_position_in_B            = detail::find_type_with_position(C_unique, B_indices);
-    constexpr auto contiguous_target_position_in_A = detail::contiguous_positions(target_position_in_A);
-    constexpr auto contiguous_target_position_in_B = detail::contiguous_positions(target_position_in_B);
-    constexpr auto A_target_position_in_C          = detail::find_type_with_position(A_indices, C_indices);
-    constexpr auto B_target_position_in_C          = detail::find_type_with_position(B_indices, C_indices);
-
-    constexpr bool condition =
-        std::tuple_size_v<decltype(linksAB)> == 0 && contiguous_target_position_in_A && contiguous_target_position_in_B;
->>>>>>> main
 
     if constexpr (condition) {
         constexpr bool swap_AB = std::get<1>(A_target_position_in_C) != 0;
@@ -373,11 +338,7 @@ bool einsum_do_outer_product(ValueTypeT<CType> const C_prefactor, std::tuple<CIn
     constexpr bool swap_AB = std::get<1>(A_target_position_in_C) != 0;
     EINSUMS_LOG_TRACE("swap_AB {}", swap_AB);
 
-<<<<<<< HEAD
     Dim<2>    dC;
-=======
-    Dim<2> dC;
->>>>>>> main
     Stride<2> sC;
     dC[0] = product_dims(A_target_position_in_C, *C);
     dC[1] = product_dims(B_target_position_in_C, *C);
@@ -1066,7 +1027,6 @@ void einsum(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTyp
     std::unique_ptr<profile::ScopedZone> _section;
 #    endif
     if constexpr (IsTensorV<CType>) {
-<<<<<<< HEAD
         EINSUMS_LOG_DEBUG(std::fabs(UC_prefactor) > EINSUMS_ZERO
                               ? einsums::detail::corrected_format(R"(einsum: "{}"{} = {} {}"{}"{}{} * {}"{}"{}{} + {} "{}"{})", C->name(),
                                                                   C_indices, UAB_prefactor, (ConjA) ? "conj(" : "", A.name(), A_indices,
@@ -1107,38 +1067,6 @@ void einsum(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTyp
                 : einsums::detail::corrected_format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{})", C_indices, UAB_prefactor,
                                                     (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
                                                     B.name(), B_indices, (ConjB) ? ")" : ""),
-=======
-        EINSUMS_LOG_DEBUG(
-            std::fabs(UC_prefactor) > EINSUMS_ZERO
-                ? fmt::format(R"(einsum: "{}"{} = {} {}"{}"{}{} * {}"{}"{}{} + {} "{}"{})", C->name(), C_indices, UAB_prefactor,
-                              (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "", B.name(), B_indices,
-                              (ConjB) ? ")" : "", UC_prefactor, C->name(), C_indices)
-                : fmt::format(R"(einsum: "{}"{} = {} {}"{}"{}{} * {}"{}"{}{})", C->name(), C_indices, UAB_prefactor, (ConjA) ? "conj(" : "",
-                              A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "", B.name(), B_indices, (ConjB) ? ")" : ""));
-#    if defined(EINSUMS_HAVE_PROFILER)
-        _section = std::make_unique<profile::ScopedZone>(std::fabs(UC_prefactor) > EINSUMS_ZERO
-                                                             ? fmt::format(R"(einsum: "{}"{} = {} "{}"{} * "{}"{} + {} "{}"{})", C->name(),
-                                                                           C_indices, UAB_prefactor, A.name(), A_indices, B.name(),
-                                                                           B_indices, UC_prefactor, C->name(), C_indices)
-                                                             : fmt::format(R"(einsums: "{}"{} = {} "{}"{} * "{}"{})", C->name(), C_indices,
-                                                                           UAB_prefactor, A.name(), A_indices, B.name(), B_indices),
-                                                         __FILE__, __LINE__, __func__);
-#    endif
-    } else {
-        EINSUMS_LOG_DEBUG(std::fabs(UC_prefactor) > EINSUMS_ZERO
-                             ? fmt::format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{} + {} "C"{})", C_indices, UAB_prefactor,
-                                           (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
-                                           B.name(), B_indices, (ConjB) ? ")" : "", UC_prefactor, C_indices)
-                             : fmt::format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{})", C_indices, UAB_prefactor,
-                                           (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
-                                           B.name(), B_indices, (ConjB) ? ")" : ""));
-#    if defined(EINSUMS_HAVE_PROFILER)
-        _section = std::make_unique<profile::ScopedZone>(
-            std::fabs(UC_prefactor) > EINSUMS_ZERO
-                ? fmt::format(R"(einsum: "C"{} = {} "{}"{} * "{}"{} + {} "C"{})", C_indices, UAB_prefactor, A.name(), A_indices, B.name(),
-                              B_indices, UC_prefactor, C_indices)
-                : fmt::format(R"(einsum: "C"{} = {} "{}"{} * "{}"{})", C_indices, UAB_prefactor, A.name(), A_indices, B.name(), B_indices),
->>>>>>> main
             __FILE__, __LINE__, __func__);
 #    endif
     }

@@ -3,7 +3,6 @@
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 //--------------------------------------------------------------------------------------------
 
-<<<<<<< HEAD
 #include <Einsums/Profile.hpp>
 #include <Einsums/Config/CompilerSpecific.hpp>
 #include <Einsums/Config/Debug.hpp>
