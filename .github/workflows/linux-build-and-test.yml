@@ -142,7 +142,7 @@ jobs:
 
       - name: Build and Install
         run: |
-          cmake --build "${{ github.workspace }}/build" --config Release --target install
+          cmake --build "${{ github.workspace }}/build" --config ${{matrix.build_type}} --target install
 
       - name: Linked dependencies, ldd (L)
         if: runner.os == 'Linux'
