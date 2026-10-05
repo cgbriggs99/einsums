@@ -2409,11 +2409,6 @@ void println(AType const &A, TensorPrintOptions options) {
     fprintln(std::cout, A, options);
 }
 
-TENSOR_EXPORT_ALLOC_RANK(GeneralTensor, 0, std::allocator)
-TENSOR_ALLOC_EXPORT(GeneralTensor, std::allocator)
-TENSOR_ALLOC_EXPORT(GeneralTensor, BufferAllocator)
-
-TENSOR_EXPORT(TensorView)
 #endif
 
 } // namespace einsums

@@ -2604,12 +2604,3 @@ void fprintln(Output &fp, AType const &A, TensorPrintOptions options) {
 
 #include <Einsums/Tensor/Backends/DeviceTensor.hpp>
 #include <Einsums/Tensor/Backends/DeviceTensorView.hpp>
-
-#ifndef DOXYGEN
-namespace einsums {
-TENSOR_EXPORT_RANK(DeviceTensor, 0)
-TENSOR_EXPORT(DeviceTensor)
-TENSOR_EXPORT(DeviceTensorView)
-} // namespace einsums
-#endif
-#endif

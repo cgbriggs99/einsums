@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 #----------------------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.25.2 FATAL_ERROR) # 3.25.2 for CUDA20 support.
+cmake_minimum_required(VERSION 3.28 FATAL_ERROR) # 3.28 for CMAKE_CXX_SCAN_FOR_MODULES
 
 # Overrides must go before project() statement, otherwise they are ignored
 
@@ -69,7 +69,7 @@ include(CheckLanguage)
 
 # Explicitly set certain policies
 einsums_set_cmake_policy(CMP0144 NEW)
-einsums_set_cmake_policy(CMP0155 OLD)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 set(CMAKE_CXX_FLAGS_SAFE ${CMAKE_CXX_FLAGS})
 include(Einsums_CheckCXXStandard)

@@ -1680,12 +1680,4 @@ auto create_disk_tensor_like(Tensor<T, Rank> const &tensor) -> DiskTensor<T, Ran
     return DiskTensor(detail::Einsums_Tensor_vars::get_singleton().hdf5_file, tensor.name(), tensor.dims());
 }
 
-#ifndef DOXYGEN
-
-TENSOR_EXPORT(DiskTensor)
-
-TENSOR_EXPORT(DiskView)
-
-#endif
-
 } // namespace einsums
