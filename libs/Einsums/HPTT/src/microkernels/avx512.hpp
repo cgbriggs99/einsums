@@ -237,22 +237,22 @@ struct micro_kernel<float, betaIsZero, conjA> {
         __m512 const row15_iter1 = _mm512_unpackhi_ps(rowA14, rowA15);
 
         // Actually solve the 2x2 blocks.
-        __m512 const row0_iter2  = _mm512_shuffle_ps(row0_iter_1, row1_iter1, 0x44);
-        __m512 const row1_iter2  = _mm512_shuffle_ps(row0_iter_1, row1_iter1, 0xee);
-        __m512 const row2_iter2  = _mm512_shuffle_ps(row2_iter_1, row3_iter1, 0x44);
-        __m512 const row3_iter2  = _mm512_shuffle_ps(row2_iter_1, row3_iter1, 0xee);
-        __m512 const row4_iter2  = _mm512_shuffle_ps(row4_iter_1, row5_iter1, 0x44);
-        __m512 const row5_iter2  = _mm512_shuffle_ps(row4_iter_1, row5_iter1, 0xee);
-        __m512 const row6_iter2  = _mm512_shuffle_ps(row6_iter_1, row7_iter1, 0x44);
-        __m512 const row7_iter2  = _mm512_shuffle_ps(row6_iter_1, row7_iter1, 0xee);
-        __m512 const row8_iter2  = _mm512_shuffle_ps(row8_iter_1, row9_iter1, 0x44);
-        __m512 const row9_iter2  = _mm512_shuffle_ps(row8_iter_1, row9_iter1, 0xee);
-        __m512 const row10_iter2 = _mm512_shuffle_ps(row10_iter_1, row11_iter1, 0x44);
-        __m512 const row11_iter2 = _mm512_shuffle_ps(row10_iter_1, row11_iter1, 0xee);
-        __m512 const row12_iter2 = _mm512_shuffle_ps(row12_iter_1, row13_iter1, 0x44);
-        __m512 const row13_iter2 = _mm512_shuffle_ps(row12_iter_1, row13_iter1, 0xee);
-        __m512 const row14_iter2 = _mm512_shuffle_ps(row14_iter_1, row15_iter1, 0x44);
-        __m512 const row15_iter2 = _mm512_shuffle_ps(row14_iter_1, row15_iter1, 0xee);
+        __m512 const row0_iter2  = _mm512_shuffle_ps(row0_iter1, row1_iter1, 0x44);
+        __m512 const row1_iter2  = _mm512_shuffle_ps(row0_iter1, row1_iter1, 0xee);
+        __m512 const row2_iter2  = _mm512_shuffle_ps(row2_iter1, row3_iter1, 0x44);
+        __m512 const row3_iter2  = _mm512_shuffle_ps(row2_iter1, row3_iter1, 0xee);
+        __m512 const row4_iter2  = _mm512_shuffle_ps(row4_iter1, row5_iter1, 0x44);
+        __m512 const row5_iter2  = _mm512_shuffle_ps(row4_iter1, row5_iter1, 0xee);
+        __m512 const row6_iter2  = _mm512_shuffle_ps(row6_iter1, row7_iter1, 0x44);
+        __m512 const row7_iter2  = _mm512_shuffle_ps(row6_iter1, row7_iter1, 0xee);
+        __m512 const row8_iter2  = _mm512_shuffle_ps(row8_iter1, row9_iter1, 0x44);
+        __m512 const row9_iter2  = _mm512_shuffle_ps(row8_iter1, row9_iter1, 0xee);
+        __m512 const row10_iter2 = _mm512_shuffle_ps(row10_iter1, row11_iter1, 0x44);
+        __m512 const row11_iter2 = _mm512_shuffle_ps(row10_iter1, row11_iter1, 0xee);
+        __m512 const row12_iter2 = _mm512_shuffle_ps(row12_iter1, row13_iter1, 0x44);
+        __m512 const row13_iter2 = _mm512_shuffle_ps(row12_iter1, row13_iter1, 0xee);
+        __m512 const row14_iter2 = _mm512_shuffle_ps(row14_iter1, row15_iter1, 0x44);
+        __m512 const row15_iter2 = _mm512_shuffle_ps(row14_iter1, row15_iter1, 0xee);
 
         // Solve the 4x4 diagonal blocks.
         __m512 const row0_iter3  = _mm512_shuffle_ps(row0_iter2, row2_iter2, 0x44);
