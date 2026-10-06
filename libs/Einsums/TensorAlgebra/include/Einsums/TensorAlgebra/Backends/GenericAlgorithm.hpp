@@ -62,7 +62,7 @@ std::remove_cvref_t<T> einsums_generic_link_loop(std::tuple<LinkDims...> const &
                 }
             });
             sum += einsums_generic_link_loop<__I + 1, T, ConjA, ConjB>(link_dims, link_unique, link_position_in_A, link_position_in_B,
-                                                                     A_indices, B_indices, A, B);
+                                                                       A_indices, B_indices, A, B);
         }
     }
 }
@@ -112,9 +112,9 @@ void einsums_generic_target_loop(std::tuple<TargetDims...> const &target_dims, s
             });
 
             einsums_generic_target_loop<__I + 1, ConjA, ConjB>(target_dims, link_dims, C_unique, link_unique, target_position_in_C,
-                                                             target_position_in_A, target_position_in_B, link_position_in_A,
-                                                             link_position_in_B, C_indices, A_indices, B_indices,
-                                                             std::forward<T>(C_prefactor), C, std::forward<T>(AB_prefactor), A, B);
+                                                               target_position_in_A, target_position_in_B, link_position_in_A,
+                                                               link_position_in_B, C_indices, A_indices, B_indices,
+                                                               std::forward<T>(C_prefactor), C, std::forward<T>(AB_prefactor), A, B);
         }
     }
 }

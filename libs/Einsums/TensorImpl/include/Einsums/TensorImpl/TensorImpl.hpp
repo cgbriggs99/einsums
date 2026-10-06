@@ -1825,10 +1825,10 @@ struct TensorImpl final {
     void increment_gpu_modify() const { _gpu_modify_count++; }
 
 #else
-    constexpr void                  tensor_to_gpu() const {}
-    constexpr void                  tensor_from_gpu() const {}
-    [[nodiscard]] constexpr GPULock gpu_cache_tensor() const { return 0; }
-    [[nodiscard]] constexpr GPULock gpu_cache_tensor_nowrite() const { return 0; }
+    constexpr void                     tensor_to_gpu() const {}
+    constexpr void                     tensor_from_gpu() const {}
+    [[nodiscard]] constexpr GPULock    gpu_cache_tensor() const { return 0; }
+    [[nodiscard]] constexpr GPULock    gpu_cache_tensor_nowrite() const { return 0; }
     [[nodiscard]] constexpr GPULock    get_gpu_pointer() const { return 0; }
     [[nodiscard]] constexpr GPUPromise get_gpu_memory() const { return 0; }
     [[nodiscard]] constexpr bool       gpu_is_expired() const { return true; }

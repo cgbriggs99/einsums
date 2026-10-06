@@ -7,11 +7,11 @@
 
 #include <Einsums/Assert.hpp>
 #include <Einsums/BLAS/Types.hpp>
+#include <Einsums/Errors.hpp>
 #include <Einsums/HPTT/HPTT.hpp>
 #include <Einsums/HPTT/HPTTTypes.hpp>
-#include <Einsums/Errors.hpp>
-#include <hipblas/hipblas.h>
 
+#include <hipblas/hipblas.h>
 #include <omp.h>
 
 namespace einsums::blas::vendor {

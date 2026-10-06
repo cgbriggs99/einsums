@@ -140,8 +140,7 @@ template <typename T, size_t rank>
 void DeviceTensorView<T, rank>::set_all(T const &fill_value) {
     using namespace einsums::gpu;
     einsums::detail::set_all<dev_datatype, rank><<<blocks(this->size()), block_size(this->size()), 0, get_stream()>>>(
-        this->_data, this->_gpu_index_strides, this->_gpu_strides, HipCast<dev_datatype, T>::cast(fill_value),
-        this->size());
+        this->_data, this->_gpu_index_strides, this->_gpu_strides, HipCast<dev_datatype, T>::cast(fill_value), this->size());
     gpu::stream_wait();
 }
 

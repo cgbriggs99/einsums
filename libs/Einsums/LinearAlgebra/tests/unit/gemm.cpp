@@ -29,16 +29,20 @@ TEMPLATE_TEST_CASE("gemm", "[linear-algebra]", float, double) {
     B.vector_data() = temp;
 
     einsums::linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
-    CHECK_THAT(C.vector_data(), Catch::Matchers::Equals(std::vector<TestType>{330.0, 396.0, 462.0, 726.0, 891.0, 1056.0, 1122.0, 1386.0, 1650.0}));
+    CHECK_THAT(C.vector_data(),
+               Catch::Matchers::Equals(std::vector<TestType>{330.0, 396.0, 462.0, 726.0, 891.0, 1056.0, 1122.0, 1386.0, 1650.0}));
 
     einsums::linear_algebra::gemm<true, false>(1.0, A, B, 0.0, &C);
-    CHECK_THAT(C.vector_data(), Catch::Matchers::Equals(std::vector<TestType>{726.0, 858.0, 990.0, 858.0, 1023.0, 1188.0, 990.0, 1188.0, 1386.0}));
+    CHECK_THAT(C.vector_data(),
+               Catch::Matchers::Equals(std::vector<TestType>{726.0, 858.0, 990.0, 858.0, 1023.0, 1188.0, 990.0, 1188.0, 1386.0}));
 
     einsums::linear_algebra::gemm<false, true>(1.0, A, B, 0.0, &C);
-    CHECK_THAT(C.vector_data(), Catch::Matchers::Equals(std::vector<TestType>{154.0, 352.0, 550.0, 352.0, 847.0, 1342.0, 550.0, 1342.0, 2134.0}));
+    CHECK_THAT(C.vector_data(),
+               Catch::Matchers::Equals(std::vector<TestType>{154.0, 352.0, 550.0, 352.0, 847.0, 1342.0, 550.0, 1342.0, 2134.0}));
 
     einsums::linear_algebra::gemm<true, true>(1.0, A, B, 0.0, &C);
-    CHECK_THAT(C.vector_data(), Catch::Matchers::Equals(std::vector<TestType>{330.0, 726.0, 1122.0, 396.0, 891.0, 1386.0, 462.0, 1056.0, 1650.0}));
+    CHECK_THAT(C.vector_data(),
+               Catch::Matchers::Equals(std::vector<TestType>{330.0, 726.0, 1122.0, 396.0, 891.0, 1386.0, 462.0, 1056.0, 1650.0}));
 }
 
 template <typename T>

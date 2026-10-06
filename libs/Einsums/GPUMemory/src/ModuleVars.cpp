@@ -23,16 +23,17 @@ void Einsums_GPUMemory_vars::update_max_size(config_mapping_type<std::string> co
         hip_catch(hipDeviceGetLimit(&singleton.max_size_, hipLimitMallocHeapSize));
     }
 
-    auto const &work_value    = options.at("gpu-work-size");
+    auto const &work_value = options.at("gpu-work-size");
 
     singleton.work_size_ = string_util::memory_string(work_value);
 
-    if(singleton.work_size_ == 0) {
+    if (singleton.work_size_ == 0) {
         singleton.work_size_ = 2147483648;
     }
 
-    if(singleton.work_size_ > 2147483648) {
-        EINSUMS_LOG_WARN("Due to the HIP interface using 32-bit integers for many size parameters, buffers larger than 2MB are not recommended and will break things.");
+    if (singleton.work_size_ > 2147483648) {
+        EINSUMS_LOG_WARN("Due to the HIP interface using 32-bit integers for many size parameters, buffers larger than 2MB are not "
+                         "recommended and will break things.");
     }
 }
 

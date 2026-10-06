@@ -5,15 +5,14 @@
 
 #pragma once
 #include <Einsums/BLAS.hpp>
+#include <Einsums/Errors/Error.hpp>
 #include <Einsums/TensorImpl/TensorImpl.hpp>
 #include <Einsums/TensorImpl/TensorImplOperations.hpp>
 
 #include <stdexcept>
 
-#include <Einsums/Errors/Error.hpp>
-
 #ifdef EINSUMS_COMPUTE_CODE
-#include <Einsums/hipBLAS.hpp>
+#    include <Einsums/hipBLAS.hpp>
 #endif
 
 namespace einsums {

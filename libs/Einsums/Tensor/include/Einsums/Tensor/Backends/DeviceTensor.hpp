@@ -1052,8 +1052,8 @@ DeviceTensor<T, rank> &DeviceTensor<T, rank>::assign(Tensor<T, rank> const &othe
         }
     } else {
         if (_mode == einsums::detail::DEV_ONLY) {
-            auto lock = other.gpu_cache_tensor();
-            dev_datatype const*other_ptr = (dev_datatype const*)other.get_gpu_pointer();
+            auto                lock      = other.gpu_cache_tensor();
+            dev_datatype const *other_ptr = (dev_datatype const *)other.get_gpu_pointer();
 
             size_t *other_strides;
 
@@ -1061,8 +1061,8 @@ DeviceTensor<T, rank> &DeviceTensor<T, rank>::assign(Tensor<T, rank> const &othe
             {
                 auto other_strides_temp = other.strides();
 
-                hip_catch(
-                    hipMemcpy((void *)other_strides, (void const *)other_strides_temp.data(), rank * sizeof(size_t), hipMemcpyHostToDevice));
+                hip_catch(hipMemcpy((void *)other_strides, (void const *)other_strides_temp.data(), rank * sizeof(size_t),
+                                    hipMemcpyHostToDevice));
             }
 
             einsums::detail::copy_to_tensor<dev_datatype, rank><<<blocks(other.size()), block_size(other.size()), 0, get_stream()>>>(
@@ -1073,7 +1073,7 @@ DeviceTensor<T, rank> &DeviceTensor<T, rank>::assign(Tensor<T, rank> const &othe
             hip_catch(hipFree((void *)other_strides));
         } else if (_mode == einsums::detail::MAPPED || _mode == einsums::detail::PINNED) {
             auto other_strides = other.strides();
-            for(size_t index = 0; index < other.size(); index++) {
+            for (size_t index = 0; index < other.size(); index++) {
                 size_t this_index, other_index;
                 sentinel_to_sentinels(index, _strides, _strides, this_index, other_strides, other_index);
                 _host_data[this_index] = other.data()[other_index];
@@ -1590,7 +1590,7 @@ DeviceTensor<T, rank>::DeviceTensor(Tensor<T, rank> const &copy, einsums::detail
         }
     } else {
         if (_mode == einsums::detail::DEV_ONLY) {
-            auto lock = copy.gpu_cache_tensor();
+            auto                lock     = copy.gpu_cache_tensor();
             dev_datatype const *copy_ptr = (dev_datatype const *)copy.get_gpu_pointer();
 
             size_t *copy_strides;
@@ -1611,7 +1611,7 @@ DeviceTensor<T, rank>::DeviceTensor(Tensor<T, rank> const &copy, einsums::detail
             hip_catch(hipFree((void *)copy_strides));
         } else if (_mode == einsums::detail::MAPPED || _mode == einsums::detail::PINNED) {
             auto copy_strides = copy.strides();
-            for(size_t index = 0; index < copy.size(); index++) {
+            for (size_t index = 0; index < copy.size(); index++) {
                 size_t this_index, copy_index;
                 sentinel_to_sentinels(index, _strides, _strides, this_index, copy_strides, copy_index);
                 _host_data[this_index] = copy.data()[copy_index];

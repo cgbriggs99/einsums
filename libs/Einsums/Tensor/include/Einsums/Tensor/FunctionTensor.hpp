@@ -367,9 +367,7 @@ struct FunctionTensor : public CoreTensor {
         return out;
     }
 
-    operator BufferTensor<T, Rank>() const {
-        return get();
-    }
+    operator BufferTensor<T, Rank>() const { return get(); }
 
     /**
      * Returns whether the tensor contains all elements or only some subset of a whole.

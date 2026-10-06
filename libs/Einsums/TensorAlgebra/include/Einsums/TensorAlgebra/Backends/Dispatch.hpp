@@ -144,8 +144,9 @@ AlgorithmChoice einsum_generic_default(ValueTypeT<CType> const C_prefactor, std:
     constexpr auto B_indices = std::tuple<BIndices...>();
     constexpr auto C_indices = std::tuple<CIndices...>();
 
-    if constexpr (IsAlgebraTensorV<AType> && IsAlgebraTensorV<BType> && (IsAlgebraTensorV<CType> || !IsTensorV<CType>) &&
-                  (!IsBasicTensorV<AType> || !IsBasicTensorV<BType> || (!IsBasicTensorV<CType> && IsTensorV<CType>))) {
+    if constexpr (IsAlgebraTensorV<AType> && IsAlgebraTensorV<BType> &&
+                  (IsAlgebraTensorV<CType> || !IsTensorV<CType>)&&(!IsBasicTensorV<AType> || !IsBasicTensorV<BType> ||
+                                                                   (!IsBasicTensorV<CType> && IsTensorV<CType>))) {
         if constexpr (!DryRun) {
             einsum_special_dispatch<OnlyUseGenericAlgorithm, ConjA, ConjB>(C_prefactor, C_indices, C, AB_prefactor, A_indices, A, B_indices,
                                                                            B);
@@ -292,7 +293,7 @@ bool einsum_do_outer_product(ValueTypeT<CType> const C_prefactor, std::tuple<CIn
     constexpr bool swap_AB = std::get<1>(A_target_position_in_C) != 0;
     EINSUMS_LOG_TRACE("swap_AB {}", swap_AB);
 
-    Dim<2> dC;
+    Dim<2>    dC;
     Stride<2> sC;
     dC[0] = product_dims(A_target_position_in_C, *C);
     dC[1] = product_dims(B_target_position_in_C, *C);
@@ -350,7 +351,7 @@ bool einsum_do_outer_product(ValueTypeT<CType> const C_prefactor, std::tuple<CIn
 #    ifdef EINSUMS_COMPUTE_CODE
     std::conditional_t<IsIncoreRankTensorV<CType, CRank, CDataType>, TensorView<CDataType, 2>, DeviceTensorView<CDataType, 2>> tC{*C, dC};
 #    else
-    TensorView<CDataType, 2> tC{*C, dC};
+    TensorView<CDataType, 2>       tC{*C, dC};
 #    endif
     if (C_prefactor != CDataType{1.0}) {
         EINSUMS_LOG_TRACE("scaling C");
@@ -999,12 +1000,12 @@ void einsum(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTyp
 #    endif
     } else {
         EINSUMS_LOG_DEBUG(std::fabs(UC_prefactor) > EINSUMS_ZERO
-                             ? fmt::format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{} + {} "C"{})", C_indices, UAB_prefactor,
-                                           (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
-                                           B.name(), B_indices, (ConjB) ? ")" : "", UC_prefactor, C_indices)
-                             : fmt::format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{})", C_indices, UAB_prefactor,
-                                           (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
-                                           B.name(), B_indices, (ConjB) ? ")" : ""));
+                              ? fmt::format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{} + {} "C"{})", C_indices, UAB_prefactor,
+                                            (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
+                                            B.name(), B_indices, (ConjB) ? ")" : "", UC_prefactor, C_indices)
+                              : fmt::format(R"(einsum: "C"{} = {} {}"{}"{}{} * {}"{}"{}{})", C_indices, UAB_prefactor,
+                                            (ConjA) ? "conj(" : "", A.name(), A_indices, (ConjA) ? ")" : "", (ConjB) ? "conj(" : "",
+                                            B.name(), B_indices, (ConjB) ? ")" : ""));
 #    if defined(EINSUMS_HAVE_PROFILER)
         _section = std::make_unique<profile::ScopedZone>(
             std::fabs(UC_prefactor) > EINSUMS_ZERO
@@ -1029,9 +1030,7 @@ void einsum(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTyp
             auto testB = Tensor<BDataType, BRank>(B);
             // Perform the einsum using only the generic algorithm
             // #pragma omp task depend(in: A, B) depend(inout: testC)
-            {
-                detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, testA, B_indices, testB);
-            }
+            { detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, testA, B_indices, testB); }
         } else {
 #        endif
             if constexpr (!einsums::detail::IsBasicTensorV<AType> && !einsums::detail::IsBasicTensorV<BType>) {
@@ -1043,20 +1042,14 @@ void einsum(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTyp
                 }
             } else if constexpr (!einsums::detail::IsBasicTensorV<AType>) {
                 auto testA = Tensor<ADataType, ARank>(A);
-                {
-                    detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, testA, B_indices, B);
-                }
+                { detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, testA, B_indices, B); }
             } else if constexpr (!einsums::detail::IsBasicTensorV<BType>) {
                 auto testB = Tensor<BDataType, BRank>(B);
-                {
-                    detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, A, B_indices, testB);
-                }
+                { detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, A, B_indices, testB); }
             } else {
                 // Perform the einsum using only the generic algorithm
                 // #pragma omp task depend(in: A, B) depend(inout: testC)
-                {
-                    detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, A, B_indices, B);
-                }
+                { detail::einsum<true, false, ConjA, ConjB>(C_prefactor, C_indices, &testC, AB_prefactor, A_indices, A, B_indices, B); }
                 // #pragma omp taskwait depend(in: testC)
             }
 #        ifdef EINSUMS_COMPUTE_CODE

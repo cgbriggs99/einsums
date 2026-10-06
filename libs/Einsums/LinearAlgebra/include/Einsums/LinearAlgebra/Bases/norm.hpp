@@ -6,13 +6,12 @@
 #pragma once
 #include <Einsums/BLAS.hpp>
 #include <Einsums/BLASVendor.hpp>
+#include <Einsums/LinearAlgebra/Bases/sum_square.hpp>
 #include <Einsums/Profile.hpp>
 #include <Einsums/TensorImpl/TensorImpl.hpp>
 
-#include <Einsums/LinearAlgebra/Bases/sum_square.hpp>
-
 #ifdef EINSUMS_COMPUTE_CODE
-#include <Einsums/hipBLAS.hpp>
+#    include <Einsums/hipBLAS.hpp>
 #endif
 
 namespace einsums {

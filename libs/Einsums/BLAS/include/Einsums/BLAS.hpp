@@ -38,24 +38,24 @@ class IsBlasable {
     constexpr static bool value = false;
 };
 // Base instantiation.
-template<>
+template <>
 struct IsBlasable<float> {
-    public:
+  public:
     constexpr static bool value = true;
 };
 
-template<>
+template <>
 struct IsBlasable<double> {
     constexpr static bool value = true;
 };
 
 // Complex instantiation.
-template<>
+template <>
 struct IsBlasable<std::complex<float>> {
     constexpr static bool value = true;
 };
 
-template<>
+template <>
 struct IsBlasable<std::complex<double>> {
     constexpr static bool value = true;
 };

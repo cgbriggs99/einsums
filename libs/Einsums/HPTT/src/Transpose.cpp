@@ -184,7 +184,7 @@ struct micro_kernel<double, betaIsZero, conjA> {
             // Store B
             if (innerStrideB != 1) {
                 __m256i indicesB = _mm256_set_epi64x(7 * innerStrideB, 6 * innerStrideB, 5 * innerStrideB, 4 * innerStrideB,
-                                                    3 * innerStrideB, 2 * innerStrideB, 1 * innerStrideB, 0 * innerStrideB);
+                                                     3 * innerStrideB, 2 * innerStrideB, 1 * innerStrideB, 0 * innerStrideB);
                 _mm256_i64scatter_pd((B + 0 * ldb), indicesB, rowA0, sizeof(double));
                 _mm256_i64scatter_pd((B + 1 * ldb), indicesB, rowA1, sizeof(double));
                 _mm256_i64scatter_pd((B + 2 * ldb), indicesB, rowA2, sizeof(double));

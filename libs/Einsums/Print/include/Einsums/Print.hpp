@@ -179,7 +179,7 @@ struct ordinal {
             return *this;                                                                                                                  \
         }                                                                                                                                  \
         template <std::integral OtherType>                                                                                                 \
-        constexpr ordinal<IntType> &operator OP##=(const OtherType & other) {                                                              \
+        constexpr ordinal<IntType> &operator OP##=(const OtherType &other) {                                                               \
             val_ OP## = other;                                                                                                             \
             return *this;                                                                                                                  \
         }

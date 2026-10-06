@@ -1089,8 +1089,8 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
                     std::string_view next = args[i + 1];
                     if (!looks_like_option_token(next)) {
                         val = std::string_view(args[++i]); // consume as value
-                    } // else leave val = nullopt to allow ImplicitValue(...)
-                } // else leave val = nullopt
+                    }                                      // else leave val = nullopt to allow ImplicitValue(...)
+                }                                          // else leave val = nullopt
             }
 
             std::string err;
@@ -1135,8 +1135,8 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
                             std::string_view next = args[i + 1];
                             if (!looks_like_option_token(next)) {
                                 val = std::string_view(args[++i]); // consume as value
-                            } // else leave nullopt to allow ImplicitValue(...)
-                        } // else leave nullopt
+                            }                                      // else leave nullopt to allow ImplicitValue(...)
+                        }                                          // else leave nullopt
                     }
                 }
 

@@ -18,7 +18,7 @@
 #include <source_location>
 
 #if hipblasVersionMajor >= 3
-using hipblasComplex = hipFloatComplex;
+using hipblasComplex       = hipFloatComplex;
 using hipblasDoubleComplex = hipDoubleComplex;
 #endif
 

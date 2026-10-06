@@ -168,7 +168,8 @@ struct GeneralRuntimeTensor : public tensor_base::CoreTensor,
      * @param dims The dimensions of the tensor.
      */
     template <Container Dim>
-    GeneralRuntimeTensor(std::string name, Dim const &dims) : _name{name}, _impl(nullptr, dims, GlobalConfigMap::get_singleton().get_bool("row-major")) {
+    GeneralRuntimeTensor(std::string name, Dim const &dims)
+        : _name{name}, _impl(nullptr, dims, GlobalConfigMap::get_singleton().get_bool("row-major")) {
         _data.resize(_impl.size());
 
         _impl.set_data(_data.data());

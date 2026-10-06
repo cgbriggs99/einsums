@@ -48,7 +48,7 @@ std::remove_cvref_t<T> einsums_generic_link_loop(std::tuple<LinkDims...> const  
         EINSUMS_OMP_PARALLEL_FOR
         for (size_t i = 0; i < curr_dim; i++) {
             sum += einsums_generic_link_loop<__I + 1, T, ConjA, ConjB>(link_dims, A_link_strides, B_link_strides, A_index + i * A_stride,
-                                                                     B_index + i * B_stride, A, B);
+                                                                       B_index + i * B_stride, A, B);
         }
         return sum;
     }
@@ -75,9 +75,9 @@ void einsums_generic_target_loop(std::tuple<TargetDims...> const &target_dims, s
         EINSUMS_OMP_PARALLEL_FOR
         for (size_t i = 0; i < curr_dim; i++) {
             einsums_generic_target_loop<__I + 1, ConjA, ConjB>(target_dims, link_dims, C_target_strides, A_target_strides, B_target_strides,
-                                                             A_link_strides, B_link_strides, C_index + i * C_stride, A_index + i * A_stride,
-                                                             B_index + i * B_stride, std::forward<T>(C_prefactor), C,
-                                                             std::forward<T>(AB_prefactor), A, B);
+                                                               A_link_strides, B_link_strides, C_index + i * C_stride,
+                                                               A_index + i * A_stride, B_index + i * B_stride, std::forward<T>(C_prefactor),
+                                                               C, std::forward<T>(AB_prefactor), A, B);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace einsums {
 struct EINSUMS_EXPORT GPUBlock {
     GPUBlock(gpu::GPUAllocator<uint8_t> &alloc, size_t size);
     ~GPUBlock();
-    size_t   size;
+    size_t                   size;
     gpu::GPUPointer<uint8_t> gpu_pointer;
 };
 #endif

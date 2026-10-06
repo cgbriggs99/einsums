@@ -34,17 +34,17 @@ namespace einsums::blas::hip {
  *
  * @versionadded{2.0.0}
  */
-void sgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, float alpha, float const *a, int64_t lda, float const *b, int64_t ldb, float beta,
-           float *c, int64_t ldc);
+void sgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, float alpha, float const *a, int64_t lda, float const *b, int64_t ldb,
+           float beta, float *c, int64_t ldc);
 /// @copydoc sgemm
-void dgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, double alpha, double const *a, int64_t lda, double const *b, int64_t ldb, double beta,
-           double *c, int64_t ldc);
+void dgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, double alpha, double const *a, int64_t lda, double const *b,
+           int64_t ldb, double beta, double *c, int64_t ldc);
 /// @copydoc sgemm
 void cgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, std::complex<float> alpha, std::complex<float> const *a, int64_t lda,
            std::complex<float> const *b, int64_t ldb, std::complex<float> beta, std::complex<float> *c, int64_t ldc);
 /// @copydoc sgemm
-void zgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, std::complex<double> alpha, std::complex<double> const *a, int64_t lda,
-           std::complex<double> const *b, int64_t ldb, std::complex<double> beta, std::complex<double> *c, int64_t ldc);
+void zgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, std::complex<double> alpha, std::complex<double> const *a,
+           int64_t lda, std::complex<double> const *b, int64_t ldb, std::complex<double> beta, std::complex<double> *c, int64_t ldc);
 
 /**
  * Performs matrix vector multiplication.
@@ -66,15 +66,17 @@ void zgemm(char transa, char transb, int64_t m, int64_t n, int64_t k, std::compl
  *
  * @versionadded{2.0.0}
  */
-void sgemv(char transa, int64_t m, int64_t n, float alpha, float const *a, int64_t lda, float const *x, int64_t incx, float beta, float *y, int64_t incy);
+void sgemv(char transa, int64_t m, int64_t n, float alpha, float const *a, int64_t lda, float const *x, int64_t incx, float beta, float *y,
+           int64_t incy);
 /// @copydoc sgemv
-void dgemv(char transa, int64_t m, int64_t n, double alpha, double const *a, int64_t lda, double const *x, int64_t incx, double beta, double *y, int64_t incy);
+void dgemv(char transa, int64_t m, int64_t n, double alpha, double const *a, int64_t lda, double const *x, int64_t incx, double beta,
+           double *y, int64_t incy);
 /// @copydoc sgemv
-void cgemv(char transa, int64_t m, int64_t n, std::complex<float> alpha, std::complex<float> const *a, int64_t lda, std::complex<float> const *x,
-           int64_t incx, std::complex<float> beta, std::complex<float> *y, int64_t incy);
+void cgemv(char transa, int64_t m, int64_t n, std::complex<float> alpha, std::complex<float> const *a, int64_t lda,
+           std::complex<float> const *x, int64_t incx, std::complex<float> beta, std::complex<float> *y, int64_t incy);
 /// @copydoc sgemv
-void zgemv(char transa, int64_t m, int64_t n, std::complex<double> alpha, std::complex<double> const *a, int64_t lda, std::complex<double> const *x,
-           int64_t incx, std::complex<double> beta, std::complex<double> *y, int64_t incy);
+void zgemv(char transa, int64_t m, int64_t n, std::complex<double> alpha, std::complex<double> const *a, int64_t lda,
+           std::complex<double> const *x, int64_t incx, std::complex<double> beta, std::complex<double> *y, int64_t incy);
 
 /**
  * Scales and adds two vectors.
@@ -315,11 +317,11 @@ void sger(int64_t m, int64_t n, float alpha, float const *x, int64_t inc_x, floa
 /// @copydoc sger
 void dger(int64_t m, int64_t n, double alpha, double const *x, int64_t inc_x, double const *y, int64_t inc_y, double *a, int64_t lda);
 /// @copydoc sger
-void cger(int64_t m, int64_t n, std::complex<float> alpha, std::complex<float> const *x, int64_t inc_x, std::complex<float> const *y, int64_t inc_y,
-          std::complex<float> *a, int64_t lda);
+void cger(int64_t m, int64_t n, std::complex<float> alpha, std::complex<float> const *x, int64_t inc_x, std::complex<float> const *y,
+          int64_t inc_y, std::complex<float> *a, int64_t lda);
 /// @copydoc sger
-void zger(int64_t m, int64_t n, std::complex<double> alpha, std::complex<double> const *x, int64_t inc_x, std::complex<double> const *y, int64_t inc_y,
-          std::complex<double> *a, int64_t lda);
+void zger(int64_t m, int64_t n, std::complex<double> alpha, std::complex<double> const *x, int64_t inc_x, std::complex<double> const *y,
+          int64_t inc_y, std::complex<double> *a, int64_t lda);
 /*!
  * Performs a rank-1 update of a general matrix.
  *
@@ -343,11 +345,11 @@ void zger(int64_t m, int64_t n, std::complex<double> alpha, std::complex<double>
  *
  * @versionadded{2.0.0}
  */
-void cgerc(int64_t m, int64_t n, std::complex<float> alpha, std::complex<float> const *x, int64_t inc_x, std::complex<float> const *y, int64_t inc_y,
-           std::complex<float> *a, int64_t lda);
+void cgerc(int64_t m, int64_t n, std::complex<float> alpha, std::complex<float> const *x, int64_t inc_x, std::complex<float> const *y,
+           int64_t inc_y, std::complex<float> *a, int64_t lda);
 /// @copydoc cgerc
-void zgerc(int64_t m, int64_t n, std::complex<double> alpha, std::complex<double> const *x, int64_t inc_x, std::complex<double> const *y, int64_t inc_y,
-           std::complex<double> *a, int64_t lda);
+void zgerc(int64_t m, int64_t n, std::complex<double> alpha, std::complex<double> const *x, int64_t inc_x, std::complex<double> const *y,
+           int64_t inc_y, std::complex<double> *a, int64_t lda);
 
 /*!
  * Computes the LU factorization of a general M-by-N matrix A
@@ -584,8 +586,8 @@ void ddirprod(int64_t n, double alpha, double const *x, int64_t incx, double con
 void cdirprod(int64_t n, std::complex<float> alpha, std::complex<float> const *x, int64_t incx, std::complex<float> const *y, int64_t incy,
               std::complex<float> *z, int64_t incz);
 /// @copydoc sdirprod
-void zdirprod(int64_t n, std::complex<double> alpha, std::complex<double> const *x, int64_t incx, std::complex<double> const *y, int64_t incy,
-              std::complex<double> *z, int64_t incz);
+void zdirprod(int64_t n, std::complex<double> alpha, std::complex<double> const *x, int64_t incx, std::complex<double> const *y,
+              int64_t incy, std::complex<double> *z, int64_t incz);
 
 /**
  * Computes the sum of the absolute values of the input vector. If the vector is complex,

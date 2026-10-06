@@ -876,8 +876,7 @@ inline auto getri<double>(int_t n, double *a, int_t lda, int *ipiv, double *c, i
 }
 
 template <>
-inline auto getri<std::complex<float>>(int_t n, std::complex<float> *a, int_t lda, int *ipiv, std::complex<float> *c, int_t ldc)
-    -> int_t {
+inline auto getri<std::complex<float>>(int_t n, std::complex<float> *a, int_t lda, int *ipiv, std::complex<float> *c, int_t ldc) -> int_t {
     return blas::hip::cgetri(n, a, lda, ipiv, c, ldc);
 }
 

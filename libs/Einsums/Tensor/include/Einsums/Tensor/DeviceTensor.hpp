@@ -2508,7 +2508,7 @@ void fprintln(Output &fp, AType const &A, TensorPrintOptions options) {
                     fprintln(fp);
                 } else if constexpr (Rank > 1) {
                     BufferVector<size_t> index_strides(Rank - 1);
-                    auto dims = A.dims();
+                    auto                 dims = A.dims();
                     size_t elements = dims_to_strides(BufferVector<size_t>(dims.begin(), std::prev(dims.end())), index_strides, true);
 
                     auto                     final_dim = A.dim(Rank - 1);
