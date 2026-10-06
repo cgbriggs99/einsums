@@ -19,6 +19,7 @@ void export_Tensor(py::module_ &mod) {
         mod, "RuntimeTensorView");
 
 #ifdef EINSUMS_COMPUTE_CODE
+    // Not a typo. Python should treat this like a lock, while C++ can access the actual block data stored within.
     pybind11::class_<einsums::GPUBlock, std::shared_ptr<einsums::GPUBlock>>(mod, "GPULock");
 #endif
 
