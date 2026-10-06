@@ -502,6 +502,11 @@ get_property(
   TARGET tgt::lapack
   PROPERTY INT_INTERFACE
 )
+
+if("${EINSUMS_LINALG_VENDOR}" STREQUAL "MKL" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  target_link_libraries(einsums_base_libraries INTERFACE atomic)
+endif()
+
 einsums_info("EINSUMS_LINALG_INT_INTERFACE ${EINSUMS_LINALG_INT_INTERFACE}")
 
 find_package(OpenMP REQUIRED MODULE COMPONENTS CXX)
