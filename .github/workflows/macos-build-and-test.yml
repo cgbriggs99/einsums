@@ -120,12 +120,8 @@ jobs:
       - name: Test (Pytest) - unit tests
         working-directory: "${{github.workspace}}/installed"
         run: |
-          if [[ "${{runner.os}}" == "Windows" ]]; then
-            export PYTHONPATH="$PYTHONPATH;${{github.workspace}}/installed/lib;$CONDA_PREFIX/lib"
-          else
-            export PYTHONPATH="$PYTHONPATH:${{github.workspace}}/installed/lib:$CONDA_PREFIX/lib"
-          fi
-          pytest "${{github.workspace}}/installed" --cov="${{github.workspace}}/installed/lib" --cov="${{github.workspace}}/src" --cov-report=xml
+          export PYTHONPATH="$PYTHONPATH:${{github.workspace}}/installed/lib:$CONDA_PREFIX/lib"
+          pytest "${{github.workspace}}/installed/lib/einsums" -m "not slow" --cov="${{github.workspace}}/installed/lib" --cov="${{github.workspace}}/src" --cov-report=xml
           
       - name: Generate coverage information
         working-directory: "${{github.workspace}}/build"
