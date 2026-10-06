@@ -5,7 +5,7 @@
 #include <immintrin.h>
 
 #ifdef EINSUMS_DEBUG
-#warning "DEBUG INFO: Compiling HPTT with AVX512 as the highest level of vectorization."
+#    warning "DEBUG INFO: Compiling HPTT with AVX512 as the highest level of vectorization."
 #endif
 
 template <bool betaIsZero, bool conjA>
@@ -50,28 +50,23 @@ struct micro_kernel<double, betaIsZero, conjA> {
         __m512d const row6_iter1 = _mm512_unpacklo_pd(rowA6, rowA7);
         __m512d const row7_iter1 = _mm512_unpackhi_pd(rowA6, rowA7);
 
-        __m512i const low_shuffle_mask1  = _mm512_set_epi64(13, 12, 5, 4, 9, 8, 1, 0),
-                      high_shuffle_mask1 = _mm512_set_epi64(15, 14, 7, 6, 11, 10, 3, 2);
+        __m512d const row0_iter2 = _mm512_shuffle_f64x2(row0_iter1, row2_iter1, 0x88);
+        __m512d const row1_iter2 = _mm512_shuffle_f64x2(row1_iter1, row3_iter1, 0x88);
+        __m512d const row2_iter2 = _mm512_shuffle_f64x2(row0_iter1, row2_iter1, 0xdd);
+        __m512d const row3_iter2 = _mm512_shuffle_f64x2(row1_iter1, row3_iter1, 0xdd);
+        __m512d const row4_iter2 = _mm512_shuffle_f64x2(row4_iter1, row6_iter1, 0x88);
+        __m512d const row5_iter2 = _mm512_shuffle_f64x2(row5_iter1, row7_iter1, 0x88);
+        __m512d const row6_iter2 = _mm512_shuffle_f64x2(row4_iter1, row6_iter1, 0xdd);
+        __m512d const row7_iter2 = _mm512_shuffle_f64x2(row5_iter1, row7_iter1, 0xdd);
 
-        // Solve the 4x4 blocks on the diagonal.
-        __m512d const row0_iter2 = _mm512_permutex2var_pd(row0_iter1, low_shuffle_mask1, row2_iter1);
-        __m512d const row1_iter2 = _mm512_permutex2var_pd(row1_iter1, low_shuffle_mask1, row3_iter1);
-        __m512d const row2_iter2 = _mm512_permutex2var_pd(row0_iter1, high_shuffle_mask1, row2_iter1);
-        __m512d const row3_iter2 = _mm512_permutex2var_pd(row1_iter1, high_shuffle_mask1, row3_iter1);
-        __m512d const row4_iter2 = _mm512_permutex2var_pd(row4_iter1, low_shuffle_mask1, row6_iter1);
-        __m512d const row5_iter2 = _mm512_permutex2var_pd(row5_iter1, low_shuffle_mask1, row7_iter1);
-        __m512d const row6_iter2 = _mm512_permutex2var_pd(row4_iter1, high_shuffle_mask1, row6_iter1);
-        __m512d const row7_iter2 = _mm512_permutex2var_pd(row5_iter1, high_shuffle_mask1, row7_iter1);
-
-        // Finish it out.
-        rowA0 = _mm512_shuffle_f64x2(row0_iter2, row4_iter2, 0x44);
-        rowA1 = _mm512_shuffle_f64x2(row1_iter2, row5_iter2, 0x44);
-        rowA2 = _mm512_shuffle_f64x2(row2_iter2, row6_iter2, 0x44);
-        rowA3 = _mm512_shuffle_f64x2(row3_iter2, row7_iter2, 0x44);
-        rowA4 = _mm512_shuffle_f64x2(row0_iter2, row4_iter2, 0xee);
-        rowA5 = _mm512_shuffle_f64x2(row1_iter2, row5_iter2, 0xee);
-        rowA6 = _mm512_shuffle_f64x2(row2_iter2, row6_iter2, 0xee);
-        rowA7 = _mm512_shuffle_f64x2(row3_iter2, row7_iter2, 0xee);
+        rowA0 = _mm512_shuffle_f64x2(row0_iter2, row4_iter2, 0x88);
+        rowA1 = _mm512_shuffle_f64x2(row1_iter2, row5_iter2, 0x88);
+        rowA2 = _mm512_shuffle_f64x2(row2_iter2, row6_iter2, 0x88);
+        rowA3 = _mm512_shuffle_f64x2(row3_iter2, row7_iter2, 0x88);
+        rowA4 = _mm512_shuffle_f64x2(row0_iter2, row4_iter2, 0xdd);
+        rowA5 = _mm512_shuffle_f64x2(row1_iter2, row5_iter2, 0xdd);
+        rowA6 = _mm512_shuffle_f64x2(row2_iter2, row6_iter2, 0xdd);
+        rowA7 = _mm512_shuffle_f64x2(row3_iter2, row7_iter2, 0xdd);
 
         // Scale A
         rowA0 = _mm512_mul_pd(rowA0, reg_alpha);
@@ -273,42 +268,40 @@ struct micro_kernel<float, betaIsZero, conjA> {
         __m512 const row15_iter3 = _mm512_shuffle_ps(row13_iter2, row15_iter2, 0xee);
 
         // Solve the 8x8 diagonal blocks.
-        __m512i const low_shuffle_mask  = _mm512_set_epi32(27, 26, 25, 24, 11, 10, 9, 8, 19, 18, 17, 16, 3, 2, 1, 0);
-        __m512i const high_shuffle_mask = _mm512_set_epi32(31, 30, 29, 28, 15, 14, 13, 12, 23, 22, 21, 20, 7, 6, 5, 4);
-        __m512 const  row0_iter4        = _mm512_permutex2var_ps(row0_iter3, low_shuffle_mask, row4_iter3);
-        __m512 const  row1_iter4        = _mm512_permutex2var_ps(row1_iter3, low_shuffle_mask, row5_iter3);
-        __m512 const  row2_iter4        = _mm512_permutex2var_ps(row2_iter3, low_shuffle_mask, row6_iter3);
-        __m512 const  row3_iter4        = _mm512_permutex2var_ps(row3_iter3, low_shuffle_mask, row7_iter3);
-        __m512 const  row4_iter4        = _mm512_permutex2var_ps(row0_iter3, high_shuffle_mask, row4_iter3);
-        __m512 const  row5_iter4        = _mm512_permutex2var_ps(row1_iter3, high_shuffle_mask, row5_iter3);
-        __m512 const  row6_iter4        = _mm512_permutex2var_ps(row2_iter3, high_shuffle_mask, row6_iter3);
-        __m512 const  row7_iter4        = _mm512_permutex2var_ps(row3_iter3, high_shuffle_mask, row7_iter3);
-        __m512 const  row8_iter4        = _mm512_permutex2var_ps(row8_iter3, low_shuffle_mask, row12_iter3);
-        __m512 const  row9_iter4        = _mm512_permutex2var_ps(row9_iter3, low_shuffle_mask, row13_iter3);
-        __m512 const  row10_iter4       = _mm512_permutex2var_ps(row10_iter3, low_shuffle_mask, row14_iter3);
-        __m512 const  row11_iter4       = _mm512_permutex2var_ps(row11_iter3, low_shuffle_mask, row15_iter3);
-        __m512 const  row12_iter4       = _mm512_permutex2var_ps(row8_iter3, high_shuffle_mask, row12_iter3);
-        __m512 const  row13_iter4       = _mm512_permutex2var_ps(row9_iter3, high_shuffle_mask, row13_iter3);
-        __m512 const  row14_iter4       = _mm512_permutex2var_ps(row10_iter3, high_shuffle_mask, row14_iter3);
-        __m512 const  row15_iter4       = _mm512_permutex2var_ps(row11_iter3, high_shuffle_mask, row15_iter3);
+        __m512 const row0_iter4  = _mm512_shuffle_f32x4(row0_iter3, row4_iter3, 0x88);
+        __m512 const row1_iter4  = _mm512_shuffle_f32x4(row1_iter3, row5_iter3, 0x88);
+        __m512 const row2_iter4  = _mm512_shuffle_f32x4(row2_iter3, row6_iter3, 0x88);
+        __m512 const row3_iter4  = _mm512_shuffle_f32x4(row3_iter3, row7_iter3, 0x88);
+        __m512 const row4_iter4  = _mm512_shuffle_f32x4(row0_iter3, row4_iter3, 0xdd);
+        __m512 const row5_iter4  = _mm512_shuffle_f32x4(row1_iter3, row5_iter3, 0xdd);
+        __m512 const row6_iter4  = _mm512_shuffle_f32x4(row2_iter3, row6_iter3, 0xdd);
+        __m512 const row7_iter4  = _mm512_shuffle_f32x4(row3_iter3, row7_iter3, 0xdd);
+        __m512 const row8_iter4  = _mm512_shuffle_f32x4(row8_iter3, row12_iter3, 0x88);
+        __m512 const row9_iter4  = _mm512_shuffle_f32x4(row9_iter3, row13_iter3, 0x88);
+        __m512 const row10_iter4 = _mm512_shuffle_f32x4(row10_iter3, row14_iter3, 0x88);
+        __m512 const row11_iter4 = _mm512_shuffle_f32x4(row11_iter3, row15_iter3, 0x88);
+        __m512 const row12_iter4 = _mm512_shuffle_f32x4(row8_iter3, row12_iter3, 0xdd);
+        __m512 const row13_iter4 = _mm512_shuffle_f32x4(row9_iter3, row13_iter3, 0xdd);
+        __m512 const row14_iter4 = _mm512_shuffle_f32x4(row10_iter3, row14_iter3, 0xdd);
+        __m512 const row15_iter4 = _mm512_shuffle_f32x4(row11_iter3, row15_iter3, 0xdd);
 
         // Solve the rest.
-        rowA0  = _mm512_shuffle_f32x4(row0_iter4, row8_iter4, 0x44);
-        rowA1  = _mm512_shuffle_f32x4(row1_iter4, row9_iter4, 0x44);
-        rowA2  = _mm512_shuffle_f32x4(row2_iter4, row10_iter4, 0x44);
-        rowA3  = _mm512_shuffle_f32x4(row3_iter4, row11_iter4, 0x44);
-        rowA4  = _mm512_shuffle_f32x4(row4_iter4, row12_iter4, 0x44);
-        rowA5  = _mm512_shuffle_f32x4(row5_iter4, row13_iter4, 0x44);
-        rowA6  = _mm512_shuffle_f32x4(row6_iter4, row14_iter4, 0x44);
-        rowA7  = _mm512_shuffle_f32x4(row7_iter4, row15_iter4, 0x44);
-        rowA8  = _mm512_shuffle_f32x4(row0_iter4, row8_iter4, 0xee);
-        rowA9  = _mm512_shuffle_f32x4(row1_iter4, row9_iter4, 0xee);
-        rowA10 = _mm512_shuffle_f32x4(row2_iter4, row10_iter4, 0xee);
-        rowA11 = _mm512_shuffle_f32x4(row3_iter4, row11_iter4, 0xee);
-        rowA12 = _mm512_shuffle_f32x4(row4_iter4, row12_iter4, 0xee);
-        rowA13 = _mm512_shuffle_f32x4(row5_iter4, row13_iter4, 0xee);
-        rowA14 = _mm512_shuffle_f32x4(row6_iter4, row14_iter4, 0xee);
-        rowA15 = _mm512_shuffle_f32x4(row7_iter4, row15_iter4, 0xee);
+        rowA0 = _mm512_shuffle_f32x4(row0_iter4, row8_iter4, 0x88);
+        rowA1 = _mm512_shuffle_f32x4(row1_iter4, row9_iter4, 0x88);
+        rowA2 = _mm512_shuffle_f32x4(row2_iter4, row10_iter4, 0x88);
+        rowA3 = _mm512_shuffle_f32x4(row3_iter4, row11_iter4, 0x88);
+        rowA4 = _mm512_shuffle_f32x4(row4_iter4, row12_iter4, 0x88);
+        rowA5 = _mm512_shuffle_f32x4(row5_iter4, row13_iter4, 0x88);
+        rowA6 = _mm512_shuffle_f32x4(row6_iter4, row14_iter4, 0x88);
+        rowA7 = _mm512_shuffle_f32x4(row7_iter4, row15_iter4, 0x88);
+        rowA8 = _mm512_shuffle_f32x4(row0_iter4, row8_iter4, 0xdd);
+        rowA9 = _mm512_shuffle_f32x4(row1_iter4, row9_iter4, 0xdd);
+        rowA10 = _mm512_shuffle_f32x4(row2_iter4, row10_iter4, 0xdd);
+        rowA11 = _mm512_shuffle_f32x4(row3_iter4, row11_iter4, 0xdd);
+        rowA12 = _mm512_shuffle_f32x4(row4_iter4, row12_iter4, 0xdd);
+        rowA13 = _mm512_shuffle_f32x4(row5_iter4, row13_iter4, 0xdd);
+        rowA14 = _mm512_shuffle_f32x4(row6_iter4, row14_iter4, 0xdd);
+        rowA15 = _mm512_shuffle_f32x4(row7_iter4, row15_iter4, 0xdd);
 
         // Scale A
         rowA0  = _mm512_mul_ps(rowA0, reg_alpha);
