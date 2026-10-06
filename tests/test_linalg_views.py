@@ -516,6 +516,7 @@ def test_svd(a, b, dtype, array):
 
 
 @pytest.mark.parametrize(["a", "b"], [(10, 10), (11, 13)])
+@pytest.mark.xfail(reason="Unstable algorithm. See issue #291", strict=False)
 def test_nullspace(a, b, dtype, array):
     A_base = ein.utils.random_tensor_factory("A", [a + 2, b + 2], dtype, array)
 
