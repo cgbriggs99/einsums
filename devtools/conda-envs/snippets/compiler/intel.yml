@@ -4,5 +4,5 @@ channels:
   - nodefaults
 dependencies:
   - cxx-compiler
-  - dpcpp_linux-64
+  - dpcpp_linux-64!=2026
   - intel-openmp
