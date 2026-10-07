@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Einsums/Assert.hpp>
 #include <Einsums/Config.hpp>
 
 #include <Einsums/Concepts/Complex.hpp>

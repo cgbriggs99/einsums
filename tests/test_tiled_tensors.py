@@ -13,6 +13,7 @@ import math
         ein.core.TiledTensorD,
         ein.core.TiledTensorC,
         ein.core.TiledTensorZ])
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_creation(tensor_type):
     A = tensor_type("A", [[2, 1], [2, 1]])
@@ -71,6 +72,7 @@ def test_creation(tensor_type):
 @pytest.mark.parametrize(
     "etype", [float, complex, np.float32, np.float64, np.complex64, np.complex128]
 )
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_ops(dtype, etype):
     ein.log_debug("Making A")

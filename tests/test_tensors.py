@@ -16,6 +16,7 @@ import math
         ein.core.RuntimeTensorZ,
     ],
 )
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_creation(tensor_type):
     ein.log_debug("")
@@ -153,6 +154,7 @@ def test_creation(tensor_type):
         ein.core.RuntimeTensorZ,
     ],
 )
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_set(tensor_type):
     A = tensor_type("A", [3, 3])
@@ -195,6 +197,7 @@ def test_set(tensor_type):
 @pytest.mark.parametrize(
     "etype", [float, complex, np.float32, np.float64, np.complex64, np.complex128]
 )
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_ops(dtype, etype):
     A = ein.utils.create_random_tensor("A", [3, 3], dtype)
@@ -337,6 +340,7 @@ def test_ops(dtype, etype):
         A_res -= F
 
 
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_view_creation():
     A = ein.core.RuntimeTensorD("A", [5, 5])
@@ -384,6 +388,7 @@ def test_view_creation():
     assert B_view.get_name() == "B view"
 
 
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_view_set():
     A = ein.core.RuntimeTensorD("A", [5, 5])
@@ -453,6 +458,7 @@ def test_view_set():
 @pytest.mark.parametrize(
     "etype", [float, complex, np.float32, np.float64, np.complex64, np.complex128]
 )
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_view_ops(dtype, etype):
     A = ein.utils.create_random_tensor("A", [5, 5], dtype)
@@ -678,6 +684,7 @@ def test_view_ops(dtype, etype):
         A_view /= F
 
 
+@pytest.mark.filterwarnings(r"ignore:.*:numpy.exceptions.ComplexWarning")
 @ein.utils.labeled_section
 def test_iterators():
     A = ein.utils.create_random_tensor("A", [10, 10])
