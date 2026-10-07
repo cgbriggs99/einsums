@@ -34,7 +34,10 @@ int einsums_main(int argc, char *const *const argv) {
             Catch::StringMaker<double>::precision = std::numeric_limits<double>::digits10;
             auto seed                             = session.config().rngSeed();
 
-            einsums::seed_random(seed);
+#pragma omp parallel
+            {
+                einsums::random_engine().seed(seed);
+            }
 
             {
                 LabeledSection("einsums_main");

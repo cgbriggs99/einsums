@@ -159,7 +159,6 @@ struct EINSUMS_EXPORT Runtime : public design_pats::Lockable<std::recursive_mute
 
 EINSUMS_EXPORT void on_exit() noexcept;
 EINSUMS_EXPORT void on_abort(int signal) noexcept;
-EINSUMS_EXPORT void set_signal_handlers();
 } // namespace detail
 
 /**

@@ -175,5 +175,24 @@ if((TARGET tgt::blas) AND (TARGET tgt::lapk))
   set(${PN}_MESSAGE "Found LAPACK ${_ven}w/${_int}: ${_illl};${_illb}")
 endif()
 
+if(WIN32)
+  set(_einsums_dot_check_libs tgt::lapack)
+else()
+  set(_einsums_dot_check_libs tgt::lapack m)
+endif()
+
+if(EINSUMS_DOT_SUBROUTINE)
+  message("-- Complex dot products are subroutines. Choosing appropriate code path.")
+else()
+  einsums_check_for_dot_struct_return(
+    DEFINITIONS EINSUMS_DOT_STRUCT_RETURN LIBRARIES ${_einsums_dot_check_libs}
+  )
+  if(EINSUMS_DOT_STRUCT_RETURN)
+    message("-- Complex dot products return structs. Choosing appropriate code path.")
+  else()
+    message("-- Complex dot products return std::complex. Choosing appropriate code path.")
+  endif()
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(${PN} DEFAULT_MSG ${PN}_MESSAGE)

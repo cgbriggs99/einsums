@@ -171,14 +171,6 @@ std::vector<std::string> RuntimeConfiguration::parse_command_line(std::function<
                                                           debugCategory, cl::Location(global_bools["install-signal-handlers"]), cl::Default(true),
                                                           cl::ImplicitValue(false));
 
-        static cl::Flag noAttachDebugger("einsums:debug:no-attach-debugger", {},
-                                         "Do not provide a mechanism to attach a debugger on detected errors", debugCategory,
-                                         cl::Location(global_bools["attach-debugger"]), cl::Default(true), cl::ImplicitValue(false));
-
-        static cl::Flag noDiagnosticsOnTerminate(
-            "einsums:debug:no-diagnostics-on-terminate", {}, "Print additional diagnostic information on termination", debugCategory,
-            cl::Location(global_bools["diagnostics-on-terminate"]), cl::Default(true), cl::ImplicitValue(false));
-
         static cl::OptionCategory logCategory("Logging");
         static cl::Opt<int64_t>   logLevel("einsums:log:level", {}, "Log level", logCategory, cl::Location(global_ints["log-level"]),
                                            cl::Default(static_cast<int64_t>(

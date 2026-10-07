@@ -14,9 +14,10 @@ set(ConfigHeaders
     Einsums/Config/ExportDefinitions.hpp
     Einsums/Config/ForceInline.hpp
     Einsums/Config/Types.hpp
+    Einsums/Config/PosixAlternatives.hpp
 )
 
-set(ConfigSources Version.cpp Types.cpp)
+set(ConfigSources Version.cpp Types.cpp PosixAlternatives.cpp)
 
 include(Einsums_AddModule)
 einsums_add_module(

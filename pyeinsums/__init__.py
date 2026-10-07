@@ -102,26 +102,57 @@ def log_critical(msg: str, always_print: bool=False):
     log(5, msg, always_print, inspect.stack()[1])
 
 
+__import_log_print = False
+
+# Set the EINSUMS_DEBUG_IMPORT environment variable to debug the import process.
+if "EINSUMS_DEBUG_IMPORT" in os.environ:
+    __affirmative = ["on", "yes", "true", "1"]
+    __negative = ["off", "no", "false", "0"]
+
+    if os.environ["EINSUMS_DEBUG_IMPORT"].lower() in __affirmative:
+        __import_log_print = True
+    elif os.environ["EINSUMS_DEBUG_IMPORT"].lower() in __negative:
+        __import_log_print = False
+    del __affirmative
+    del __negative
+
+log_debug("Adding the current file's path to the different Python search paths.", __import_log_print)
 __modpath = os.path.dirname(__file__)
 
 if __modpath not in sys.path:
+    log_debug("Adding it to the PYTHONPATH.", __import_log_print)
     sys.path.append(__modpath)
 
-__modpath = os.path.dirname(__file__)
-
-if __modpath not in sys.path:
-    sys.path.append(__modpath)
+__mod_dlls = []
+if hasattr(os, "add_dll_directory"):
+    log_debug("Adding it to the Windows DLL search path.", __import_log_print)
+    __mod_dlls.append(os.add_dll_directory(__modpath))
+    log_debug(f"Also adding {os.path.dirname(__modpath)} to the DLL search path.")
+    __mod_dlls.append(os.add_dll_directory(os.path.dirname(__modpath)))
+    for dir in sys.path:
+        if os.path.isdir(dir):
+            __mod_dlls.append(os.add_dll_directory(dir))
+    for dir in os.environ["PATH"].split(';'):
+        if os.path.isdir(dir):
+            __mod_dlls.append(os.add_dll_directory(dir))
 
 try:
+    log_debug("Trying to import from an Einsums installation.", __import_log_print)
     from . import core
+    log_debug("Successfully found an Einsums installation.")
 except (ModuleNotFoundError, ImportError):
     try:
-        print("Importing core in a different way.")
+        log_debug("Importing core from a build tree instead.", __import_log_print)
         import core
+        log_debug("Successfully found an Einsums build tree.")
     except (ModuleNotFoundError, ImportError) as e:
-        raise RuntimeError(
+        raise ImportError(
             f"File is {__file__}, path is {sys.path} and version is {sys.version}"
         ) from e
+
+for fp in __mod_dlls:
+    fp.close()
+del __mod_dlls
 
 from . import utils  # pylint: disable=wrong-import-position
 

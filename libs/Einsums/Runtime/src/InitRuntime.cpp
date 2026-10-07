@@ -97,6 +97,13 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
 
     auto &global_config = GlobalConfigMap::get_singleton();
 
+#ifdef EINSUMS_WITH_BACKTRACES
+
+    if (global_config.get_bool("install-signal-handlers")) {
+        cpptrace::register_terminate_handler();
+    }
+#endif
+
     // Report build settings.
     EINSUMS_LOG_INFO("Starting Einsums: {}", build_string());
 
@@ -127,11 +134,6 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
         for (auto pair : global_ints->get_value()) {
             EINSUMS_LOG_INFO("\"{}\": {}", pair.first, pair.second);
         }
-    }
-
-    if (global_config.get_bool("install-signal-handlers")) {
-        EINSUMS_LOG_TRACE("Installing signal handlers...");
-        set_signal_handlers();
     }
 
     // This is the only initialization routine that needs to be explicitly called here.
