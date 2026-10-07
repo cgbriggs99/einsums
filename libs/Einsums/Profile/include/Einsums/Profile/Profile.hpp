@@ -36,8 +36,9 @@
 #    endif
 #    include <malloc.h>
 #    include <windows.h>
-
+#ifdef EINSUMS_HAVE_TRACY
 #    include "TracyWinFamily.hpp"
+#endif
 #else
 #    include <pthread.h>
 #    include <string.h>
