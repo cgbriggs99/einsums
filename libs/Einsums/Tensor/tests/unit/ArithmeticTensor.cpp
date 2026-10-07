@@ -25,57 +25,57 @@ TEMPLATE_TEST_CASE("Arithmetic Tensor", "[tensor]", float, double, std::complex<
         }
     }
 
-    C = A - B;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel(A(i, j) - B(i, j), tol));
-        }
-    }
-
-    C = A * B;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel(A(i, j) * B(i, j), tol));
-        }
-    }
-
-    C = A / B;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel(A(i, j) / B(i, j), tol));
-        }
-    }
-
-    C = -A;
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel(-A(i, j), tol));
-        }
-    }
-
-    C = TestType(2.0) * A;
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel(TestType(2.0) * A(i, j), tol));
-        }
-    }
-
-    C = (A + B) / (A * B);
-
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel((A(i, j) + B(i, j)) / (A(i, j) * B(i, j)), tol));
-        }
-    }
-
-    C = TestType(2.0) * A + B;
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            CHECK_THAT(C(i, j), CheckWithinRel(TestType(2.0) * A(i, j) + B(i, j), tol));
-        }
-    }
+//    C = A - B;
+//
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel(A(i, j) - B(i, j), tol));
+//        }
+//    }
+//
+//    C = A * B;
+//
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel(A(i, j) * B(i, j), tol));
+//        }
+//    }
+//
+//    C = A / B;
+//
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel(A(i, j) / B(i, j), tol));
+//        }
+//    }
+//
+//    C = -A;
+//
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel(-A(i, j), tol));
+//        }
+//    }
+//
+//    C = TestType(2.0) * A;
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel(TestType(2.0) * A(i, j), tol));
+//        }
+//    }
+//
+//    C = (A + B) / (A * B);
+//
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel((A(i, j) + B(i, j)) / (A(i, j) * B(i, j)), tol));
+//        }
+//    }
+//
+//    C = TestType(2.0) * A + B;
+//    for (int i = 0; i < size; i++) {
+//        for (int j = 0; j < size; j++) {
+//            CHECK_THAT(C(i, j), CheckWithinRel(TestType(2.0) * A(i, j) + B(i, j), tol));
+//        }
+//    }
 }

@@ -3,10 +3,6 @@
 # Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 #----------------------------------------------------------------------------------------------
 
-if(WIN32)
-  return()
-endif()
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(HPTTHeaders
