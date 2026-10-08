@@ -184,7 +184,7 @@ struct micro_kernel<double, betaIsZero, conjA> {
             // Store B
             if (innerStrideB != 1) {
                 __m256i indicesB = _mm256_set_epi64x(7 * innerStrideB, 6 * innerStrideB, 5 * innerStrideB, 4 * innerStrideB,
-                                                    3 * innerStrideB, 2 * innerStrideB, 1 * innerStrideB, 0 * innerStrideB);
+                                                     3 * innerStrideB, 2 * innerStrideB, 1 * innerStrideB, 0 * innerStrideB);
                 _mm256_i64scatter_pd((B + 0 * ldb), indicesB, rowA0, sizeof(double));
                 _mm256_i64scatter_pd((B + 1 * ldb), indicesB, rowA1, sizeof(double));
                 _mm256_i64scatter_pd((B + 2 * ldb), indicesB, rowA2, sizeof(double));
@@ -620,8 +620,8 @@ struct micro_kernel<float, betaIsZero, conjA> {
 #endif
 
 template <bool betaIsZero, typename floatType, bool conjA>
-static INLINE void macro_kernel_scalar(floatType const *A, const size_t lda, int blockingA, size_t innerStrideA, floatType *B,
-                                       const size_t ldb, int blockingB, size_t innerStrideB, const floatType alpha, const floatType beta) {
+static INLINE void macro_kernel_scalar(floatType const *A, size_t const lda, int blockingA, size_t innerStrideA, floatType *B,
+                                       size_t const ldb, int blockingB, size_t innerStrideB, floatType const alpha, floatType const beta) {
 #ifdef DEBUG
     assert(blockingA > 0 && blockingB > 0);
 #endif
@@ -2743,45 +2743,52 @@ read_from_file_error:
     throw std::runtime_error("IO error");
 }
 
+#ifdef EINSUMS_WINDOWS
+template class EINSUMS_EXPORT Transpose<float>;
+template class EINSUMS_EXPORT Transpose<double>;
+template class EINSUMS_EXPORT Transpose<FloatComplex>;
+template class EINSUMS_EXPORT Transpose<DoubleComplex>;
+#else
 template class Transpose<float>;
 template class Transpose<double>;
 template class Transpose<FloatComplex>;
 template class Transpose<DoubleComplex>;
+#endif
 
-template void Transpose<float>::execute_expert<true, true, true>();
-template void Transpose<float>::execute_expert<true, false, true>();
-template void Transpose<float>::execute_expert<false, true, true>();
-template void Transpose<float>::execute_expert<false, false, true>();
-template void Transpose<float>::execute_expert<true, true, false>();
-template void Transpose<float>::execute_expert<true, false, false>();
-template void Transpose<float>::execute_expert<false, true, false>();
-template void Transpose<float>::execute_expert<false, false, false>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<true, true, true>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<true, false, true>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<false, true, true>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<false, false, true>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<true, true, false>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<true, false, false>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<false, true, false>();
+template void EINSUMS_EXPORT Transpose<float>::execute_expert<false, false, false>();
 
-template void Transpose<double>::execute_expert<true, true, true>();
-template void Transpose<double>::execute_expert<false, true, true>();
-template void Transpose<double>::execute_expert<true, false, true>();
-template void Transpose<double>::execute_expert<false, false, true>();
-template void Transpose<double>::execute_expert<true, true, false>();
-template void Transpose<double>::execute_expert<false, true, false>();
-template void Transpose<double>::execute_expert<true, false, false>();
-template void Transpose<double>::execute_expert<false, false, false>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<true, true, true>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<false, true, true>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<true, false, true>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<false, false, true>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<true, true, false>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<false, true, false>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<true, false, false>();
+template void EINSUMS_EXPORT Transpose<double>::execute_expert<false, false, false>();
 
-template void Transpose<FloatComplex>::execute_expert<true, true, true>();
-template void Transpose<FloatComplex>::execute_expert<false, true, true>();
-template void Transpose<FloatComplex>::execute_expert<true, false, true>();
-template void Transpose<FloatComplex>::execute_expert<false, false, true>();
-template void Transpose<FloatComplex>::execute_expert<true, true, false>();
-template void Transpose<FloatComplex>::execute_expert<false, true, false>();
-template void Transpose<FloatComplex>::execute_expert<true, false, false>();
-template void Transpose<FloatComplex>::execute_expert<false, false, false>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<true, true, true>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<false, true, true>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<true, false, true>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<false, false, true>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<true, true, false>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<false, true, false>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<true, false, false>();
+template void EINSUMS_EXPORT Transpose<FloatComplex>::execute_expert<false, false, false>();
 
-template void Transpose<DoubleComplex>::execute_expert<true, true, true>();
-template void Transpose<DoubleComplex>::execute_expert<false, true, true>();
-template void Transpose<DoubleComplex>::execute_expert<true, false, true>();
-template void Transpose<DoubleComplex>::execute_expert<false, false, true>();
-template void Transpose<DoubleComplex>::execute_expert<true, true, false>();
-template void Transpose<DoubleComplex>::execute_expert<false, true, false>();
-template void Transpose<DoubleComplex>::execute_expert<true, false, false>();
-template void Transpose<DoubleComplex>::execute_expert<false, false, false>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<true, true, true>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<false, true, true>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<true, false, true>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<false, false, true>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<true, true, false>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<false, true, false>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<true, false, false>();
+template void EINSUMS_EXPORT Transpose<DoubleComplex>::execute_expert<false, false, false>();
 
 } // namespace hptt

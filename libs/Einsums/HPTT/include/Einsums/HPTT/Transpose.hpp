@@ -35,7 +35,7 @@
 #include "Einsums/HPTT/Files.hpp"
 #include "HPTTTypes.hpp"
 #include <Einsums/Config/ExportDefinitions.hpp>
-#include <Einsums/Config/CompilerSepcific.hpp>
+#include <Einsums/Config/CompilerSpecific.hpp>
 #ifdef _OPENMP
 #    include <omp.h>
 #endif
