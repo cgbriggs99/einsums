@@ -31,7 +31,6 @@
 
 namespace einsums::tensor_algebra {
 
-#if !defined(EINSUMS_WINDOWS)
 namespace detail {
 
 template <bool ConjA = false, typename T, typename... CIndices, typename... AIndices>
@@ -311,7 +310,6 @@ void permute(T beta, std::string const &C_indices, einsums::detail::TensorImpl<T
 }
 
 } // namespace detail
-#endif
 
 /**
  * @brief Permutes the elements of a tensor and puts it into an output tensor.
@@ -367,11 +365,9 @@ void permute(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTy
         }
     });
 
-#if !defined(EINSUMS_WINDOWS)
     if (CoreBasicTensorConcept<AType> && CoreBasicTensorConcept<CType>) {
         detail::permute<ConjA>(C_prefactor, C_indices, &C->impl(), A_prefactor, A_indices, A.impl());
     } else
-#endif
         if constexpr (std::is_same_v<decltype(A_indices), decltype(C_indices)> && !(ConjA && IsComplexV<T>)) {
         // If the prefactor is zero, set the tensor to zero. This avoids NaNs.
         if (C_prefactor == T{0.0}) {
