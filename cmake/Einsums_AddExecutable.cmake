@@ -258,7 +258,7 @@ function(einsums_add_executable name)
       POST_BUILD
       COMMENT "Running dsymutil on: $<TARGET_FILE:${name}>"
       VERBATIM
-      COMMAND dsymutil $<TARGET_FILE:${name}>
+      COMMAND dsymutil $<TARGET_FILE:${name}> COMMAND_EXPAND_LISTS
     )
   endif()
 

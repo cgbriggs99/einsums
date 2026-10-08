@@ -91,7 +91,7 @@ foreach(lib ${EINSUMS_LIBS})
         TARGET ${lib}
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:cpptrace::cpptrace>
-                $<TARGET_FILE_DIR:${lib}>
+                $<TARGET_FILE_DIR:${lib}> VERBATIM COMMAND_EXPAND_LISTS
       )
     endif()
 
@@ -101,7 +101,7 @@ foreach(lib ${EINSUMS_LIBS})
         TARGET ${lib}
         POST_BUILD
         COMMENT "Calling dsymutil on $<TARGET_FILE:${lib}>"
-        COMMAND dsymutil $<TARGET_FILE:${lib}>
+        COMMAND dsymutil $<TARGET_FILE:${lib}> VERBATIM COMMAND_EXPAND_LISTS
       )
     endif()
   endif()
@@ -119,7 +119,7 @@ foreach(lib ${EINSUMS_LIBS})
   )
   if(WIN32)
     add_custom_command(TARGET ${lib} POST_BUILD COMMAND ${CMAKE_COMMAND} 
-      -E copy -t $<TARGET_FILE_DIR:${lib}> $<TARGET_RUNTIME_DLLS:${lib}> COMMAND_EXPAND_LISTS)
+      -E copy -t $<TARGET_FILE_DIR:${lib}> $<TARGET_RUNTIME_DLLS:${lib}> VERBATIM COMMAND_EXPAND_LISTS)
   endif()
   einsums_export_targets(${lib})
 
@@ -167,7 +167,7 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
           TARGET ${lib}
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:cpptrace::cpptrace>
-                $<TARGET_FILE_DIR:${lib}>
+                $<TARGET_FILE_DIR:${lib}> VERBATIM COMMAND_EXPAND_LISTS
         )
       endif()
 
@@ -177,7 +177,7 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
           TARGET ${lib}
           POST_BUILD
           COMMENT "Calling dsymutil on $<TARGET_FILE:${lib}>"
-          COMMAND dsymutil $<TARGET_FILE:${lib}>
+          COMMAND dsymutil $<TARGET_FILE:${lib}> VERBATIM COMMAND_EXPAND_LISTS
         )
       endif()
     endif()
@@ -197,7 +197,7 @@ if(EINSUMS_BUILD_PYTHON OR EINSUMS_BUILD_PYTHON MATCHES "3(\.[0-9]+)*")
     )
     if(WIN32)
       add_custom_command(TARGET ${lib} POST_BUILD COMMAND ${CMAKE_COMMAND} 
-        -E copy -t $<TARGET_FILE_DIR:${lib}> $<TARGET_RUNTIME_DLLS:${lib}> COMMAND_EXPAND_LISTS)
+        -E copy -t $<TARGET_FILE_DIR:${lib}> $<TARGET_RUNTIME_DLLS:${lib}> VERBATIM COMMAND_EXPAND_LISTS)
     endif()
     einsums_export_targets(${lib})
 
