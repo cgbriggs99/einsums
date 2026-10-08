@@ -2293,10 +2293,17 @@ TensorView(std::string, GeneralTensor<T, OtherRank, Alloc> &, Dim<Rank> const &,
  * @return A new tensor. By default, memory is not initialized to anything. It may be filled with garbage.
  */
 template <typename Type = double, typename... Args>
-auto create_tensor(std::string const &name, Args... args) {
+auto create_tensor(std::string const &name, Args&&... args) {
     EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(args...));
-    return Tensor<Type, sizeof...(Args)>{name, args...};
+    return Tensor<Type, sizeof...(Args)>{name, std::forward<Args>(args)...};
 }
+
+template <typename Type = double, typename... Args>
+auto create_tensor(char const *name, Args&&... args) {
+    EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(args...));
+    return Tensor<Type, sizeof...(Args)>{std::string(name), std::forward<Args>(args)...};
+}
+
 
 /**
  * @brief Create a new tensor with \p name and \p args .
@@ -2323,9 +2330,15 @@ auto create_tensor(std::string const &name, Args... args) {
  * @return A new tensor. By default, memory is not initialized to anything. It may be filled with garbage.
  */
 template <typename Type = double, typename... Args>
-auto create_tensor(bool row_major, std::string const &name, Args... args) {
+auto create_tensor(bool row_major, std::string const &name, Args&&... args) {
     EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(args...));
-    return Tensor<Type, sizeof...(Args)>{row_major, name, args...};
+    return Tensor<Type, sizeof...(Args)>{row_major, name, std::forward<Args>(args)...};
+}
+
+template <typename Type = double, typename... Args>
+auto create_tensor(bool row_major, char const *name, Args&&... args) {
+    EINSUMS_LOG_TRACE("creating tensor {}, {}", name, std::forward_as_tuple(args...));
+    return Tensor<Type, sizeof...(Args)>{row_major, std::string(name), std::forward<Args>(args)...};
 }
 
 /**
@@ -2352,8 +2365,15 @@ auto create_tensor(bool row_major, std::string const &name, Args... args) {
  * @return A new tensor. By default, memory is not initialized to anything. It may be filled with garbage.
  */
 template <typename Type = double, std::integral... Args>
-auto create_tensor(Args... args) {
-    return Tensor<Type, sizeof...(Args)>{"Temporary", args...};
+requires(!std::is_same_v<bool, Args> && ...)
+auto create_tensor(Args&&... args) {
+    return Tensor<Type, sizeof...(Args)>{"Temporary", std::forward<Args>(args)...};
+}
+
+template <typename Type = double, std::integral... Args>
+requires(!std::is_same_v<bool, Args> && ...)
+auto create_tensor(bool row_major, Args&&... args) {
+    return Tensor<Type, sizeof...(Args)>{row_major, "Temporary", std::forward<Args>(args)...};
 }
 
 #ifndef DOXYGEN
