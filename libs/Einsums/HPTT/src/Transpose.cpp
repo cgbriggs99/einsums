@@ -1953,8 +1953,8 @@ void Transpose<floatType>::skipIndices(size_t const *sizeA, int const *perm, siz
     printf("dim: %d\n", dim_);
     printf("alpha: %f\n", alpha_);
     printf("beta: %f\n", beta_);
-    printf("innerStrideA: %lu\n", innerStrideA_);
-    printf("innerStrideB: %lu\n", innerStrideB_);
+    printf("innerStrideA: %zu\n", innerStrideA_);
+    printf("innerStrideB: %zu\n", innerStrideB_);
 #endif
 }
 
@@ -2062,19 +2062,19 @@ void Transpose<floatType>::fuseIndices() {
             printf("%d ", perm_[i]);
         printf("\nsizes_new: ");
         for (int i = 0; i < dim_; ++i)
-            printf("%lu ", sizeA_[i]);
+            printf("%zu ", sizeA_[i]);
         printf("\nouterSizeA_new: ");
         for (int i = 0; i < dim_; ++i)
-            printf("%lu ", outerSizeA_[i]);
+            printf("%zu ", outerSizeA_[i]);
         printf("\nouterSizeB_new: ");
         for (int i = 0; i < dim_; ++i)
-            printf("%lu ", outerSizeB_[i]);
+            printf("%zu ", outerSizeB_[i]);
         printf("\noffsetA_new: ");
         for (int i = 0; i < dim_; ++i)
-            printf("%lu ", offsetA_[i]);
+            printf("%zu ", offsetA_[i]);
         printf("\noffsetB_new: ");
         for (int i = 0; i < dim_; ++i)
-            printf("%lu ", offsetB_[i]);
+            printf("%zu ", offsetB_[i]);
         printf("\n");
 #endif
     }
@@ -2453,7 +2453,7 @@ std::shared_ptr<Plan> Transpose<floatType>::selectPlan(std::vector<std::shared_p
             }
         }
         if (this->infoLevel_ > 0)
-            printf("We evaluated %d/%lu candidates and selected candidate %d.\n", plansEvaluated, plans.size(), bestPlan_id);
+            printf("We evaluated %d/%zu candidates and selected candidate %d.\n", plansEvaluated, plans.size(), bestPlan_id);
     }
     return plans[bestPlan_id];
 }
