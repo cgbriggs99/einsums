@@ -268,6 +268,7 @@ function(einsums_add_config_test variable)
             CXX_STANDARD ${EINSUMS_WITH_CXX_STANDARD}
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS FALSE
+            COPY_FILE ${test_binary}
             RUN_OUTPUT_VARIABLE ${variable}_OUTPUT
             ARGS ${${variable}_ARGS}
         )
@@ -282,7 +283,7 @@ function(einsums_add_config_test variable)
       endif()
     else()
       if(EINSUMS_WITH_CUDA AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC")
-        set(cuda_parameters CUDA_STANDARD ${CMAKE_CUDA_STANDARD})
+        set(cuda_parameters CUDA_STANDARD "${CMAKE_CUDA_STANDARD}")
       endif()
       # if(EINSUMS_WITH_HIP) set(hip_parameters HIP_STANDARD "${CMAKE_HIP_STANDARD}") endif()
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${additional_cmake_flags} ${${variable}_CXXFLAGS}")
@@ -297,7 +298,7 @@ function(einsums_add_config_test variable)
           CMAKE_FLAGS
           "-DINCLUDE_DIRECTORIES=${CONFIG_TEST_INCLUDE_DIRS}"
           "-DLINK_DIRECTORIES=${CONFIG_TEST_LINK_DIRS}"
-          "-DLINK_LIBRARIES=${CONFIG_TEST_LINK_LIBRARIES}"
+          LINK_LIBRARIES ${CONFIG_TEST_LINK_LIBRARIES}
           OUTPUT_VARIABLE ${variable}_OUTPUT
           CXX_STANDARD ${EINSUMS_WITH_CXX_STANDARD}
           CXX_STANDARD_REQUIRED ON
