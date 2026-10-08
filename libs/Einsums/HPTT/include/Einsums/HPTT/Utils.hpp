@@ -31,12 +31,13 @@
 
 #pragma once
 
+#include <Einsums/Config/ExportDefinitions.hpp>
+#include <Einsums/HPTT/HPTTTypes.hpp>
+
 #include <cstdint>
 #include <iostream>
 #include <list>
 #include <vector>
-
-#include "HPTTTypes.hpp"
 
 namespace hptt {
 
