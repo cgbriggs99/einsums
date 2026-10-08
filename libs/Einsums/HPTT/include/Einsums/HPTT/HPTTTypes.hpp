@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <Einsums/Config/ExportDefinitions.hpp>
+
 #include <complex.h>
 #include <complex>
 
@@ -46,7 +48,7 @@ namespace hptt {
  * * PATIENT: 60 seconds
  * * CRAZY : 3600 seconds
  */
-enum SelectionMethod { ESTIMATE, MEASURE, PATIENT, CRAZY };
+enum EINSUMS_EXPORT SelectionMethod { ESTIMATE, MEASURE, PATIENT, CRAZY };
 
 /**
  * @typedef FloatComplex

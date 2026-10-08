@@ -34,6 +34,7 @@
 
 #include "Einsums/HPTT/Files.hpp"
 #include "HPTTTypes.hpp"
+#include <Einsums/Config/ExportDefinitions.hpp>
 #ifdef _OPENMP
 #    include <omp.h>
 #endif
@@ -351,9 +352,9 @@ class Transpose {
     static constexpr int infoLevel_ = 0; // determines which auxiliary messages should be printed
 };
 
-extern template class Transpose<float>;
-extern template class Transpose<double>;
-extern template class Transpose<FloatComplex>;
-extern template class Transpose<DoubleComplex>;
+extern template class EINSUMS_EXPORT Transpose<float>;
+extern template class EINSUMS_EXPORT Transpose<double>;
+extern template class EINSUMS_EXPORT Transpose<FloatComplex>;
+extern template class EINSUMS_EXPORT Transpose<DoubleComplex>;
 
 } // namespace hptt
