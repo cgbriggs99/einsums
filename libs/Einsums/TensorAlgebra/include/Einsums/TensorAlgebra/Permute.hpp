@@ -367,8 +367,7 @@ void permute(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTy
 
     if (CoreBasicTensorConcept<AType> && CoreBasicTensorConcept<CType>) {
         detail::permute<ConjA>(C_prefactor, C_indices, &C->impl(), A_prefactor, A_indices, A.impl());
-    } else
-        if constexpr (std::is_same_v<decltype(A_indices), decltype(C_indices)> && !(ConjA && IsComplexV<T>)) {
+    } else if constexpr (std::is_same_v<decltype(A_indices), decltype(C_indices)> && !(ConjA && IsComplexV<T>)) {
         // If the prefactor is zero, set the tensor to zero. This avoids NaNs.
         if (C_prefactor == T{0.0}) {
             *C = T{0.0};
@@ -379,12 +378,12 @@ void permute(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTy
         if (C_prefactor == T{0.0}) {
             *C = T{0.0};
         }
-        Stride<ARank> index_strides;
-        size_t        elements = dims_to_strides(A.dims(), index_strides);
+        Stride<CRank> index_strides;
+        size_t        elements = dims_to_strides(C->dims(), index_strides);
 
         EINSUMS_OMP_PARALLEL_FOR
         for (size_t i = 0; i < elements; i++) {
-            thread_local std::array<int64_t, ARank> index;
+            std::array<int64_t, ARank> index;
 
             sentinel_to_indices(i, index_strides, index);
 
