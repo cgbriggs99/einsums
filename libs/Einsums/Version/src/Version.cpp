@@ -51,7 +51,7 @@ std::string build_string() {
     {
         std::printf("Copying the format string to a temporary variable.\n");
         std::fflush(stdout);
-        std::string temp = fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
+        std::string temp = fmt::format("v{}{}, Git: {:.10}", full_version_as_string().c_str(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
         std::printf("Copying the temporary string to an output variable.\n");
         std::fflush(stdout);
         out = std::string(temp);
@@ -72,7 +72,7 @@ std::string complete_version() {
                                       "Build:\n"
                                       "  Type: {}\n"
                                       "  Date: {}\n",
-                                      build_string(), build_type(), build_date_time());
+                                      build_string().c_str(), build_type(), build_date_time().c_str());
 
     return version;
 }

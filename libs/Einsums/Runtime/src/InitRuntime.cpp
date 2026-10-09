@@ -90,28 +90,11 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
 
     // Command line arguments for Einsums will be prefixed with --einsums:
     // For example, "--einsums:verbose=1" will be translated to verbose=1
-    {
-        std::string test = fmt::format("Test5");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
     RuntimeConfiguration config(argv);
-    
-    {
-        std::string test = fmt::format("Test6");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
 
     // Before this line logging does not work.
     init_logging(config);
     
-    {
-        std::string test = fmt::format("Test7");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
-
     auto &global_config = GlobalConfigMap::get_singleton();
 
 #ifdef EINSUMS_WITH_BACKTRACES
@@ -191,11 +174,6 @@ int run_impl(std::function<int()> f, std::vector<std::string> const &argv, InitP
 //    [[maybe_unused]] auto quick_exit_result = std::at_quick_exit(on_exit);
 //#endif
 
-{
-    std::string test = fmt::format("Test");
-    std::puts(test.c_str());
-    std::fflush(stdout);
-}
     return run(f, *pass_argv, params, blocking);
 }
 
@@ -231,12 +209,6 @@ int start(std::function<int(int, char **)> f, std::vector<std::string> &argv, In
     }
 
     std::function<int()> main_f = std::bind(f, (int)copy_argv.size(), copy_argv.data());
-    
-    {
-        std::string test = fmt::format("Test3");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
 
     return detail::run_impl(main_f, argv, params, true);
 }

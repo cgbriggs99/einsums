@@ -192,11 +192,6 @@ EINSUMS_EXPORT int start(std::function<int(int, char const *const *)> f, int arg
 template <typename Function>
 int start(Function &&f, int argc, char **argv, InitParams const &params = InitParams()) {
     std::vector<std::string> pass_argv(argv, argv + argc);
-    {
-        std::string test = fmt::format("Test2");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
 
     return start(std::forward<Function>(f), pass_argv, params);
 }

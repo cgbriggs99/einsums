@@ -143,18 +143,8 @@ RuntimeConfiguration::RuntimeConfiguration(int argc, char const *const argv[], s
 RuntimeConfiguration::RuntimeConfiguration(std::vector<std::string> const &argv, std::function<void()> const &user_command_line)
     : original(argv) {
     pre_initialize();
-    {
-        std::string test = fmt::format("Test");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
 
     parse_command_line(user_command_line);
-    {
-        std::string test = fmt::format("Test");
-        std::puts(test.c_str());
-        std::fflush(stdout);
-    }
 }
 
 std::vector<std::string> RuntimeConfiguration::parse_command_line(std::function<void()> const &user_command_line) {
