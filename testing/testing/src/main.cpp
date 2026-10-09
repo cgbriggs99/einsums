@@ -56,6 +56,24 @@ int einsums_main(int argc, char *const *const argv) {
 }
 
 int main(int argc, char **argv) {
-    
+
+    {
+        std::string build = einsums::full_version_as_string();
+        std::cout << "Version string: " << build << std::endl;
+
+        std::cout << "Trying to deallocate the version string." << std::endl;
+    }
+
+    std::cout << "Successfully deallocated the version string." << std::endl;
+
+    {
+        std::string build = einsums::build_string();
+        std::cout << "Build string: " << build << std::endl;
+
+        std::cout << "Trying to deallocate the build string." << std::endl;
+    }
+
+    std::cout << "Successfully deallocated the build string." << std::endl;
+
     return einsums::start(einsums_main, argc, argv);
 }
