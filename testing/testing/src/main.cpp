@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "Successfully deallocated the version string." << std::endl;
+    std::cout.flush();
 
     {
         std::string build = einsums::build_string();
@@ -75,6 +76,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "Successfully deallocated the build string." << std::endl;
+    std::cout.flush();
 
     return 0; //einsums::start(einsums_main, argc, argv);
 }
