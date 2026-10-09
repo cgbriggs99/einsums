@@ -56,5 +56,12 @@ int einsums_main(int argc, char *const *const argv) {
 }
 
 int main(int argc, char **argv) {
+    
+    {
+        std::string test = fmt::format("Test");
+        std::puts(test.c_str());
+        std::fflush(stdout);
+    }
+    
     return einsums::start(einsums_main, argc, argv);
 }
