@@ -46,7 +46,23 @@ std::string configuration_string() {
 }
 
 std::string build_string() {
-    return fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
+    std::string out;
+
+    {
+        std::printf("Copying the format string to a temporary variable.\n");
+        std::fflush(stdout);
+        std::string temp = fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
+        std::printf("Copying the temporary string to an output variable.\n");
+        std::fflush(stdout);
+        out = std::string(temp);
+        std::printf("Calling the temporary destructor.\n");
+        std::fflush(stdout);
+    }
+
+    std::printf("Destructor worked.\n");
+    std::fflush(stdout);
+
+    return out;
 }
 
 std::string complete_version() {
