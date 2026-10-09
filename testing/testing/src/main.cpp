@@ -13,6 +13,7 @@
 #include <Einsums/Runtime.hpp>
 #include <Einsums/Runtime/ShutdownFunction.hpp>
 #include <Einsums/Utilities/Random.hpp>
+#include <Einsums/Version.hpp>
 
 #include <catch2/catch_get_random_seed.hpp>
 #include <catch2/catch_session.hpp>
