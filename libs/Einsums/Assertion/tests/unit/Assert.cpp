@@ -5,6 +5,7 @@
 
 #include <Einsums/Assert.hpp>
 #include <Einsums/Debugging/Backtrace.hpp>
+#include <Einsums/Logging.hpp>
 
 #include <source_location>
 #include <string>
@@ -44,25 +45,40 @@ void test_assertion_handler(std::source_location const &loc, char const *expr, s
 TEST_CASE("assert") {
     using namespace einsums;
 
+    EINSUMS_LOG_INFO("Setting assertion handler.");
+
     einsums::detail::set_assertion_handler(test_assertion_handler);
+
+    EINSUMS_LOG_INFO("Setting the log string.");
 
     result_string = "";
 
     SECTION("True") {
+
+        EINSUMS_LOG_INFO("Testing a true assertion.");
         EINSUMS_ASSERT(true);
 
+        EINSUMS_LOG_INFO("Checking to see that that worked.");
+
         REQUIRE(result_string == "");
+        EINSUMS_LOG_INFO("Done.");
     }
 
     SECTION("False") {
+        EINSUMS_LOG_INFO("Testing a false assertion.");
         EINSUMS_ASSERT(false);
+
+        EINSUMS_LOG_INFO("Checking to see if that worked.");
 
 #ifdef EINSUMS_DEBUG
         REQUIRE(result_string != "");
 #else
         REQUIRE(result_string == "");
 #endif
+        EINSUMS_LOG_INFO("Done.");
     }
 
+    EINSUMS_LOG_INFO("Resetting the assertion handler.");
     einsums::detail::set_assertion_handler(einsums::detail::default_assertion_handler);
+    EINSUMS_LOG_INFO("Calling destructors.");
 }

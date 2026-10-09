@@ -8,6 +8,7 @@
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 //--------------------------------------------------------------------------------------------
 
+#include <Einsums/Logging.hpp>
 #include <Einsums/Profile.hpp>
 #include <Einsums/Runtime.hpp>
 #include <Einsums/Runtime/ShutdownFunction.hpp>
@@ -16,6 +17,7 @@
 #include <catch2/catch_get_random_seed.hpp>
 #include <catch2/catch_session.hpp>
 #include <catch2/internal/catch_context.hpp>
+#include <cstdio>
 #include <functional>
 
 #define CATCH_CONFIG_RUNNER
@@ -43,7 +45,11 @@ int einsums_main(int argc, char *const *const argv) {
                 LabeledSection("einsums_main");
                 result = session.run();
             }
+
+            EINSUMS_LOG_INFO("Finalizing Einsums");
             einsums::finalize();
+
+            std::printf("Done.");
         }
     }
     return result;
