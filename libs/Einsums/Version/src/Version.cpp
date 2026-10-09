@@ -76,16 +76,16 @@ std::string build_string() {
     {
         std::printf("Copying the format string to a temporary variable.\n");
         std::fflush(stdout);
-        std::string temp =
+        out =
             fmt::format("v{}{}, Git: {:.10}", full_version_as_string().c_str(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
-
+        std::string temp;
         // Print out the actual data structure, see if something is wrong.
         print_actual_string(&out);
         print_actual_string(&temp);
 
         std::printf("Copying the temporary string to an output variable.\n");
         std::fflush(stdout);
-        out = std::string(temp);
+        temp = std::string(out);
 
         print_actual_string(&out);
         print_actual_string(&temp);
