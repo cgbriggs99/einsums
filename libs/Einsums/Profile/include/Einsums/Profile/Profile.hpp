@@ -7,6 +7,7 @@
 
 #include <Einsums/Config.hpp>
 
+#include <Einsums/Compat/FmtAlternatives.hpp>
 #include <Einsums/Print.hpp>
 #include <Einsums/TypeSupport/InsertionOrderedMap.hpp>
 
@@ -36,9 +37,9 @@
 #    endif
 #    include <malloc.h>
 #    include <windows.h>
-#ifdef EINSUMS_HAVE_TRACY
-#    include "TracyWinFamily.hpp"
-#endif
+#    ifdef EINSUMS_HAVE_TRACY
+#        include "TracyWinFamily.hpp"
+#    endif
 #else
 #    include <pthread.h>
 #    include <string.h>
@@ -302,12 +303,12 @@ struct ScopedZone {
 };
 
 #    define LabeledSection(name_format, ...)                                                                                               \
-        ::einsums::profile::ScopedZone const EINSUMS_PP_CAT(_scoped_zone_, __LINE__)(fmt::format(name_format, ##__VA_ARGS__), __FILE__,    \
+        ::einsums::profile::ScopedZone const EINSUMS_PP_CAT(_scoped_zone_, __LINE__)(einsums::format(name_format, ##__VA_ARGS__), __FILE__,    \
                                                                                      __LINE__, __func__)
 #    define LabeledSection0() LabeledSection(__func__)
 #    if defined(EINSUMS_WITH_PROFILER_INTERNAL)
 #        define LabeledSectionInternal(name_format, ...)                                                                                   \
-            ::einsums::profile::ScopedZone const EINSUMS_PP_CAT(_scoped_zone_, __LINE__)(fmt::format(name_format, ##__VA_ARGS__),          \
+            ::einsums::profile::ScopedZone const EINSUMS_PP_CAT(_scoped_zone_, __LINE__)(einsums::format(name_format, ##__VA_ARGS__),      \
                                                                                          __FILE__, __LINE__, __func__)
 #        define LabeledSectionInternal0() LabeledSectionInternal(__func__)
 #    else

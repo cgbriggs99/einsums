@@ -10,9 +10,8 @@
 #    include <winnt.h>
 #endif
 
-#include <Einsums/Config/PosixAlternatives.hpp>
-
-#include <fmt/format.h>
+#include <Einsums/Compat/FmtAlternatives.hpp>
+#include <Einsums/Compat/PosixAlternatives.hpp>
 
 #include <array>
 #include <csignal>
@@ -63,7 +62,7 @@ namespace einsums {
     CloseHandle(snapshot);
 
     throw std::runtime_error(
-        fmt::format("Einsums: Couldn't find a process with PID that matches {} (current PID), so no parent was found.", pid));
+        einsums::format("Einsums: Couldn't find a process with PID that matches {} (current PID), so no parent was found.", pid));
 }
 
 #endif

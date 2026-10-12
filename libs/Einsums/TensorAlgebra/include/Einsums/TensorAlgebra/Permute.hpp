@@ -7,6 +7,7 @@
 
 #include <Einsums/Config.hpp>
 
+#include <Einsums/Compat/FmtAlternatives.hpp>
 #include <Einsums/Concepts/Complex.hpp>
 #include <Einsums/Concepts/SmartPointer.hpp>
 #include <Einsums/Concepts/SubscriptChooser.hpp>
@@ -174,9 +175,9 @@ std::shared_ptr<hptt::Transpose<T>> compile_permute(T beta, std::string const &C
                                                     std::string const &A_indices, einsums::detail::TensorImpl<T> const &A,
                                                     hptt::SelectionMethod method = hptt::ESTIMATE) {
     LabeledSection((std::abs(beta) > EINSUMS_ZERO)
-                       ? fmt::format(R"(permute: "{}"{} = {} "{}"{} + {} "{}"{})", C->name(), C_indices, alpha, A.name(), A_indices, beta,
+                       ? einsums::format(R"(permute: "{}"{} = {} "{}"{} + {} "{}"{})", C->name(), C_indices, alpha, A.name(), A_indices, beta,
                                      C->name(), C_indices)
-                       : fmt::format(R"(permute: "{}"{} = {} "{}"{})", C->name(), C_indices, alpha, A.name(), A_indices));
+                       : einsums::format(R"(permute: "{}"{} = {} "{}"{})", C->name(), C_indices, alpha, A.name(), A_indices));
 
     // Error check:  If there are any remaining indices then we cannot perform a permute
     auto check = difference(A_indices, C_indices);
@@ -339,10 +340,11 @@ void permute(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CTy
     constexpr size_t ARank = AType::Rank;
     constexpr size_t CRank = CType::Rank;
 
-    std::string description = std::abs(UC_prefactor) > EINSUMS_ZERO
-                                  ? fmt::format(R"(permute: "{}"{} = {} "{}"{} + {} "{}"{})", C->name(), C_indices, UA_prefactor, A.name(),
-                                                A_indices, UC_prefactor, C->name(), C_indices)
-                                  : fmt::format(R"(permute: "{}"{} = {} "{}"{})", C->name(), C_indices, UA_prefactor, A.name(), A_indices);
+    std::string description =
+        std::abs(UC_prefactor) > EINSUMS_ZERO
+            ? einsums::format(R"(permute: "{}"{} = {} "{}"{} + {} "{}"{})", C->name(), C_indices, UA_prefactor, A.name(), A_indices,
+                              UC_prefactor, C->name(), C_indices)
+            : einsums::format(R"(permute: "{}"{} = {} "{}"{})", C->name(), C_indices, UA_prefactor, A.name(), A_indices);
     LabeledSection(fmt::runtime(description));
 
     T const C_prefactor = UC_prefactor;

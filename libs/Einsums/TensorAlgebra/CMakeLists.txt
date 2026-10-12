@@ -51,6 +51,7 @@ einsums_add_module(
     Einsums_Config
     Einsums_LinearAlgebra
     Einsums_BufferAllocator
+    Einsums_Compat
     Einsums_Concepts
     Einsums_Errors
     Einsums_Logging

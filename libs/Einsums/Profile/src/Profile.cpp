@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 //----------------------------------------------------------------------------------------------
 
+#include <Einsums/Compat/FmtAlternatives.hpp>
 #include <Einsums/Logging.hpp>
 #include <Einsums/Print.hpp>
 #include <Einsums/Profile/Profile.hpp>
@@ -82,9 +83,9 @@ template <typename... Args>
 void safe_print(std::ostream &os, fmt::text_style style, std::string_view format_str, Args &&...args) {
     std::string output;
     if (detail::is_terminal(os)) {
-        output = fmt::format(style, fmt::runtime(format_str), std::forward<Args>(args)...);
+        output = einsums::format(style, fmt::runtime(format_str), std::forward<Args>(args)...);
     } else {
-        output = fmt::format(fmt::runtime(format_str), std::forward<Args>(args)...);
+        output = einsums::format(fmt::runtime(format_str), std::forward<Args>(args)...);
     }
     fmt::print(os, "{}", output);
 }
@@ -208,7 +209,7 @@ auto Profiler::export_json(std::string const &path) -> std::optional<std::string
         if (!firstThread)
             ofs << ",\n";
         firstThread = false;
-        ofs << fmt::format("  \"{}\": ", tkv.first);
+        ofs << einsums::format("  \"{}\": ", tkv.first);
         write_node_json(ofs, tkv.second, 2);
     }
     ofs << "\n}\n";
@@ -296,7 +297,7 @@ void Profiler::print_node_recursive(std::ostream &os, AggNode const *n, double t
         } catch (...) {
             shortname = n->file; // fallback
         }
-        std::string const file_display = fmt::format("{}:{}", shortname, n->line);
+        std::string const file_display = einsums::format("{}:{}", shortname, n->line);
         std::string       clickable;
         if (detail::is_terminal(os)) {
             clickable = make_clickable_file_line(n->file, n->line, file_display);

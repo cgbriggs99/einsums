@@ -4,6 +4,8 @@
 //----------------------------------------------------------------------------------------------
 
 #include <Einsums/CommandLine/CommandLine.hpp>
+#include <Einsums/Compat/FmtAlternatives.hpp>
+#include <Einsums/Compat/PosixAlternatives.hpp>
 #include <Einsums/Config/Types.hpp>
 #include <Einsums/Logging.hpp>
 #include <Einsums/Runtime.hpp>
@@ -67,7 +69,7 @@ EINSUMS_EXPORT void add_Einsums_Tensor_arguments() {
     static cl::Opt<std::string> file_name(
         "einsums:hdf5-file-name", {},
         "The name of the HDF5 file for Einsums. Defaults to einsums.[pid].h5, where [pid] is the PID of the current process.",
-        TensorCategory, cl::Location(global_string["hdf5-file-name"]), cl::Default(fmt::format("einsums.{}.h5", pid)));
+        TensorCategory, cl::Location(global_string["hdf5-file-name"]), cl::Default(einsums::format("einsums.{}.h5", pid)));
 
     static cl::Flag delete_files("einsums:no-delete-hdf5-files", {}, "Tells Einsums not to clean up HDF5 files on exit.", TensorCategory,
                                  cl::Location(global_bool["delete-hdf5-files"]), cl::Default(false));

@@ -5,6 +5,7 @@
 
 #include <Einsums/Config.hpp>
 
+#include <Einsums/Compat/PosixAlternatives.hpp>
 #include <Einsums/Logging.hpp>
 #include <Einsums/Runtime/Detail/InitLogging.hpp>
 #include <Einsums/RuntimeConfiguration/RuntimeConfiguration.hpp>

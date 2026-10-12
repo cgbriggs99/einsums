@@ -7,6 +7,8 @@
 
 #include <Einsums/Config.hpp>
 
+#include <Einsums/Compat/FmtAlternatives.hpp>
+
 #include <fmt/core.h>
 
 #include <algorithm>
@@ -105,7 +107,7 @@ inline bool parse_value(std::string_view sv, bool &out, std::string &err) {
         out = false;
         return true;
     }
-    err = fmt::format("invalid boolean '{}', expected true/false", sv);
+    err = einsums::format("invalid boolean '{}', expected true/false", sv);
     return false;
 }
 inline bool parse_value(std::string_view sv, int &out, std::string &err) {
@@ -117,7 +119,7 @@ inline bool parse_value(std::string_view sv, int &out, std::string &err) {
         out = v;
         return true;
     }
-    err = fmt::format("invalid integer '{}'", sv);
+    err = einsums::format("invalid integer '{}'", sv);
     return false;
 }
 inline bool parse_value(std::string_view sv, long &out, std::string &err) {
@@ -129,7 +131,7 @@ inline bool parse_value(std::string_view sv, long &out, std::string &err) {
         out = v;
         return true;
     }
-    err = fmt::format("invalid integer '{}'", sv);
+    err = einsums::format("invalid integer '{}'", sv);
     return false;
 }
 inline bool parse_value(std::string_view sv, long long &out, std::string &err) {
@@ -141,7 +143,7 @@ inline bool parse_value(std::string_view sv, long long &out, std::string &err) {
         out = v;
         return true;
     }
-    err = fmt::format("invalid integer '{}'", sv);
+    err = einsums::format("invalid integer '{}'", sv);
     return false;
 }
 inline bool parse_value(std::string_view sv, double &out, std::string &err) {
@@ -155,7 +157,7 @@ inline bool parse_value(std::string_view sv, double &out, std::string &err) {
         }
     } catch (...) {
     }
-    err = fmt::format("invalid real '{}'", sv);
+    err = einsums::format("invalid real '{}'", sv);
     return false;
 }
 
@@ -369,10 +371,10 @@ struct Flag : OptionBase {
             return;
         std::string shorts;
         for (char c : short_names)
-            shorts += fmt::format("-{}, ", c);
+            shorts += einsums::format("-{}, ", c);
         if (!shorts.empty())
             shorts.erase(shorts.end() - 2, shorts.end());
-        fmt::print("  {:<{}}  {:<{}}  {}\n", fmt::format("--{}", long_name), pad_long, shorts, pad_short, help);
+        fmt::print("  {:<{}}  {:<{}}  {}\n", einsums::format("--{}", long_name), pad_long, shorts, pad_short, help);
     }
 
     bool get() const { return bound ? *bound : value; }
@@ -467,7 +469,7 @@ struct Opt : OptionBase {
             if (range.has_value()) {
                 long long vll = static_cast<long long>(tmp);
                 if (vll < range->min_v || vll > range->max_v) {
-                    error = fmt::format("value for '--{}' out of range [{}, {}]", long_name, range->min_v, range->max_v);
+                    error = einsums::format("value for '--{}' out of range [{}, {}]", long_name, range->min_v, range->max_v);
                     return false;
                 }
             }
@@ -487,7 +489,7 @@ struct Opt : OptionBase {
                     if (!assign_checked(*implicit_value, error, from_config))
                         return false;
                 } else {
-                    error = fmt::format("option '--{}' requires a value", long_name);
+                    error = einsums::format("option '--{}' requires a value", long_name);
                     return false;
                 }
             }
@@ -518,13 +520,13 @@ struct Opt : OptionBase {
             return;
         std::string shorts;
         for (char c : short_names)
-            shorts += fmt::format("-{}, ", c);
+            shorts += einsums::format("-{}, ", c);
         if (!shorts.empty())
             shorts.erase(shorts.end() - 2, shorts.end());
         std::string def;
         if (has_default && !bound)
-            def = fmt::format(" (default: {})", value);
-        fmt::print("  {:<{}}  {:<{}}  {}{}\n", fmt::format("--{} <{}>", long_name, value_name), pad_long, shorts, pad_short, help, def);
+            def = einsums::format(" (default: {})", value);
+        fmt::print("  {:<{}}  {:<{}}  {}{}\n", einsums::format("--{} <{}>", long_name, value_name), pad_long, shorts, pad_short, help, def);
     }
 
     T const &get() const { return bound ? *bound : value; }
@@ -566,7 +568,7 @@ struct List : OptionBase {
   public:
     bool parse_token(std::string_view, std::optional<std::string_view> val, std::string &error, bool from_config = false) override {
         if (!val.has_value()) {
-            error = fmt::format("option '--{}' requires a value", long_name);
+            error = einsums::format("option '--{}' requires a value", long_name);
             return false;
         }
         std::string_view s     = *val;
@@ -598,10 +600,10 @@ struct List : OptionBase {
             return;
         std::string shorts;
         for (char c : short_names)
-            shorts += fmt::format("-{}, ", c);
+            shorts += einsums::format("-{}, ", c);
         if (!shorts.empty())
             shorts.erase(shorts.end() - 2, shorts.end());
-        fmt::print("  {:<{}}  {:<{}}  {}\n", fmt::format("--{} <v1,v2,...>", long_name), pad_long, shorts, pad_short, help);
+        fmt::print("  {:<{}}  {:<{}}  {}\n", einsums::format("--{} <v1,v2,...>", long_name), pad_long, shorts, pad_short, help);
     }
 
     std::vector<T> const &values() const { return vals; }
@@ -652,7 +654,7 @@ struct OptEnum : OptionBase {
   public:
     bool parse_token(std::string_view, std::optional<std::string_view> val, std::string &error, bool from_config = false) override {
         if (!val.has_value()) {
-            error = fmt::format("option '--{}' requires a value", long_name);
+            error = einsums::format("option '--{}' requires a value", long_name);
             return false;
         }
         auto it = mapping.find(std::string(*val));
@@ -664,7 +666,7 @@ struct OptEnum : OptionBase {
                 if (++i < mapping.size())
                     keys += ", ";
             }
-            error = fmt::format("invalid value '{}' for '--{}' (choices: {})", *val, long_name, keys);
+            error = einsums::format("invalid value '{}' for '--{}' (choices: {})", *val, long_name, keys);
             return false;
         }
         Enum newv = it->second;
@@ -688,7 +690,7 @@ struct OptEnum : OptionBase {
             return;
         std::string shorts;
         for (char c : short_names)
-            shorts += fmt::format("-{}, ", c);
+            shorts += einsums::format("-{}, ", c);
         if (!shorts.empty())
             shorts.erase(shorts.end() - 2, shorts.end());
         std::string keys;
@@ -698,7 +700,7 @@ struct OptEnum : OptionBase {
             if (++i < mapping.size())
                 keys += "|";
         }
-        fmt::print("  {:<{}}  {:<{}}  {} (one of: {})\n", fmt::format("--{} <{}>", long_name, keys), pad_long, shorts, pad_short, help,
+        fmt::print("  {:<{}}  {:<{}}  {} (one of: {})\n", einsums::format("--{} <{}>", long_name, keys), pad_long, shorts, pad_short, help,
                    keys);
     }
 
@@ -746,10 +748,10 @@ struct Alias : OptionBase {
             return;
         std::string shorts;
         for (char c : short_names)
-            shorts += fmt::format("-{}, ", c);
+            shorts += einsums::format("-{}, ", c);
         if (!shorts.empty())
             shorts.erase(shorts.end() - 2, shorts.end());
-        fmt::print("  {:<{}}  {:<{}}  {} (alias for --{})\n", fmt::format("--{}", long_name), pad_long, shorts, pad_short, help,
+        fmt::print("  {:<{}}  {:<{}}  {} (alias for --{})\n", einsums::format("--{}", long_name), pad_long, shorts, pad_short, help,
                    target ? target->long_name : "?");
     }
 };
@@ -952,7 +954,7 @@ inline void print_help(std::string_view prog) {
             pad_long = std::max(pad_long, std::string("--" + o->long_name).size());
             std::string shorts;
             for (char c : o->short_names)
-                shorts += fmt::format("-{}, ", c);
+                shorts += einsums::format("-{}, ", c);
             if (!shorts.empty())
                 shorts.erase(shorts.end() - 2, shorts.end());
             pad_short = std::max(pad_short, shorts.size());
@@ -1118,7 +1120,7 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
                 OptionBase *o = detail::find_short(c);
                 if (!o) {
                     if (unknown_args)
-                        unknown_args->push_back(fmt::format("-{}", c));
+                        unknown_args->push_back(einsums::format("-{}", c));
                     continue;
                 }
 
