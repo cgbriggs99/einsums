@@ -14,8 +14,29 @@
 #include <sstream>
 #include <string>
 
+#define EINSUMS_VERSION_STRING                                                                                                             \
+    EINSUMS_PP_STRINGIFY(EINSUMS_VERSION_MAJOR)                                                                                            \
+    "." EINSUMS_PP_STRINGIFY(EINSUMS_VERSION_MINOR) "." EINSUMS_PP_STRINGIFY(EINSUMS_VERSION_PATCH)
+
+#define EINSUMS_BUILD_STRING "v" EINSUMS_VERSION_STRING EINSUMS_VERSION_TAG ", Git: " EINSUMS_HAVE_GIT_COMMIT_SHORT
+#define EINSUMS_DATE_TIME    __DATE__ " " __TIME__
+
+#define EINSUMS_COMPLETE_VERSION                                                                                                           \
+    "Version:\n  Einsums: " EINSUMS_BUILD_STRING                                                                                           \
+    "\n\nBuild:\n  Type: " EINSUMS_PP_STRINGIFY(EINSUMS_BUILD_TYPE) "\n  Date: " EINSUMS_DATE_TIME "\n"
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace einsums {
+namespace {
+char const version_string[] = EINSUMS_VERSION_STRING;
+
+char const build_string_[] = EINSUMS_BUILD_STRING;
+
+char const date_string[] = EINSUMS_DATE_TIME;
+
+char const complete_version_string[] = EINSUMS_COMPLETE_VERSION;
+} // namespace
+
 static void print_actual_string(std::string const *string) {
     std::printf("Printing %zu bytes of string data structure at %p\n", sizeof(std::string), static_cast<void const *>(string));
 
@@ -41,8 +62,7 @@ static void print_actual_string(std::string const *string) {
 }
 
 std::string full_version_as_string() {
-
-    return fmt::format("{}.{}.{}", EINSUMS_VERSION_MAJOR, EINSUMS_VERSION_MINOR, EINSUMS_VERSION_PATCH);
+    return std::string(version_string);
 }
 
 std::string full_build_string() {
@@ -59,34 +79,27 @@ std::string full_build_string() {
 std::string configuration_string() {
     std::ostringstream strm;
 
-    strm << "Einsums:\n";
+    strm << "Einsums:" << std::endl;
 
     char const *const *p = einsums::config_strings;
     while (*p)
-        strm << "  " << *p++ << "\n";
-    strm << "\n";
+        strm << "  " << *p++ << std::endl;
+    strm << std::endl;
 
     return strm.str();
 }
 
 std::string build_string() {
-    return fmt::format("v{}{}, Git: {:.10}", full_version_as_string(), EINSUMS_VERSION_TAG, EINSUMS_HAVE_GIT_COMMIT);
+    return std::string(build_string_);
 }
 
 std::string complete_version() {
-    std::string version = fmt::format("Version:\n"
-                                      "  Einsums: {}\n"
-                                      "\n"
-                                      "Build:\n"
-                                      "  Type: {}\n"
-                                      "  Date: {}\n",
-                                      build_string().c_str(), build_type(), build_date_time().c_str());
 
-    return version;
+    return std::string(complete_version_string);
 }
 
 std::string build_date_time() {
-    return std::string(__DATE__) + " " + __TIME__;
+    return std::string(date_string);
 }
 
 } // namespace einsums

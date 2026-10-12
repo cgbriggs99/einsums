@@ -815,6 +815,7 @@ endif()
 # ##################################################################################################
 include(Einsums_GitCommit)
 einsums_add_config_define(EINSUMS_HAVE_GIT_COMMIT "\"${EINSUMS_WITH_GIT_COMMIT}\"")
+einsums_add_config_define(EINSUMS_HAVE_GIT_COMMIT_SHORT "\"${EINSUMS_WITH_GIT_COMMIT_SHORT}\"")
 
 include(Einsums_SetOutputPaths)
 
