@@ -218,8 +218,14 @@ struct ExclusiveCategory {
         bool found_one = false;
 
         for (auto *opt : options) {
+            std::printf("Checking %s\n", opt->long_name.c_str());
+            std::fflush(stdout);
             if (opt->seen_cli || opt->seen_config || opt->occurrences > 0) {
+                std::printf("Found %s\n", opt->long_name.c_str());
+                std::fflush(stdout);
                 if (found_one) {
+                    std::printf("Already found an argument in this category!\n");
+                    std::fflush(stdout);
                     return false;
                 }
                 found_one = true;

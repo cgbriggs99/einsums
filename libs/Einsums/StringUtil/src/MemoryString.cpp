@@ -84,19 +84,27 @@ static constexpr int char_to_int(char ch) {
 size_t memory_string(std::string const &mem_spec) {
 
     double out = 0, mult = 1;
-    auto   mem_copy = mem_spec;
 
-    trim(mem_copy);
+    enum { SPACE, INT_PART, FRAC_PART, PREFIX, UNIT, END } state;
 
-    enum { INT_PART, FRAC_PART, PREFIX, UNIT, END } state;
+    state = SPACE;
 
-    state = INT_PART;
-
-    for (int i = 0; i < mem_copy.length(); i++) {
-        auto ch = mem_copy[i];
+    for (int i = 0; i < mem_spec.length(); i++) {
+        auto ch = mem_spec[i];
         std::printf("Parsing character %c (0x%02hhx)\n", ch, ch);
         std::fflush(stdout);
         switch (state) {
+        case SPACE:
+            if (std::isdigit(ch)) {
+                out += detail::char_to_int(ch);
+                state = INT_PART;
+                std::printf("Switching to integral part.\n");
+                std::fflush(stdout);
+            } else if (!std::isspace(ch)) {
+                EINSUMS_THROW_EXCEPTION(std::runtime_error,
+                                        "Memory specification formatted incorrectly. Expected a number before any suffix.");
+            }
+            break;
         case INT_PART:
             if (std::isalpha(ch)) {
                 std::printf("Switching to unit suffix.\n");
