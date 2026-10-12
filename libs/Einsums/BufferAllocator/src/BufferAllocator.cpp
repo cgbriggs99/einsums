@@ -30,7 +30,7 @@ void *allocate(size_t n) {
     ptr = mi_malloc_aligned(rounded_n, alignment);
 #elif defined(EINSUMS_WINDOWS)
     if (n != 0) {
-        ptr = _aligned_malloc(alignment, rounded_n);
+        ptr = _aligned_malloc(rounded_n, alignment);
     }
 #else
     ptr = std::aligned_alloc(alignment, rounded_n);
