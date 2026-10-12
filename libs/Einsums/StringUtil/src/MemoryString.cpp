@@ -94,11 +94,13 @@ size_t memory_string(std::string const &mem_spec) {
 
     for (int i = 0; i < mem_copy.length(); i++) {
         auto ch = mem_copy[i];
-        std::printf("Parsing character %c\n", ch);
+        std::printf("Parsing character %c (0x%02hhx)\n", ch, ch);
         std::fflush(stdout);
         switch (state) {
         case INT_PART:
             if (std::isalpha(ch)) {
+                std::printf("Switching to unit suffix.\n");
+                std::fflush(stdout);
                 size_t prefix = detail::get_prefix(ch);
 
                 if (prefix == 0) {
@@ -119,11 +121,15 @@ size_t memory_string(std::string const &mem_spec) {
                 }
             } else if (ch == ',' || ch == '.') {
                 state = FRAC_PART;
+                std::printf("Switching to fractional part.\n");
+                std::fflush(stdout);
             } else if (std::isdigit(ch)) {
                 out *= 10;
                 out += detail::char_to_int(ch);
             } else if (std::isspace(ch)) {
                 state = PREFIX;
+                std::printf("Switching to SI prefix.\n");
+                std::fflush(stdout);
             } else {
                 EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                         "Memory specification formatted incorrectly. Unexpected symbol '{}' at position {}.", ch, i);
@@ -131,6 +137,8 @@ size_t memory_string(std::string const &mem_spec) {
             break;
         case FRAC_PART:
             if (std::isalpha(ch)) {
+                std::printf("Switching to unit suffix.\n");
+                std::fflush(stdout);
                 size_t prefix = detail::get_prefix(ch);
 
                 if (prefix == 0) {
@@ -154,6 +162,8 @@ size_t memory_string(std::string const &mem_spec) {
                 out += detail::char_to_int(ch) * mult;
             } else if (std::isspace(ch)) {
                 state = PREFIX;
+                std::printf("Switching to SI prefix..\n");
+                std::fflush(stdout);
             } else {
                 EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                         "Memory specification formatted incorrectly. Unexpected symbol '{}' at position {}.", ch, i);
@@ -198,6 +208,8 @@ size_t memory_string(std::string const &mem_spec) {
                     state = END;
 
                     out /= unit;
+                    std::printf("Finishing up.\n");
+                    std::fflush(stdout);
                 }
             } else if (std::isspace(ch)) {
                 // Do nothing.
@@ -214,6 +226,9 @@ size_t memory_string(std::string const &mem_spec) {
             break;
         }
     }
+
+    std::printf("Done\n");
+    std::fflush(stdout);
 
     return (size_t)out;
 }

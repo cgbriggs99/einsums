@@ -994,13 +994,19 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
                                   std::vector<std::string>                        *unknown_args = nullptr) {
     std::printf("Starting to parse arguments.\n");
     std::fflush(stdout);
-    Builtins                 _;
+
+    for (auto const &arg : args) {
+        std::printf("Arg: %s\n", arg.c_str());
+        std::fflush(stdout);
+    }
+
+    Builtins _;
     std::printf("Acquiring lock.\n");
     std::fflush(stdout);
     GlobalConfigMapLockScope __;
     std::printf("Setting program name.\n");
     std::fflush(stdout);
-    std::string              prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
+    std::string prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
 
     std::printf("Setting default values.\n");
     std::fflush(stdout);
@@ -1217,7 +1223,7 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
             return {false, 1};
         }
     }
-    
+
     std::printf("Finished.\n");
     std::fflush(stdout);
 

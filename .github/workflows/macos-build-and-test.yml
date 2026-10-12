@@ -83,7 +83,8 @@ jobs:
         id: cache
 
       - name: Update environment
-        run:
+        run: |
+          conda install python_abi=3.14 python=3.14
           conda env update -n einsums-env -f src/devtools/conda-envs/conda.yml
         if: steps.cache.outputs.cache-hit != 'true'
 
