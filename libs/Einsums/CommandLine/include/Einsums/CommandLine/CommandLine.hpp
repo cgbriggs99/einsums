@@ -992,15 +992,25 @@ inline void print_help(std::string_view prog) {
 inline ParseResult parse_internal(std::vector<std::string> const &args, char const *programName, std::string_view version,
                                   std::map<std::string, std::string, std::less<>> *config,
                                   std::vector<std::string>                        *unknown_args = nullptr) {
+    std::printf("Starting to parse arguments.\n");
+    std::fflush(stdout);
     Builtins                 _;
+    std::printf("Acquiring lock.\n");
+    std::fflush(stdout);
     GlobalConfigMapLockScope __;
+    std::printf("Setting program name.\n");
+    std::fflush(stdout);
     std::string              prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
 
+    std::printf("Setting default values.\n");
+    std::fflush(stdout);
     for (auto *o : Registry::instance().options) {
         o->finalize_default();
     }
 
     // Apply config first (defaults < config < CLI)
+    std::printf("Applying config definitions.\n");
+    std::fflush(stdout);
     if (config && !config->empty()) {
         for (auto *o : Registry::instance().options) {
             if (o->is_positional)
@@ -1059,6 +1069,8 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
     };
 
     // Parse CLI
+    std::printf("Parsing command line arguments.\n");
+    std::fflush(stdout);
     for (size_t i = 1; i < args.size(); ++i) {
         std::string_view tok(args[i]);
 
@@ -1170,6 +1182,8 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
     }
 
     // Validate required/occurrence
+    std::printf("Validating required arguments.\n");
+    std::fflush(stdout);
     for (auto *o : Registry::instance().options) {
         if ((o->occurrence == Occurrence::Required || o->occurrence == Occurrence::OneOrMore) && o->occurrences == 0) {
             fmt::print(stderr, "error: missing required option '--{}'\n", o->long_name);
@@ -1183,6 +1197,8 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
     }
 
     // Validate exclusions.
+    std::printf("Validating exclusive arguments.\n");
+    std::fflush(stdout);
     for (auto *exc : Registry::instance().exclusions) {
         if (!exc->verify_exclusions()) {
             auto found = exc->found_options();
@@ -1201,6 +1217,9 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
             return {false, 1};
         }
     }
+    
+    std::printf("Finished.\n");
+    std::fflush(stdout);
 
     return {true, 0};
 }

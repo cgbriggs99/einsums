@@ -94,6 +94,8 @@ size_t memory_string(std::string const &mem_spec) {
 
     for (int i = 0; i < mem_copy.length(); i++) {
         auto ch = mem_copy[i];
+        std::printf("Parsing character %c\n", ch);
+        std::fflush(stdout);
         switch (state) {
         case INT_PART:
             if (std::isalpha(ch)) {
