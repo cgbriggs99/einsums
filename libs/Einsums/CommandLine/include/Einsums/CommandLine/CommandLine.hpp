@@ -1212,6 +1212,8 @@ inline ParseResult parse_internal(std::vector<std::string> const &args, char con
     std::printf("Validating exclusive arguments.\n");
     std::fflush(stdout);
     for (auto *exc : Registry::instance().exclusions) {
+        std::printf("Validating...\n");
+        std::fflush(stdout);
         if (!exc->verify_exclusions()) {
             auto found = exc->found_options();
 

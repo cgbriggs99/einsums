@@ -81,7 +81,11 @@ static constexpr int char_to_int(char ch) {
 
 } // namespace detail
 
-size_t memory_string(std::string const &mem_spec) {
+size_t memory_string(char const *mem_spec) {
+
+    if (mem_spec == nullptr) {
+        EINSUMS_THROW_EXCEPTION(std::runtime_error, "No string provided to parse!");
+    }
 
     double out = 0, mult = 1;
 
@@ -89,7 +93,7 @@ size_t memory_string(std::string const &mem_spec) {
 
     state = SPACE;
 
-    for (int i = 0; i < mem_spec.length(); i++) {
+    for (size_t i = 0; mem_spec[i] != 0; i++) {
         auto ch = mem_spec[i];
         std::printf("Parsing character %c (0x%02hhx)\n", ch, ch);
         std::fflush(stdout);
@@ -239,6 +243,10 @@ size_t memory_string(std::string const &mem_spec) {
     std::fflush(stdout);
 
     return (size_t)out;
+}
+
+size_t memory_string(std::string const &str) {
+    return memory_string(str.c_str());
 }
 } // namespace string_util
 
