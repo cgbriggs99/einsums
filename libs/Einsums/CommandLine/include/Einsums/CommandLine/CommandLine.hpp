@@ -8,6 +8,8 @@
 #include <Einsums/Config.hpp>
 
 #include <Einsums/Compat/FmtAlternatives.hpp>
+#include <Einsums/StringUtil/StringOps.hpp>
+#include <Einsums/StringUtil/Trim.hpp>
 
 #include <fmt/core.h>
 
@@ -794,15 +796,6 @@ inline std::map<std::string, std::string, std::less<>> read_config(std::string_v
         buf.append(tmp, tmp + n);
     fclose(f);
 
-    auto trim = [](std::string &s) {
-        size_t a = 0;
-        while (a < s.size() && std::isspace((unsigned char)s[a]))
-            ++a;
-        size_t b = s.size();
-        while (b > a && std::isspace((unsigned char)s[b - 1]))
-            --b;
-        s = s.substr(a, b - a);
-    };
     auto lower = [](std::string s) {
         for (auto &c : s)
             c = (char)std::tolower((unsigned char)c);
@@ -827,10 +820,8 @@ inline std::map<std::string, std::string, std::less<>> read_config(std::string_v
             auto eq = line.find('=');
             if (eq == std::string::npos)
                 continue;
-            std::string k = line.substr(0, eq), v = line.substr(eq + 1);
-            trim(k);
-            trim(v);
-            kv[lower(k)] = v;
+            std::string k = string_util::trim(line.substr(0, eq)), v = string_util::trim(line.substr(eq + 1));
+            kv[string_util::lower(k)] = v;
         }
         return kv;
     }

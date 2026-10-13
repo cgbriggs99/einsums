@@ -180,7 +180,7 @@ std::shared_ptr<hptt::Transpose<T>> compile_permute(T beta, std::string const &C
                        : einsums::format(R"(permute: "{}"{} = {} "{}"{})", C->name(), C_indices, alpha, A.name(), A_indices));
 
     // Error check:  If there are any remaining indices then we cannot perform a permute
-    auto check = difference(A_indices, C_indices);
+    auto check = string_util::difference(A_indices, C_indices);
     if (check.size() != 0) {
         EINSUMS_THROW_EXCEPTION(rank_error, "The number of unique indices needs to be the same on the input and output for permute!");
     }
@@ -209,7 +209,7 @@ std::shared_ptr<hptt::Transpose<T>> compile_permute(T beta, std::string const &C
             offsetC[i0]    = 0;
         }
 
-        find_char_with_position(A_indices, C_indices, &perms);
+        string_util::find_char_with_position(A_indices, C_indices, &perms);
         auto plan =
             hptt::create_plan(perms.data(), A.rank(), alpha, A.data(), size.data(), outerSizeA.data(), offsetA.data(), innerStrideA, beta,
                               C->data(), outerSizeC.data(), offsetC.data(), innerStrideC, method, omp_get_max_threads(), nullptr, true);
@@ -232,7 +232,7 @@ std::shared_ptr<hptt::Transpose<T>> compile_permute(T beta, std::string const &C
             outerSizeC[i0] = C_swap.stride(i0 - 1) / (C_swap.stride(i0) * innerStrideC);
             offsetC[i0]    = 0;
         }
-        find_char_with_position(A_indices, reverse(C_indices), &perms);
+        string_util::find_char_with_position(A_indices, string_util::reverse(C_indices), &perms);
         auto plan =
             hptt::create_plan(perms.data(), A.rank(), alpha, A.data(), size.data(), outerSizeA.data(), offsetA.data(), innerStrideA, beta,
                               C->data(), outerSizeC.data(), offsetC.data(), innerStrideC, method, omp_get_max_threads(), nullptr, true);
@@ -255,7 +255,7 @@ std::shared_ptr<hptt::Transpose<T>> compile_permute(T beta, std::string const &C
             offsetC[i0]    = 0;
         }
 
-        find_char_with_position(A_indices, C_indices, &perms);
+        string_util::find_char_with_position(A_indices, C_indices, &perms);
         auto plan =
             hptt::create_plan(perms.data(), A.rank(), alpha, A.data(), size.data(), outerSizeA.data(), offsetA.data(), innerStrideA, beta,
                               C->data(), outerSizeC.data(), offsetC.data(), innerStrideC, method, omp_get_max_threads(), nullptr, false);
@@ -278,7 +278,7 @@ std::shared_ptr<hptt::Transpose<T>> compile_permute(T beta, std::string const &C
             outerSizeC[i0] = C_swap.stride(i0 + 1) / (C_swap.stride(i0) * innerStrideC);
             offsetC[i0]    = 0;
         }
-        find_char_with_position(A_indices, C_indices, &perms);
+        string_util::find_char_with_position(A_indices, C_indices, &perms);
         auto plan =
             hptt::create_plan(perms.data(), A.rank(), alpha, A.data(), size.data(), outerSizeA.data(), offsetA.data(), innerStrideA, beta,
                               C->data(), outerSizeC.data(), offsetC.data(), innerStrideC, method, omp_get_max_threads(), nullptr, false);

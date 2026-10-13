@@ -15,7 +15,7 @@ einsums_add_module(
   SOURCES ${CommandLineSources}
   HEADERS ${CommandLineHeaders}
   DEPENDENCIES
-  MODULE_DEPENDENCIES Einsums_Config Einsums_Compat
+  MODULE_DEPENDENCIES Einsums_Config Einsums_Compat Einsums_StringUtil
   CMAKE_SUBDIRS examples tests
   BASE_LIBNAME Einsums
 )
