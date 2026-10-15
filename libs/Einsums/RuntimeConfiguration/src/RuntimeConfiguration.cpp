@@ -181,7 +181,7 @@ std::vector<std::string> RuntimeConfiguration::parse_command_line(std::function<
                                              SPDLOG_LEVEL_INFO
 #endif
                                              )),
-                                         cl::RangeBetween(0, 4), cl::ValueName("LogLevel"));
+                                         cl::NumericRange(0, 4), cl::ValueName("LogLevel"));
 
         static cl::Opt<std::string> logDestination("einsums:log:destination", {}, "Log destination", logCategory,
                                                    cl::Location(global_strings["log-destination"]), cl::Default(std::string("cerr")));

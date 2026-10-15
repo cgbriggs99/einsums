@@ -12,8 +12,14 @@
 using namespace einsums::cl;
 
 struct CLITestFixture {
-    CLITestFixture() { Registry::instance().clear_for_tests(); }
-    ~CLITestFixture() { Registry::instance().clear_for_tests(); }
+    CLITestFixture() {
+        Registry::get_singleton().clear_for_tests();
+        Builtins::get_singleton_ptr().reset(nullptr);
+    }
+    ~CLITestFixture() {
+        Registry::get_singleton().clear_for_tests();
+        Builtins::get_singleton_ptr().reset(nullptr);
+    }
 };
 
 static std::vector<std::string> to_args(std::initializer_list<char const *> il) {
@@ -29,8 +35,8 @@ TEST_CASE("Defaults and explicit override", "[opt][defaults]") {
 
     OptionCategory Cat{"T1"};
     int            threads_bound = 0;
-    Opt<int>       Threads{"t1-threads", {'T'}, "threads", Default(4), Cat, RangeBetween(1, 256), ValueName("N")};
-    Threads.OnSet([&](int v) { threads_bound = v; });
+    Opt<int>       Threads{"t1-threads", {'T'}, "threads", Default(4), Cat, NumericRange(1, 256), ValueName("N")};
+    Threads.on_set([&](int v) { threads_bound = v; });
 
     SECTION("No args -> default 4") {
         auto args = to_args({"prog"});
@@ -78,7 +84,7 @@ TEST_CASE("Flag default and implicit override", "[flag]") {
     Flag           Verbose{"t3-verbose", {'v'}, "verbose logging", Cat, Default(false), ImplicitValue(true)};
     Flag           YesFlag{"yes", {}, "yes flag", Cat, Location(yes_no_test)};
     Flag           NoFlag{"no", {}, "no flag", Cat, Location(yes_no_test), ImplicitValue(false)};
-    Verbose.OnSet([&](bool on) { verbose_bound = on; });
+    Verbose.on_set([&](bool on) { verbose_bound = on; });
     auto exclusion = make_yes_no(YesFlag, NoFlag);
 
     SECTION("Default false") {
@@ -204,7 +210,7 @@ TEST_CASE("Range validation enforces bounds", "[range]") {
     CLITestFixture _;
 
     OptionCategory Cat{"T7"};
-    Opt<int>       R{"t7-ranged", {'r'}, "ranged", Default(10), Cat, RangeBetween(5, 15)};
+    Opt<int>       R{"t7-ranged", {'r'}, "ranged", Default(10), Cat, NumericRange(5, 15)};
 
     SECTION("In range ok") {
         auto args = to_args({"prog", "--t7-ranged=12"});

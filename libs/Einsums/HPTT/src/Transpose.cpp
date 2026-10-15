@@ -50,6 +50,7 @@
 #    include <omp.h>
 #endif
 
+#include <Einsums/Compat/PosixAlternatives.hpp>
 #include <Einsums/HPTT/ComputeNode.hpp>
 #include <Einsums/HPTT/Files.hpp>
 #include <Einsums/HPTT/HPTTTypes.hpp>
@@ -2469,7 +2470,7 @@ void Transpose<FloatType>::writeToFile(std::FILE *fp) const {
 
     TransposeConstants constants;
 
-    int error1 = fseek(fp, 0, SEEK_SET);
+    int error1 = einsums::fseek(fp, 0, SEEK_SET);
 
     if (error1 != 0) {
         goto write_to_file_error;
@@ -2485,7 +2486,7 @@ void Transpose<FloatType>::writeToFile(std::FILE *fp) const {
         throw std::runtime_error("Trying to write to a file that is not a HPTT transpose file!");
     }
 
-    error1 = fseek(fp, sizeof(FileHeader), SEEK_SET);
+    error1 = einsums::fseek(fp, sizeof(FileHeader), SEEK_SET);
 
     if (error1 != 0) {
         goto write_to_file_error;
@@ -2576,7 +2577,7 @@ void Transpose<FloatType>::writeToFile(std::FILE *fp) const {
 
     check = computeChecksum(fp);
 
-    error1 = fseek(fp, offsetof(FileHeader, checksum), SEEK_SET);
+    error1 = einsums::fseek(fp, offsetof(FileHeader, checksum), SEEK_SET);
 
     if (error1 != 0) {
         goto write_to_file_error;
@@ -2608,7 +2609,7 @@ Transpose<FloatType>::Transpose(std::FILE *fp, FloatType alpha, FloatType const 
     TransposeConstants constants;
     uint32_t           check;
 
-    int error1 = fseek(fp, 0, SEEK_SET);
+    int error1 = einsums::fseek(fp, 0, SEEK_SET);
 
     if (error1 != 0) {
         goto read_from_file_error;
@@ -2624,7 +2625,7 @@ Transpose<FloatType>::Transpose(std::FILE *fp, FloatType alpha, FloatType const 
         throw std::runtime_error("Trying to read from a file that is not a HPTT transpose file!");
     }
 
-    error1 = fseek(fp, sizeof(FileHeader), SEEK_SET);
+    error1 = einsums::fseek(fp, sizeof(FileHeader), SEEK_SET);
 
     if (error1 != 0) {
         goto read_from_file_error;

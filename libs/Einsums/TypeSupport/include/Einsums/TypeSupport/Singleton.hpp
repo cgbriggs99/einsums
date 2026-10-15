@@ -26,6 +26,7 @@
   public:                                                                                                                                  \
     Type(PrivateConstructorStuff /*ignore*/) : Type() {                                                                                    \
     }                                                                                                                                      \
+    static auto get_singleton_ptr() -> std::unique_ptr<Type> &;                                                                            \
     static auto get_singleton() -> Type &;                                                                                                 \
     Type(const Type &) = delete;                                                                                                           \
     Type(Type &&)      = delete;
@@ -38,8 +39,12 @@
  * @versionadded{1.0.0}
  */
 #define EINSUMS_SINGLETON_IMPL(Type)                                                                                                       \
+    auto Type::get_singleton_ptr() -> std::unique_ptr<Type> & {                                                                            \
+        static std::unique_ptr<Type> singleton_instance{nullptr};                                                                          \
+        return singleton_instance;                                                                                                         \
+    }                                                                                                                                      \
     auto Type::get_singleton() -> Type & {                                                                                                 \
-        static std::unique_ptr<Type> singleton_instance = std::make_unique<Type>(PrivateConstructorStuff());                               \
+        auto &singleton_instance = get_singleton_ptr();                                                                                    \
         if (!singleton_instance) {                                                                                                         \
             singleton_instance = std::make_unique<Type>(PrivateConstructorStuff());                                                        \
         }                                                                                                                                  \

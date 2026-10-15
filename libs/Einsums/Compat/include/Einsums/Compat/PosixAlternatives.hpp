@@ -24,6 +24,15 @@ namespace einsums {
 
 [[nodiscard]] int EINSUMS_EXPORT getppid();
 
+// Because longs are 32 bit on Windows for whatever reason.
+[[nodiscard]] inline int fseek(std::FILE *fp, std::ptrdiff_t offset, int origin) {
+    return _fseeki64(fp, offset, origin);
+}
+
+[[nodiscard]] inline std::ptrdiff_t ftell(std::FILE *fp) {
+    return _ftelli64(fp);
+}
+
 #else
 
 [[nodiscard]] inline int getpid() {
@@ -32,6 +41,14 @@ namespace einsums {
 
 [[nodiscard]] inline int getppid() {
     return ::getppid();
+}
+
+[[nodiscard]] inline int fseek(std::FILE *fp, std::ptrdiff_t offset, int origin) {
+    return std::fseek(fp, offset, origin);
+}
+
+[[nodiscard]] inline std::ptrdiff_t ftell(std::FILE *fp) {
+    return std::ftell(fp);
 }
 
 #endif
