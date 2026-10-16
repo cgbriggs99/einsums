@@ -255,7 +255,8 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
             if (!it->second.empty()) {
                 v = std::string_view(it->second);
             }
-            if (!o->parse_token(o->get_long_name(), v, fmt::format("config error for {}: ", o->get_long_name()), /*from_config=*/true)) {
+            if (!o->parse_token(o->get_long_name(), v, einsums::format("config error for {}: ", o->get_long_name()),
+                                /*from_config=*/true)) {
                 return {.ok = false, .exit_code = 1};
             }
         }
