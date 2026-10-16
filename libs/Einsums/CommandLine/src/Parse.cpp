@@ -215,7 +215,7 @@ std::map<std::string, std::string, std::less<>> read_config(std::string_view con
 }
 
 ParseResult parse_internal(std::vector<std::string> const &args, char const *programName, std::string_view version,
-                           std::map<std::string, std::string, std::less<>> *config, std::vector<std::string> *unknown_args) {
+                           std::map<std::string, std::string, std::less<>> const *config, std::vector<std::string> *unknown_args) {
     std::printf("Starting to parse arguments.\n");
     std::fflush(stdout);
 

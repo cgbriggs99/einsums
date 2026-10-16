@@ -795,6 +795,13 @@ if(EINSUMS_WITH_SANITIZERS AND NOT MSVC)
   target_compile_options(einsums_public_flags INTERFACE -fsanitize=${EINSUMS_WITH_SANITIZERS})
   target_link_options(einsums_public_flags INTERFACE -fsanitize=${EINSUMS_WITH_SANITIZERS})
   einsums_add_config_define(EINSUMS_HAVE_SANITIZERS)
+elseif(MSVC AND EINSUMS_WITH_SANITIZERS STREQUAL "address")
+  einsums_info("Adding sanitizer flags for ${EINSUMS_WITH_SANITIZERS}")
+  target_compile_options(einsums_public_flags INTERFACE /fsanitize=${EINSUMS_WITH_SANITIZERS})
+  target_link_options(einsums_public_flags INTERFACE /fsanitize=${EINSUMS_WITH_SANITIZERS})
+  einsums_add_config_define(EINSUMS_HAVE_SANITIZERS)
+elseif(MSVC AND EINSUMS_WITH_SANITIZERS)
+  einsums_info("Not adding sanitizers due to incompatible options. MSVC only supports address at this time.")
 endif()
 
 # Note: on windows systems the ':' will be converted to a ';' at runtime

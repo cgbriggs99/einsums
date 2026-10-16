@@ -116,6 +116,7 @@ jobs:
             -D EINSUMS_WITH_EXAMPLES=OFF ^
             -D EINSUMS_WITH_BACKTRACES=OFF ^
             -D EINSUMS_SHOW_WARNING=OFF ^
+            -D EINSUMS_WITH_SANITIZERS="address;undefined" ^
             -D CMAKE_INSTALL_PREFIX="%GITHUB_WORKSPACE%\installed" ^
             ${{ inputs.build_configure_extra_args }}
       - name: Build

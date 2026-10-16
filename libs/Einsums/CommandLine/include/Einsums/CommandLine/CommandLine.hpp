@@ -75,7 +75,7 @@ struct ExclusiveCategory;
 
 // -------------------------- Registry ------------------------------------- //
 
-struct EINSUMS_EXPORT Registry {
+struct EINSUMS_EXPORT Registry final {
     EINSUMS_SINGLETON_DEF(Registry)
 
   public:
@@ -778,7 +778,7 @@ struct EINSUMS_EXPORT Alias : public OptionBase {
 
 // -------------------------- Built-ins ----------------------------------- //
 
-struct EINSUMS_EXPORT Builtins {
+struct EINSUMS_EXPORT Builtins final {
     EINSUMS_SINGLETON_DEF(Builtins)
   public:
     [[nodiscard]] OptionCategory const &get_help_category() const noexcept;
@@ -814,7 +814,7 @@ void EINSUMS_EXPORT print_help(std::string_view prog);
 // -------------------------- Parser (no subcommands) ---------------------- //
 
 ParseResult EINSUMS_EXPORT parse_internal(std::vector<std::string> const &args, char const *programName, std::string_view version,
-                                          std::map<std::string, std::string, std::less<>> *config,
+                                          std::map<std::string, std::string, std::less<>> const *config,
                                           std::vector<std::string>                        *unknown_args = nullptr);
 
 /**
