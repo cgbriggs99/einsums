@@ -12,28 +12,28 @@
 namespace einsums {
 namespace string_util {
 
-namespace detail {
+namespace {
 
-static constexpr size_t get_prefix(char ch) {
+constexpr size_t get_prefix(char ch) {
     switch (ch) {
     case 'k':
     case 'K':
-        return 1024UL;
+        return 1024ULL;
     case 'm':
     case 'M':
-        return 1048576UL;
+        return 1048576ULL;
     case 'g':
     case 'G':
-        return 1073741824UL;
+        return 1073741824ULL;
     case 't':
     case 'T':
-        return 1099511627776UL;
+        return 1099511627776ULL;
     default:
         return 0;
     }
 }
 
-static constexpr size_t get_unit(char ch) {
+constexpr size_t get_unit(char ch) {
     switch (ch) {
     case 'b':
     case 'B':
@@ -48,7 +48,7 @@ static constexpr size_t get_unit(char ch) {
     }
 }
 
-static constexpr int char_to_int(char ch) {
+constexpr int char_to_int(char ch) {
     if constexpr ('1' == '0' + 1) {
         return ch - '0';
     } else {
@@ -79,7 +79,7 @@ static constexpr int char_to_int(char ch) {
     }
 }
 
-} // namespace detail
+} // namespace
 
 size_t memory_string(char const *mem_spec) {
 
@@ -101,7 +101,7 @@ size_t memory_string(char const *mem_spec) {
             switch (state) {
             case SPACE:
                 if (std::isdigit(ch)) {
-                    out += detail::char_to_int(ch);
+                    out += char_to_int(ch);
                     state = INT_PART;
                     std::printf("Switching to integral part.\n");
                     std::fflush(stdout);
@@ -114,10 +114,10 @@ size_t memory_string(char const *mem_spec) {
                 if (std::isalpha(ch)) {
                     std::printf("Switching to unit suffix.\n");
                     std::fflush(stdout);
-                    size_t prefix = detail::get_prefix(ch);
+                    size_t prefix = get_prefix(ch);
 
                     if (prefix == 0) {
-                        size_t unit = detail::get_unit(ch);
+                        size_t unit = get_unit(ch);
 
                         if (unit == 0) {
                             EINSUMS_THROW_EXCEPTION(
@@ -139,7 +139,7 @@ size_t memory_string(char const *mem_spec) {
                     std::fflush(stdout);
                 } else if (std::isdigit(ch)) {
                     out *= 10;
-                    out += detail::char_to_int(ch);
+                    out += char_to_int(ch);
                 } else if (std::isspace(ch)) {
                     state = PREFIX;
                     std::printf("Switching to SI prefix.\n");
@@ -153,10 +153,10 @@ size_t memory_string(char const *mem_spec) {
                 if (std::isalpha(ch)) {
                     std::printf("Switching to unit suffix.\n");
                     std::fflush(stdout);
-                    size_t prefix = detail::get_prefix(ch);
+                    size_t prefix = get_prefix(ch);
 
                     if (prefix == 0) {
-                        size_t unit = detail::get_unit(ch);
+                        size_t unit = get_unit(ch);
 
                         if (unit == 0) {
                             EINSUMS_THROW_EXCEPTION(
@@ -174,7 +174,7 @@ size_t memory_string(char const *mem_spec) {
                     }
                 } else if (std::isdigit(ch)) {
                     mult /= 10;
-                    out += detail::char_to_int(ch) * mult;
+                    out += char_to_int(ch) * mult;
                 } else if (std::isspace(ch)) {
                     state = PREFIX;
                     std::printf("Switching to SI prefix..\n");
@@ -186,10 +186,10 @@ size_t memory_string(char const *mem_spec) {
                 break;
             case PREFIX:
                 if (std::isalpha(ch)) {
-                    size_t prefix = detail::get_prefix(ch);
+                    size_t prefix = get_prefix(ch);
 
                     if (prefix == 0) {
-                        size_t unit = detail::get_unit(ch);
+                        size_t unit = get_unit(ch);
 
                         if (unit == 0) {
                             EINSUMS_THROW_EXCEPTION(
@@ -214,7 +214,7 @@ size_t memory_string(char const *mem_spec) {
                 break;
             case UNIT:
                 if (std::isalpha(ch)) {
-                    size_t unit = detail::get_unit(ch);
+                    size_t unit = get_unit(ch);
 
                     if (unit == 0) {
                         EINSUMS_THROW_EXCEPTION(
