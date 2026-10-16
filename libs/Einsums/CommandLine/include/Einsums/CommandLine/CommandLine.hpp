@@ -444,12 +444,12 @@ struct Opt : public OptionBase {
     void finalize_default() override { set_result(value_); }
 
     template <typename U = T>
-    [[nodiscard]] bool assign_checked(T const &tmp, std::string const &error_prefix, bool from_config) {
+    [[nodiscard]] bool assign_checked(T const &tmp, std::string const &error_prefix, [[maybe_unused]] bool from_config) {
         if constexpr (std::is_arithmetic_v<U>) {
             if (range_.has_value()) {
                 long long vll = static_cast<long long>(tmp);
                 if (vll < range_->min() || vll > range_->max()) {
-                    fmt::print(stderr, "{}value for '--{}' out of range [{}, {}]", error_prefix, get_long_name(), range_->min(),
+                    fmt::print(stderr, "{}value for '--{}' out of range [{}, {}]\n", error_prefix, get_long_name(), range_->min(),
                                range_->max());
                     return false;
                 }

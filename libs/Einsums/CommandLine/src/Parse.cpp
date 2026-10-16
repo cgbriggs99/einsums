@@ -307,9 +307,7 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
                 } // else leave val = nullopt
             }
 
-            std::string err;
-            if (!o->parse_token(name, val, err)) {
-                fmt::print(stderr, "error: {}\n", err);
+            if (!o->parse_token(name, val, "error: ")) {
                 return {.ok = false, .exit_code = 1};
             }
             if (o->get_impl()->on_seen_) {

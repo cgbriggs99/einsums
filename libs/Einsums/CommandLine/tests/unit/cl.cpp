@@ -11,6 +11,7 @@
 
 using namespace einsums::cl;
 
+namespace {
 struct CLITestFixture {
     CLITestFixture() {
         Registry::get_singleton().clear_for_tests();
@@ -22,13 +23,14 @@ struct CLITestFixture {
     }
 };
 
-static std::vector<std::string> to_args(std::initializer_list<char const *> il) {
+std::vector<std::string> to_args(std::initializer_list<char const *> il) {
     std::vector<std::string> v;
     v.reserve(il.size());
     for (auto *s : il)
         v.emplace_back(s);
     return v;
 }
+} // namespace
 
 TEST_CASE("Defaults and explicit override", "[opt][defaults]") {
     CLITestFixture _;
