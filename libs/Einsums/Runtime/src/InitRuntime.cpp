@@ -142,7 +142,7 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     // profile::initialize();
 
     // Disable HDF5 diagnostic reporting
-    H5Eset_auto(0, nullptr, nullptr);
+    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
 
     // Build and configure this runtime instance.
     std::unique_ptr<Runtime> rt = std::make_unique<Runtime>(std::move(config), true);
