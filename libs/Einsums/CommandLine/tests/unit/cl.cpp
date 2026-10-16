@@ -15,11 +15,11 @@ namespace {
 struct CLITestFixture {
     CLITestFixture() {
         Registry::get_singleton().clear_for_tests();
-        Builtins::get_singleton_ptr().reset(nullptr);
+        Builtins::reset_singleton();
     }
     ~CLITestFixture() {
         Registry::get_singleton().clear_for_tests();
-        Builtins::get_singleton_ptr().reset(nullptr);
+        Builtins::reset_singleton();
     }
 };
 
