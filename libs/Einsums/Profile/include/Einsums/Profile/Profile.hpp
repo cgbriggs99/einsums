@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <list>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -42,8 +43,8 @@
 #        include "TracyWinFamily.hpp"
 #    endif
 #else
+#    include <cstring>
 #    include <pthread.h>
-#    include <string.h>
 #    include <unistd.h>
 #endif
 
@@ -78,6 +79,12 @@ struct EINSUMS_EXPORT AggNode {
   public:
     AggNode() = default;
     explicit AggNode(std::string const &n);
+
+    AggNode(AggNode const &copy)     = default;
+    AggNode(AggNode &&move) noexcept = default;
+
+    AggNode &operator=(AggNode const &copy)     = default;
+    AggNode &operator=(AggNode &&move) noexcept = default;
 
     [[nodiscard]] std::string const &name() const noexcept;
     [[nodiscard]] std::string       &name() noexcept;
@@ -151,7 +158,14 @@ struct EINSUMS_EXPORT AggNode {
 // ---------------------- Active frame ----------------------
 struct EINSUMS_EXPORT ActiveFrame {
   public:
+    ActiveFrame() = delete;
     ActiveFrame(std::string const &name, TimePoint const &start, std::string const &file, int line, std::string const &function);
+
+    ActiveFrame(ActiveFrame const &copy)     = default;
+    ActiveFrame(ActiveFrame &&move) noexcept = default;
+
+    ActiveFrame &operator=(ActiveFrame const &copy)     = default;
+    ActiveFrame &operator=(ActiveFrame &&move) noexcept = default;
 
     [[nodiscard]] std::string const &name() const noexcept;
 
@@ -197,12 +211,15 @@ struct EINSUMS_EXPORT ActiveStack final {
     using iterator       = typename std::vector<ActiveFrame>::iterator;
     using const_iterator = typename std::vector<ActiveFrame>::const_iterator;
 
-    explicit ActiveStack(PrivateConstructorStuff const &) : ActiveStack() {}
+    constexpr explicit ActiveStack(PrivateConstructorStuff const &) : ActiveStack() {}
 
     static ActiveStack &get_multiton();
 
     ActiveStack(ActiveStack const &) = delete;
     ActiveStack(ActiveStack &&)      = delete;
+
+    ActiveStack &operator=(ActiveStack const &) = delete;
+    ActiveStack &operator=(ActiveStack &&)      = delete;
 
     [[nodiscard]] ActiveFrame const &top() const;
     [[nodiscard]] ActiveFrame       &top();
@@ -244,12 +261,15 @@ struct EINSUMS_EXPORT TracyStack final {
     class PrivateConstructorStuff {};
 
   public:
-    explicit TracyStack(PrivateConstructorStuff const &) : TracyStack() {}
+    constexpr explicit TracyStack(PrivateConstructorStuff const &) : TracyStack() {}
 
     static TracyStack &get_multiton();
 
     TracyStack(TracyStack const &) = delete;
     TracyStack(TracyStack &&)      = delete;
+
+    TracyStack &operator=(TracyStack const &) = delete;
+    TracyStack &operator=(TracyStack &&)      = delete;
 
     [[nodiscard]] tracy::ScopedZone const &top() const;
     [[nodiscard]] tracy::ScopedZone       &top();
