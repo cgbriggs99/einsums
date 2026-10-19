@@ -96,15 +96,11 @@ size_t memory_string(char const *mem_spec) {
 
         for (size_t i = 0; mem_spec[i] != 0; i++) {
             auto ch = mem_spec[i];
-            std::printf("Parsing character %c (0x%02hhx)\n", ch, ch);
-            std::fflush(stdout);
             switch (state) {
             case SPACE:
                 if (std::isdigit(ch)) {
                     out += char_to_int(ch);
                     state = INT_PART;
-                    std::printf("Switching to integral part.\n");
-                    std::fflush(stdout);
                 } else if (!std::isspace(ch)) {
                     EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                             "Memory specification formatted incorrectly. Expected a number before any suffix.");
@@ -112,8 +108,6 @@ size_t memory_string(char const *mem_spec) {
                 break;
             case INT_PART:
                 if (std::isalpha(ch)) {
-                    std::printf("Switching to unit suffix.\n");
-                    std::fflush(stdout);
                     size_t prefix = get_prefix(ch);
 
                     if (prefix == 0) {
@@ -135,15 +129,11 @@ size_t memory_string(char const *mem_spec) {
                     }
                 } else if (ch == ',' || ch == '.') {
                     state = FRAC_PART;
-                    std::printf("Switching to fractional part.\n");
-                    std::fflush(stdout);
                 } else if (std::isdigit(ch)) {
                     out *= 10;
                     out += char_to_int(ch);
                 } else if (std::isspace(ch)) {
                     state = PREFIX;
-                    std::printf("Switching to SI prefix.\n");
-                    std::fflush(stdout);
                 } else {
                     EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                             "Memory specification formatted incorrectly. Unexpected symbol '{}' at position {}.", ch, i);
@@ -151,8 +141,6 @@ size_t memory_string(char const *mem_spec) {
                 break;
             case FRAC_PART:
                 if (std::isalpha(ch)) {
-                    std::printf("Switching to unit suffix.\n");
-                    std::fflush(stdout);
                     size_t prefix = get_prefix(ch);
 
                     if (prefix == 0) {
@@ -177,8 +165,6 @@ size_t memory_string(char const *mem_spec) {
                     out += char_to_int(ch) * mult;
                 } else if (std::isspace(ch)) {
                     state = PREFIX;
-                    std::printf("Switching to SI prefix..\n");
-                    std::fflush(stdout);
                 } else {
                     EINSUMS_THROW_EXCEPTION(std::runtime_error,
                                             "Memory specification formatted incorrectly. Unexpected symbol '{}' at position {}.", ch, i);
@@ -224,8 +210,6 @@ size_t memory_string(char const *mem_spec) {
                         state = END;
 
                         out /= unit;
-                        std::printf("Finishing up.\n");
-                        std::fflush(stdout);
                     }
                 } else if (std::isspace(ch)) {
                     // Do nothing.
@@ -243,9 +227,6 @@ size_t memory_string(char const *mem_spec) {
             }
         }
     }
-
-    std::printf("Done\n");
-    std::fflush(stdout);
 
     return (size_t)out;
 }

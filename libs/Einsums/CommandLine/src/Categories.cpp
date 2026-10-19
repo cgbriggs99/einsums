@@ -11,6 +11,10 @@ ExclusiveCategory::ExclusiveCategory() {
     Registry::get_singleton().add_exclusion(this);
 }
 
+ExclusiveCategory::~ExclusiveCategory() {
+    std::printf("Finalizing ExclusiveCategory.\n");
+}
+
 bool ExclusiveCategory::verify_exclusions() const {
     bool found_one = false;
 

@@ -9,6 +9,10 @@ namespace einsums::cl {
 
 EINSUMS_SINGLETON_IMPL(Registry)
 
+Registry::~Registry() {
+    std::printf("Finalizing Registry.\n");
+}
+
 void Registry::add_option(OptionBase *o) {
     options.push_back(o);
 }

@@ -13,6 +13,14 @@ ActiveFrame::ActiveFrame(std::string const &name, TimePoint const &start, std::s
     : name_{name}, start_{start}, child_time_{0}, file_{file}, line_{line}, function_{function} {
 }
 
+ActiveFrame::~ActiveFrame() {
+    if (name_.length() != 0) {
+        std::printf("Finalizing ActiveFrame: %s\n", name_.c_str());
+    } else {
+        std::printf("Finalizing ActiveFrame.\n");
+    }
+}
+
 std::string const &ActiveFrame::name() const noexcept {
     return name_;
 }
@@ -63,6 +71,10 @@ std::string &ActiveFrame::function() noexcept {
 
 void ActiveFrame::inc_child_time(ns const &time) {
     child_time_ += time;
+}
+
+ActiveStack::~ActiveStack() {
+    std::printf("Finalizing ActiveStack.\n");
 }
 
 ActiveStack &ActiveStack::get_multiton() {

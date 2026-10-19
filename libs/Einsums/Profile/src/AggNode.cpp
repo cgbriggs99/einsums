@@ -9,6 +9,17 @@ namespace einsums::profile {
 #ifdef EINSUMS_HAVE_PROFILER
 
 AggNode::AggNode(std::string const &n) : name_(n) {
+    if (name_.length() != 0) {
+        std::printf("Creating AggNode: %s\n", name_.c_str());
+    }
+}
+
+AggNode::~AggNode() {
+    if (name_.length() != 0) {
+        std::printf("Finalizing AggNode: %s\n", name_.c_str());
+    } else {
+        std::printf("Finalizing AggNode.\n");
+    }
 }
 
 std::string const &AggNode::name() const noexcept {

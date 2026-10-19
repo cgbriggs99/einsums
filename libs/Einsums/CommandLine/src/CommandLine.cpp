@@ -84,6 +84,10 @@ Builtins::Builtins() {
     version_.set_expected(ValueExpected::ValueDisallowed);
 }
 
+Builtins::~Builtins() {
+    std::printf("Finalizing Builtins.\n");
+}
+
 OptionCategory const &Builtins::get_help_category() const noexcept {
     return cat_;
 }

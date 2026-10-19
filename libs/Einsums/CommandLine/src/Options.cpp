@@ -8,6 +8,14 @@
 #include <string>
 
 namespace einsums::cl {
+detail::OptionBaseImpl::~OptionBaseImpl() {
+    if (canonical_name_.length() != 0) {
+        std::printf("Finalizing OptionBaseImpl: %s\n", canonical_name_.c_str());
+    } else {
+        std::printf("Finalizing OptionBaseImpl.\n");
+    }
+}
+
 OptionBase::OptionBase(StringRef longName, std::initializer_list<char> shorts, StringRef helpText, OptionCategory *cat)
     : long_name_(longName.get_view()), short_names_(shorts), help_(helpText.get_view()) {
     pointer_to_impl_                  = std::make_shared<detail::OptionBaseImpl>();
@@ -30,6 +38,10 @@ OptionBase::OptionBase(StringRef positional_name, Positional, StringRef helpText
     pointer_to_impl_->canonical_name_ = long_name_;
     Registry::get_singleton().add_option(this);
     EINSUMS_ASSERT_MSG(help_.length() != 0, "Do not add a command line argument without giving it a help statement.");
+}
+
+OptionBase::~OptionBase() {
+    std::printf("Finalizing OptionBase.\n");
 }
 
 bool OptionBase::validate([[maybe_unused]] std::string const &error_prefix) const {

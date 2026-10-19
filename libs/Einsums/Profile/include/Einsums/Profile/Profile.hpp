@@ -86,6 +86,8 @@ struct EINSUMS_EXPORT AggNode {
     AggNode &operator=(AggNode const &copy)     = default;
     AggNode &operator=(AggNode &&move) noexcept = default;
 
+    ~AggNode();
+
     [[nodiscard]] std::string const &name() const noexcept;
     [[nodiscard]] std::string       &name() noexcept;
 
@@ -167,6 +169,8 @@ struct EINSUMS_EXPORT ActiveFrame {
     ActiveFrame &operator=(ActiveFrame const &copy)     = default;
     ActiveFrame &operator=(ActiveFrame &&move) noexcept = default;
 
+    ~ActiveFrame();
+
     [[nodiscard]] std::string const &name() const noexcept;
 
     [[nodiscard]] TimePoint const &start() const noexcept;
@@ -220,6 +224,8 @@ struct EINSUMS_EXPORT ActiveStack final {
 
     ActiveStack &operator=(ActiveStack const &) = delete;
     ActiveStack &operator=(ActiveStack &&)      = delete;
+    
+    ~ActiveStack();
 
     [[nodiscard]] ActiveFrame const &top() const;
     [[nodiscard]] ActiveFrame       &top();
@@ -302,6 +308,8 @@ struct EINSUMS_EXPORT TracyStack final {
 struct EINSUMS_EXPORT Profiler final {
     EINSUMS_SINGLETON_DEF(Profiler)
   public:
+    ~Profiler();
+  
     // Start a timer region. Optionally provide file/line/func (if available).
     void push(std::string const &name, std::string const &file = "", int line = 0, std::string const &func = "");
 

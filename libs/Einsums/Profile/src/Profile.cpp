@@ -162,6 +162,10 @@ double stddev(uint64_t n, int64_t M2) {
 
 EINSUMS_SINGLETON_IMPL(Profiler)
 
+Profiler::~Profiler() {
+    std::printf("Finalizing Profiler.\n");
+}
+
 void Profiler::push(std::string const &name, std::string const &file, int line, std::string const &func) {
     auto now = Clock::now();
 
@@ -205,7 +209,7 @@ void Profiler::pop() {
     // update aggregated data
     {
         std::lock_guard const lock(_mutex);
-        auto                  &root = thread_data()[thread_key()];
+        auto                 &root = thread_data()[thread_key()];
         AggNode              *cur  = std::addressof(root);
         for (auto &p : path) {
             cur = cur->find_or_add(p).get();
@@ -474,6 +478,7 @@ ScopedZone::ScopedZone(std::string const &name, std::string const &file, int lin
     Profiler::get_singleton().push(name, file, line, func);
 }
 ScopedZone::~ScopedZone() {
+    std::printf("Finalizing ScopedZone.");
     Profiler::get_singleton().pop();
 }
 

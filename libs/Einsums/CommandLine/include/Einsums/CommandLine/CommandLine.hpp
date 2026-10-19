@@ -33,11 +33,12 @@ namespace einsums::cl {
 
 // -------------------------- Small utilities ------------------------------- //
 
-struct EINSUMS_EXPORT StringRef {
+struct StringRef {
   public:
     constexpr StringRef() = default;
     constexpr StringRef(char const *c) : s_(c) {}
     constexpr StringRef(std::string_view v) : s_(v) {}
+    constexpr ~StringRef() = default; // This might also need to be constexpr for Windows.
     constexpr operator std::string_view() const noexcept { return s_; }
 
     [[nodiscard]] constexpr std::string_view const &get_view() const noexcept { return s_; }
@@ -48,11 +49,13 @@ struct EINSUMS_EXPORT StringRef {
     std::string_view s_;
 };
 
-struct EINSUMS_EXPORT NumericRange {
+struct NumericRange {
   public:
     constexpr NumericRange() noexcept : min_v{(std::numeric_limits<long long>::min)()}, max_v{(std::numeric_limits<long long>::max)()} {}
 
     constexpr NumericRange(long long min, long long max) noexcept : min_v{min}, max_v{max} {}
+
+    constexpr ~NumericRange() = default;
 
     [[nodiscard]] constexpr long long min() const noexcept { return min_v; }
 
@@ -63,7 +66,7 @@ struct EINSUMS_EXPORT NumericRange {
     long long max_v;
 };
 
-struct EINSUMS_EXPORT ParseResult {
+struct ParseResult {
     bool ok        = true;
     int  exit_code = 0;
 };
@@ -79,6 +82,8 @@ struct EINSUMS_EXPORT Registry final {
     EINSUMS_SINGLETON_DEF(Registry)
 
   public:
+    ~Registry();
+  
     void add_option(OptionBase *o);
     void add_category(OptionCategory *c);
     void add_exclusion(ExclusiveCategory *c);
@@ -106,6 +111,8 @@ struct EINSUMS_EXPORT Registry final {
 struct EINSUMS_EXPORT OptionCategory {
   public:
     explicit OptionCategory(StringRef const &n);
+    
+    ~OptionCategory();
 
     [[nodiscard]] std::string const &get_name() const;
     [[nodiscard]] std::string       &get_name();
@@ -143,6 +150,7 @@ struct EINSUMS_EXPORT Positional {};
 // Base option (no subcommand affinity)
 namespace detail {
 struct EINSUMS_EXPORT OptionBaseImpl {
+    ~OptionBaseImpl();
     std::string           canonical_name_;
     std::function<void()> on_seen_;
     OptionCategory       *category_    = nullptr;
@@ -163,7 +171,7 @@ struct EINSUMS_EXPORT OptionBase {
     OptionBase(StringRef longName, std::initializer_list<char> shorts, StringRef helpText,
                std::shared_ptr<detail::OptionBaseImpl> const &impl);
 
-    virtual ~OptionBase() = default;
+    virtual ~OptionBase();
 
     [[nodiscard]] virtual bool parse_token(std::string_view key, std::optional<std::string_view> val, std::string const &error_prefix,
                                            bool from_config = false) = 0;
@@ -257,6 +265,8 @@ struct EINSUMS_EXPORT OptionBase {
 
 struct EINSUMS_EXPORT ExclusiveCategory {
     explicit ExclusiveCategory();
+    
+    ~ExclusiveCategory();
 
     [[nodiscard]] bool verify_exclusions() const;
 
@@ -781,6 +791,7 @@ struct EINSUMS_EXPORT Alias : public OptionBase {
 struct EINSUMS_EXPORT Builtins final {
     EINSUMS_SINGLETON_DEF(Builtins)
   public:
+    ~Builtins();
     [[nodiscard]] OptionCategory const &get_help_category() const noexcept;
     [[nodiscard]] OptionCategory       &get_help_category() noexcept;
 
@@ -815,7 +826,7 @@ void EINSUMS_EXPORT print_help(std::string_view prog);
 
 ParseResult EINSUMS_EXPORT parse_internal(std::vector<std::string> const &args, char const *programName, std::string_view version,
                                           std::map<std::string, std::string, std::less<>> const *config,
-                                          std::vector<std::string>                        *unknown_args = nullptr);
+                                          std::vector<std::string>                              *unknown_args = nullptr);
 
 /**
  * Parses command-line arguments storing their presence into previously registered Opt/Flag/OpenEnum option.

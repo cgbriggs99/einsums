@@ -10,6 +10,14 @@ OptionCategory::OptionCategory(StringRef const &n) : name(n.get_view()) {
     Registry::get_singleton().add_category(this);
 }
 
+OptionCategory::~OptionCategory() {
+    if (name.length() != 0) {
+        std::printf("Finalizing OptionCategory: %s\n", name.c_str());
+    } else {
+        std::printf("Finalizing OptionCategory.\n");
+    }
+}
+
 std::string const &OptionCategory::get_name() const {
     return name;
 }

@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <cstdio>
 
 namespace einsums {
 
@@ -42,6 +43,8 @@ class InsertionOrderedMap {
 
     InsertionOrderedMap &
     operator=(InsertionOrderedMap<K, V, Hash, Eq> &&move) noexcept(std::is_nothrow_move_assignable_v<map_type>) = default;
+
+    ~InsertionOrderedMap() { std::printf("Finalizing InsertionOrderedMap.\n"); }
 
     // ----- Iterator types that yield references into map_ -----
     class iterator {
