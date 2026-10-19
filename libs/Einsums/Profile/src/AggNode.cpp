@@ -75,15 +75,15 @@ std::map<std::string, uint64_t> const &AggNode::counters_max() const noexcept {
     return counters_total_;
 }
 
-AggNode *AggNode::find_or_add(std::string const &name) {
+std::shared_ptr<AggNode> AggNode::find_or_add(std::string const &name) {
     auto it = children_.find(name);
 
     if (it == children_.end()) {
-        children_[name] = std::make_unique<AggNode>(name);
+        children_[name] = std::make_shared<AggNode>(name);
         it              = children_.find(name);
     }
 
-    return it->second.get();
+    return it->second;
 }
 
 void AggNode::set_name(std::string const &name) {
@@ -128,7 +128,7 @@ void AggNode::inc_exclusive(ns const &time) {
     }
 }
 
-InsertionOrderedMap<std::string, std::unique_ptr<AggNode>> const &AggNode::children() const noexcept {
+InsertionOrderedMap<std::string, std::shared_ptr<AggNode>> const &AggNode::children() const noexcept {
     return children_;
 }
 

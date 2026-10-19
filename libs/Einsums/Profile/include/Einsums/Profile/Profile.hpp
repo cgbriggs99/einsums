@@ -112,9 +112,9 @@ struct EINSUMS_EXPORT AggNode {
     [[nodiscard]] std::map<std::string, uint64_t> const &counters_min() const noexcept;
     [[nodiscard]] std::map<std::string, uint64_t> const &counters_max() const noexcept;
 
-    [[nodiscard]] AggNode *find_or_add(std::string const &name);
+    [[nodiscard]] std::shared_ptr<AggNode> find_or_add(std::string const &name);
 
-    [[nodiscard]] InsertionOrderedMap<std::string, std::unique_ptr<AggNode>> const &children() const noexcept;
+    [[nodiscard]] InsertionOrderedMap<std::string, std::shared_ptr<AggNode>> const &children() const noexcept;
 
     void set_name(std::string const &name);
 
@@ -152,7 +152,7 @@ struct EINSUMS_EXPORT AggNode {
     std::map<std::string, uint64_t> counters_min_;
     std::map<std::string, uint64_t> counters_max_;
 
-    InsertionOrderedMap<std::string, std::unique_ptr<AggNode>> children_;
+    InsertionOrderedMap<std::string, std::shared_ptr<AggNode>> children_;
 };
 
 // ---------------------- Active frame ----------------------

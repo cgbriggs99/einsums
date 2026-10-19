@@ -205,10 +205,10 @@ void Profiler::pop() {
     // update aggregated data
     {
         std::lock_guard const lock(_mutex);
-        auto                 &root = thread_data()[thread_key()];
-        AggNode              *cur  = &root;
+        auto                  &root = thread_data()[thread_key()];
+        AggNode              *cur  = std::addressof(root);
         for (auto &p : path) {
-            cur = cur->find_or_add(p);
+            cur = cur->find_or_add(p).get();
         }
 
         cur->set_file(frame.file());
@@ -419,13 +419,13 @@ void Profiler::print_node_recursive(std::ostream &os, AggNode const *n, double t
         }
     }
 
-    std::list<AggNode const *> children;
+    std::list<std::shared_ptr<AggNode const>> children;
     for (auto const &c : n->children()) {
-        children.push_back(c.second.get());
+        children.push_back(c.second);
     }
 
-    for (auto const *ch : children) {
-        print_node_recursive(os, ch, thread_total_ms, depth + 1, detailed);
+    for (auto const &ch : children) {
+        print_node_recursive(os, ch.get(), thread_total_ms, depth + 1, detailed);
     }
 }
 
@@ -473,6 +473,8 @@ auto Profiler::thread_key() -> uint32_t {
 ScopedZone::ScopedZone(std::string const &name, std::string const &file, int line, std::string const &func) {
     Profiler::get_singleton().push(name, file, line, func);
 }
-ScopedZone::~ScopedZone() { Profiler::get_singleton().pop(); }
+ScopedZone::~ScopedZone() {
+    Profiler::get_singleton().pop();
+}
 
 } // namespace einsums::profile
