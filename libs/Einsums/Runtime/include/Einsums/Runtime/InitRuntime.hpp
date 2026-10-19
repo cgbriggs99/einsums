@@ -31,8 +31,8 @@ namespace einsums {
 
 namespace detail {
 // Default params to initialize with
-[[maybe_unused]] static char                     app_name[] = EINSUMS_APPLICATION_STRING;
-[[maybe_unused]] static std::vector<std::string> dummy_argv{app_name};
+[[maybe_unused]] constexpr inline char                     app_name[] = EINSUMS_APPLICATION_STRING;
+extern EINSUMS_EXPORT std::vector<std::string> dummy_argv;
 } // namespace detail
 
 /**
