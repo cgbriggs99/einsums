@@ -101,9 +101,9 @@ struct EINSUMS_EXPORT Registry final {
 
   private:
     Registry();
-    std::list<OptionBase *>        *options;
-    std::list<OptionCategory *>    *categories;
-    std::list<ExclusiveCategory *> *exclusions;
+    std::list<OptionBase *>        *options{nullptr};
+    std::list<OptionCategory *>    *categories{nullptr};
+    std::list<ExclusiveCategory *> *exclusions{nullptr};
 };
 
 // -------------------------- Categories ----------------------------------- //
