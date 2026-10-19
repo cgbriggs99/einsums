@@ -124,7 +124,7 @@ jobs:
         run: |
           call conda activate einsums-env
           if errorlevel 1 exit /b %ERRORLEVEL%
-          cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }} -v
+          cmake --build "%GITHUB_WORKSPACE%\build" --config ${{ matrix.build_type }}
       - name: Test (CTest)
         shell: cmd
         working-directory: ${{ github.workspace }}/build

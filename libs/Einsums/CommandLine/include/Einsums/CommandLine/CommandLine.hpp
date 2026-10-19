@@ -100,10 +100,10 @@ struct EINSUMS_EXPORT Registry final {
     [[nodiscard]] std::list<ExclusiveCategory *>       &get_exclusions() noexcept;
 
   private:
-    Registry() = default;
-    std::list<OptionBase *>        options;
-    std::list<OptionCategory *>    categories;
-    std::list<ExclusiveCategory *> exclusions;
+    Registry();
+    std::list<OptionBase *>        *options;
+    std::list<OptionCategory *>    *categories;
+    std::list<ExclusiveCategory *> *exclusions;
 };
 
 // -------------------------- Categories ----------------------------------- //
