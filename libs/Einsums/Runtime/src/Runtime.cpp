@@ -343,7 +343,7 @@ void register_shutdown_function(ShutdownFunctionType f) {
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
-        runtime_varsadd_shutdown_function(f);
+        runtime_vars.add_shutdown_function(f);
     }
 }
 
