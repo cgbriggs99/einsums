@@ -54,7 +54,7 @@ int einsums_main(int argc, char *const *const argv) {
             EINSUMS_LOG_INFO("Finalizing Einsums");
             einsums::finalize();
 
-            std::printf("Done.\n");
+            std::printf("Finished finalizing Einsums.\n");
         }
     }
 
