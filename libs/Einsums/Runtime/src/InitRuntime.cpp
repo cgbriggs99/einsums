@@ -169,7 +169,7 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     return 0;
 }
 
-int run_impl(std::function<int()> f, std::vector<std::string> const &argv, InitParams const &params, bool blocking) {
+int run_impl(std::function<int()> const &f, std::vector<std::string> const &argv, InitParams const &params, bool blocking) {
     std::vector<std::string> const *pass_argv = &argv;
     if (argv.size() == 0) {
         pass_argv = &dummy_argv;
@@ -187,16 +187,16 @@ int run_impl(std::function<int()> f, std::vector<std::string> const &argv, InitP
 
 } // namespace detail
 
-int start(std::function<int()> f, std::vector<std::string> const &argv, InitParams const &params) {
-    return detail::run_impl(std::move(f), argv, params, true);
+int start(std::function<int()> const &f, std::vector<std::string> const &argv, InitParams const &params) {
+    return detail::run_impl(f, argv, params, true);
 }
 
 int start(std::nullptr_t, std::vector<std::string> const &argv, InitParams const &params) {
     std::function<int()> main_f;
-    return detail::run_impl(std::move(main_f), argv, params, true);
+    return detail::run_impl(main_f, argv, params, true);
 }
 
-int start(std::function<int(int, char **)> f, std::vector<std::string> &argv, InitParams const &params) {
+int start(std::function<int(int, char **)> const &f, std::vector<std::string> &argv, InitParams const &params) {
     std::vector<char *> copy_argv(argv.size()); // We do it this way so that the memory gets freed on return.
 
     for (ptrdiff_t i = 0; i < argv.size(); i++) {
@@ -221,7 +221,7 @@ int start(std::function<int(int, char **)> f, std::vector<std::string> &argv, In
     return detail::run_impl(main_f, argv, params, true);
 }
 
-int start(std::function<int(int, char const *const *)> f, std::vector<std::string> const &argv, InitParams const &params) {
+int start(std::function<int(int, char const *const *)> const &f, std::vector<std::string> const &argv, InitParams const &params) {
     std::vector<char const *> copy_argv(argv.size()); // We do it this way so that the memory gets freed on return.
 
     for (ptrdiff_t i = 0; i < argv.size(); i++) {
@@ -233,19 +233,19 @@ int start(std::function<int(int, char const *const *)> f, std::vector<std::strin
     return detail::run_impl(main_f, argv, params, true);
 }
 
-int start(std::function<int(std::vector<std::string> &)> f, std::vector<std::string> &argv, InitParams const &params) {
+int start(std::function<int(std::vector<std::string> &)> const &f, std::vector<std::string> &argv, InitParams const &params) {
     std::function<int()> main_f = std::bind(f, argv);
 
     return detail::run_impl(main_f, argv, params, true);
 }
 
-int start(std::function<int(std::vector<std::string> const &)> f, std::vector<std::string> const &argv, InitParams const &params) {
+int start(std::function<int(std::vector<std::string> const &)> const &f, std::vector<std::string> const &argv, InitParams const &params) {
     std::function<int()> main_f = std::bind(f, argv);
 
     return detail::run_impl(main_f, argv, params, true);
 }
 
-int start(std::function<int(int, char **)> f, int argc, char **argv, InitParams const &params) {
+int start(std::function<int(int, char **)> const &f, int argc, char **argv, InitParams const &params) {
     std::vector<std::string> pass_argv(argv, argv + argc);
 
     std::function<int()> main_f = std::bind(f, argc, argv);
@@ -253,7 +253,7 @@ int start(std::function<int(int, char **)> f, int argc, char **argv, InitParams 
     return detail::run_impl(main_f, pass_argv, params, true);
 }
 
-int start(std::function<int(int, char const *const *)> f, int argc, char const *const *argv, InitParams const &params) {
+int start(std::function<int(int, char const *const *)> const &f, int argc, char const *const *argv, InitParams const &params) {
     std::vector<std::string> pass_argv(argv, argv + argc);
 
     std::function<int()> main_f = std::bind(f, argc, argv);
@@ -261,7 +261,7 @@ int start(std::function<int(int, char const *const *)> f, int argc, char const *
     return detail::run_impl(main_f, pass_argv, params, true);
 }
 
-void initialize(std::function<int(int, char **)> f, std::vector<std::string> &argv, InitParams const &params) {
+void initialize(std::function<int(int, char **)> const &f, std::vector<std::string> &argv, InitParams const &params) {
     std::vector<char *> copy_argv(argv.size()); // We do it this way so that the memory gets freed on return.
 
     for (ptrdiff_t i = 0; i < argv.size(); i++) {
@@ -283,12 +283,12 @@ void initialize(std::function<int(int, char **)> f, std::vector<std::string> &ar
 
     std::function<int()> main_f = std::bind(f, (int)copy_argv.size(), copy_argv.data());
 
-    if (detail::run_impl(std::move(main_f), argv, params, false) != 0) {
+    if (detail::run_impl(main_f, argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
 }
 
-void initialize(std::function<int(int, char const *const *)> f, std::vector<std::string> const &argv, InitParams const &params) {
+void initialize(std::function<int(int, char const *const *)> const &f, std::vector<std::string> const &argv, InitParams const &params) {
     std::vector<char const *> copy_argv(argv.size()); // We do it this way so that the memory gets freed on return.
 
     for (ptrdiff_t i = 0; i < argv.size(); i++) {
@@ -297,36 +297,36 @@ void initialize(std::function<int(int, char const *const *)> f, std::vector<std:
 
     std::function<int()> main_f = std::bind(f, (int)copy_argv.size(), copy_argv.data());
 
-    if (detail::run_impl(std::move(main_f), argv, params, false) != 0) {
+    if (detail::run_impl(main_f, argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
 }
 
-void initialize(std::function<int()> f, std::vector<std::string> const &argv, InitParams const &params) {
-    if (detail::run_impl(std::move(f), argv, params, false) != 0) {
+void initialize(std::function<int()> const &f, std::vector<std::string> const &argv, InitParams const &params) {
+    if (detail::run_impl(f, argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
 }
 
 void initialize(std::nullptr_t, std::vector<std::string> const &argv, InitParams const &params) {
     std::function<int()> main_f;
-    if (detail::run_impl(std::move(main_f), argv, params, false) != 0) {
+    if (detail::run_impl(main_f, argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
 }
 
-void initialize(std::function<int(int, char **)> f, int argc, char **argv, InitParams const &params) {
+void initialize(std::function<int(int, char **)> const &f, int argc, char **argv, InitParams const &params) {
     std::vector<std::string> pass_argv(argv, argv + argc);
     std::function<int()>     main_f = std::bind(f, argc, argv);
-    if (detail::run_impl(std::move(main_f), pass_argv, params, false) != 0) {
+    if (detail::run_impl(main_f, pass_argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
 }
 
-void initialize(std::function<int(int, char const *const *)> f, int argc, char const *const *argv, InitParams const &params) {
+void initialize(std::function<int(int, char const *const *)> const &f, int argc, char const *const *argv, InitParams const &params) {
     std::vector<std::string> pass_argv(argv, argv + argc);
     std::function<int()>     main_f = std::bind(f, argc, argv);
-    if (detail::run_impl(std::move(main_f), pass_argv, params, false) != 0) {
+    if (detail::run_impl(main_f, pass_argv, params, false) != 0) {
         EINSUMS_UNREACHABLE;
     }
 }
