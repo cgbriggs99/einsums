@@ -85,7 +85,7 @@ std::string get_executable_prefix() {
 }
 } // namespace detail
 
-void register_arguments(std::function<void()> func) {
+void register_arguments(std::function<void()> const &func) {
     auto &argument_list = detail::ArgumentList::get_singleton();
     auto  lock          = std::lock_guard(argument_list);
 

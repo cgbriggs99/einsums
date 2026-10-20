@@ -278,6 +278,8 @@ class EINSUMS_EXPORT GlobalConfigMap {
     static GlobalConfigMap &get_singleton();
 #endif
 
+    ~GlobalConfigMap();
+
     /**
      * @brief Checks to see if the map is empty.
      *

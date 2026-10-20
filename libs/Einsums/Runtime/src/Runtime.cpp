@@ -22,6 +22,10 @@ namespace detail {
 
 EINSUMS_SINGLETON_IMPL(RuntimeVars)
 
+RuntimeVars::~RuntimeVars() {
+    std::printf("Finalizing the RuntimeVars.\n");
+}
+
 static std::atomic_bool exit_called = false;
 
 void on_exit() noexcept {

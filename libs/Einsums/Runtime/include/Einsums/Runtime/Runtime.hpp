@@ -56,10 +56,11 @@ enum class RuntimeState : std::int8_t {
 
 namespace detail {
 
-class EINSUMS_EXPORT RuntimeVars : public design_pats::Lockable<std::recursive_mutex> {
+class EINSUMS_EXPORT RuntimeVars final : public design_pats::Lockable<std::recursive_mutex> {
     EINSUMS_SINGLETON_DEF(RuntimeVars)
 
   public:
+    ~RuntimeVars();
     std::list<StartupFunctionType>  global_pre_startup_functions;
     std::list<StartupFunctionType>  global_startup_functions;
     std::list<ShutdownFunctionType> global_pre_shutdown_functions;
