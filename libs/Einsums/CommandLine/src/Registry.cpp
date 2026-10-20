@@ -16,33 +16,33 @@ Registry::Registry() {
 }
 
 Registry::~Registry() {
-    std::printf("Finalizing Registry.\n");
+    std::fprintf(stderr, "Finalizing Registry.\n");
 
-    std::printf("Clearing option list.\n");
+    std::fprintf(stderr, "Clearing option list.\n");
     if (options) {
         delete options;
         options = nullptr;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        printf("Nothing to do.\n");
+        std::fprintf(stderr, "Nothing to do.\n");
     }
 
     std::printf("Clearing categories.\n");
     if (categories) {
         delete categories;
         categories = nullptr;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("Nothing to do.\n");
+        std::fprintf(stderr, "Nothing to do.\n");
     }
 
-    std::printf("Clearing exclusions.\n");
+    std::fprintf(stderr, "Clearing exclusions.\n");
     if (exclusions) {
         delete exclusions;
         exclusions = nullptr;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("Nothing to do.\n");
+        std::fprintf(stderr, "Nothing to do.\n");
     }
 }
 

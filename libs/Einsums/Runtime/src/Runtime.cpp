@@ -30,38 +30,38 @@ RuntimeVars::RuntimeVars() {
 }
 
 RuntimeVars::~RuntimeVars() {
-    std::printf("Finalizing the RuntimeVars.\n");
+    std::fprintf(stderr, "Finalizing the RuntimeVars.\n");
 
-    std::printf("Freeing pre-startup functions.\n");
+    std::fprintf(stderr, "Freeing pre-startup functions.\n");
     if (global_pre_startup_functions_) {
         delete global_pre_startup_functions_;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 
-    std::printf("Freeing startup functions.\n");
+    std::fprintf(stderr, "Freeing startup functions.\n");
     if (global_startup_functions_) {
         delete global_startup_functions_;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 
-    std::printf("Freeing pre-shutdown functions.\n");
+    std::fprintf(stderr, "Freeing pre-shutdown functions.\n");
     if (global_pre_shutdown_functions_) {
         delete global_pre_shutdown_functions_;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 
-    std::printf("Freeing shutdown functions.\n");
+    std::fprintf(stderr, "Freeing shutdown functions.\n");
     if (global_shutdown_functions_) {
         delete global_shutdown_functions_;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 }
 

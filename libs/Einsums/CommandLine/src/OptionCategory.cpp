@@ -12,9 +12,9 @@ OptionCategory::OptionCategory(StringRef const &n) : name(n.get_view()) {
 
 OptionCategory::~OptionCategory() {
     if (name.length() != 0) {
-        std::printf("Finalizing OptionCategory: %s\n", name.c_str());
+        std::fprintf(stderr, "Finalizing OptionCategory: %s\n", name.c_str());
     } else {
-        std::printf("Finalizing OptionCategory.\n");
+        std::fprintf(stderr, "Finalizing OptionCategory.\n");
     }
 }
 

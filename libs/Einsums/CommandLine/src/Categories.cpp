@@ -12,21 +12,15 @@ ExclusiveCategory::ExclusiveCategory() {
 }
 
 ExclusiveCategory::~ExclusiveCategory() {
-    std::printf("Finalizing ExclusiveCategory.\n");
+    std::fprintf(stderr, "Finalizing ExclusiveCategory.\n");
 }
 
 bool ExclusiveCategory::verify_exclusions() const {
     bool found_one = false;
 
     for (auto const *opt : options) {
-        std::printf("Checking %s\n", opt->get_long_name().c_str());
-        std::fflush(stdout);
         if (opt->is_from_cli() || opt->is_from_config() || opt->num_occurrences() > 0) {
-            std::printf("Found %s\n", opt->get_long_name().c_str());
-            std::fflush(stdout);
             if (found_one) {
-                std::printf("Already found an argument in this category!\n");
-                std::fflush(stdout);
                 return false;
             }
             found_one = true;

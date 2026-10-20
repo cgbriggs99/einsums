@@ -10,9 +10,9 @@
 namespace einsums::cl {
 detail::OptionBaseImpl::~OptionBaseImpl() {
     if (canonical_name_.length() != 0) {
-        std::printf("Finalizing OptionBaseImpl: %s\n", canonical_name_.c_str());
+        std::fprintf(stderr, "Finalizing OptionBaseImpl: %s\n", canonical_name_.c_str());
     } else {
-        std::printf("Finalizing OptionBaseImpl.\n");
+        std::fprintf(stderr, "Finalizing OptionBaseImpl.\n");
     }
 }
 
@@ -41,7 +41,7 @@ OptionBase::OptionBase(StringRef positional_name, Positional, StringRef helpText
 }
 
 OptionBase::~OptionBase() {
-    std::printf("Finalizing OptionBase.\n");
+    std::fprintf(stderr, "Finalizing OptionBase.\n");
 }
 
 bool OptionBase::validate([[maybe_unused]] std::string const &error_prefix) const {

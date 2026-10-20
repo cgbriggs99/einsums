@@ -15,9 +15,9 @@ ActiveFrame::ActiveFrame(std::string const &name, TimePoint const &start, std::s
 
 ActiveFrame::~ActiveFrame() {
     if (name_.length() != 0) {
-        std::printf("Finalizing ActiveFrame: %s\n", name_.c_str());
+        std::fprintf(stderr, "Finalizing ActiveFrame: %s\n", name_.c_str());
     } else {
-        std::printf("Finalizing ActiveFrame.\n");
+        std::fprintf(stderr, "Finalizing ActiveFrame.\n");
     }
 }
 
@@ -74,7 +74,7 @@ void ActiveFrame::inc_child_time(ns const &time) {
 }
 
 ActiveStack::~ActiveStack() {
-    std::printf("Finalizing ActiveStack.\n");
+    std::fprintf(stderr, "Finalizing ActiveStack.\n");
 }
 
 ActiveStack &ActiveStack::get_multiton() {

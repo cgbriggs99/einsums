@@ -10,15 +10,15 @@ namespace einsums::profile {
 
 AggNode::AggNode(std::string const &n) : name_(n) {
     if (name_.length() != 0) {
-        std::printf("Creating AggNode: %s\n", name_.c_str());
+        std::fprintf(stderr, "Creating AggNode: %s\n", name_.c_str());
     }
 }
 
 AggNode::~AggNode() {
     if (name_.length() != 0) {
-        std::printf("Finalizing AggNode: %s\n", name_.c_str());
+        std::fprintf(stderr, "Finalizing AggNode: %s\n", name_.c_str());
     } else {
-        std::printf("Finalizing AggNode.\n");
+        std::fprintf(stderr, "Finalizing AggNode.\n");
     }
 }
 

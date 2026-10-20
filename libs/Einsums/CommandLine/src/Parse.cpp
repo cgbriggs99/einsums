@@ -216,31 +216,15 @@ std::map<std::string, std::string, std::less<>> read_config(std::string_view con
 
 ParseResult parse_internal(std::vector<std::string> const &args, char const *programName, std::string_view version,
                            std::map<std::string, std::string, std::less<>> const *config, std::vector<std::string> *unknown_args) {
-    std::printf("Starting to parse arguments.\n");
-    std::fflush(stdout);
-
-    for (auto const &arg : args) {
-        std::printf("Arg: %s\n", arg.c_str());
-        std::fflush(stdout);
-    }
-
-    Builtins &builtins = Builtins::get_singleton();
-    std::printf("Acquiring lock.\n");
-    std::fflush(stdout);
+    Builtins                &builtins = Builtins::get_singleton();
     GlobalConfigMapLockScope __;
-    std::printf("Setting program name.\n");
-    std::fflush(stdout);
-    std::string prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
+    std::string              prog = programName ? programName : (!args.empty() ? args[0] : "Einsums");
 
-    std::printf("Setting default values.\n");
-    std::fflush(stdout);
     for (auto *o : Registry::get_singleton().get_options()) {
         o->finalize_default();
     }
 
     // Apply config first (defaults < config < CLI)
-    std::printf("Applying config definitions.\n");
-    std::fflush(stdout);
     if (config && !config->empty()) {
         for (auto *o : Registry::get_singleton().get_options()) {
             if (o->is_positional()) {
@@ -265,8 +249,6 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
     size_t pos_index = 0;
 
     // Parse CLI
-    std::printf("Parsing command line arguments.\n");
-    std::fflush(stdout);
     for (size_t i = 1; i < args.size(); ++i) {
         std::string_view tok(args[i]);
 
@@ -381,8 +363,6 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
     }
 
     // Validate required/occurrence
-    std::printf("Validating required arguments.\n");
-    std::fflush(stdout);
     for (auto *o : Registry::get_singleton().get_options()) {
         if ((o->get_occurrence() == Occurrence::Required || o->get_occurrence() == Occurrence::OneOrMore) && o->num_occurrences() == 0) {
             fmt::print(stderr, "error: missing required option '--{}'\n", o->get_long_name());
@@ -394,11 +374,7 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
     }
 
     // Validate exclusions.
-    std::printf("Validating exclusive arguments.\n");
-    std::fflush(stdout);
     for (auto *exc : Registry::get_singleton().get_exclusions()) {
-        std::printf("Validating...\n");
-        std::fflush(stdout);
         if (!exc->verify_exclusions()) {
             auto found = exc->found_options();
 
@@ -416,9 +392,6 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
             return {.ok = false, .exit_code = 1};
         }
     }
-
-    std::printf("Finished.\n");
-    std::fflush(stdout);
 
     return {.ok = true, .exit_code = 0};
 }

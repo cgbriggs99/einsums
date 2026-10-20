@@ -44,7 +44,7 @@ class InsertionOrderedMap {
     InsertionOrderedMap &
     operator=(InsertionOrderedMap<K, V, Hash, Eq> &&move) noexcept(std::is_nothrow_move_assignable_v<map_type>) = default;
 
-    ~InsertionOrderedMap() { std::printf("Finalizing InsertionOrderedMap.\n"); }
+    ~InsertionOrderedMap() { std::fprintf(stderr, "Finalizing InsertionOrderedMap.\n"); }
 
     // ----- Iterator types that yield references into map_ -----
     class iterator {

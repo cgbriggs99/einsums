@@ -85,7 +85,7 @@ Builtins::Builtins() {
 }
 
 Builtins::~Builtins() {
-    std::printf("Finalizing Builtins.\n");
+    std::fprintf(stderr, "Finalizing Builtins.\n");
 }
 
 OptionCategory const &Builtins::get_help_category() const noexcept {

@@ -37,30 +37,6 @@ char const date_string[] = EINSUMS_DATE_TIME;
 char const complete_version_string[] = EINSUMS_COMPLETE_VERSION;
 } // namespace
 
-static void print_actual_string(std::string const *string) {
-    std::printf("Printing %zu bytes of string data structure at %p\n", sizeof(std::string), static_cast<void const *>(string));
-
-    // I am not turning a C++ string into a C string. I am turning the string data structure into its underlying bytes.
-    uint8_t const *string_data = reinterpret_cast<uint8_t const *>(string);
-
-    for (size_t i = 0; i < sizeof(std::string); i++) {
-        std::printf("%02hhx", string_data[i]);
-        if (i % 4 == 3) {
-            std::putchar(' ');
-        }
-    }
-
-    std::printf("\n");
-
-    if (string->data() == nullptr) {
-        std::printf("The actual string data is at %p, has length %zu.\n", static_cast<void const *>(string->data()), string->length());
-    } else {
-        std::printf("The actual string data is at %p, has length %zu, and contains the following:\n%s\n",
-                    static_cast<void const *>(string->data()), string->length(), string->c_str());
-    }
-    std::fflush(stdout);
-}
-
 std::string full_version_as_string() {
     return std::string(version_string);
 }
@@ -79,12 +55,13 @@ std::string full_build_string() {
 std::string configuration_string() {
     std::ostringstream strm;
 
-    strm << "Einsums:" << std::endl;
+    strm << "Einsums:\n";
 
     char const *const *p = einsums::config_strings;
-    while (*p)
-        strm << "  " << *p++ << std::endl;
-    strm << std::endl;
+    while (*p) {
+        strm << "  " << *p++ << "\n";
+    }
+    strm << "\n";
 
     return strm.str();
 }

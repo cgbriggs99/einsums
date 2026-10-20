@@ -37,39 +37,39 @@ BlockManager::BlockManager() {
 }
 
 BlockManager::~BlockManager() {
-    std::printf("Finalizing the BlockManager.\n");
+    std::fprintf(stderr, "Finalizing the BlockManager.\n");
 
-    std::printf("Freeing the block list.");
+    std::fprintf(stderr, "Freeing the block list.\n");
     if (_block_list) {
         delete _block_list;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 
-    std::printf("Freeing the allocator.");
+    std::fprintf(stderr, "Freeing the allocator.\n");
     if (_alloc) {
         delete _alloc;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 
 #ifdef EINSUMS_COMPUTE_CODE
-    std::printf("Freeing the GPU block list.");
+    std::fprintf(stderr, "Freeing the GPU block list.");
     if (_gpu_block_list) {
         delete _gpu_block_list;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 
-    std::printf("Freeing the GPU allocator.");
+    std::fprintf(stderr, "Freeing the GPU allocator.");
     if (_gpu_alloc) {
         delete _gpu_alloc;
-        std::printf("Done.\n");
+        std::fprintf(stderr, "Done.\n");
     } else {
-        std::printf("No work to do.\n");
+        std::fprintf(stderr, "No work to do.\n");
     }
 #endif
 }

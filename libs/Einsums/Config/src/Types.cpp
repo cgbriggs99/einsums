@@ -12,23 +12,23 @@ namespace einsums {
 EINSUMS_SINGLETON_IMPL(GlobalConfigMap)
 
 GlobalConfigMap::~GlobalConfigMap() {
-    std::printf("Finalizing the GlobalConfigMap.\n");
+    std::fprintf(stderr, "Finalizing the GlobalConfigMap.\n");
 
-    std::printf("Freeing the string map.\n");
+    std::fprintf(stderr, "Freeing the string map.\n");
     str_map_.reset();
-    std::printf("Done.\n");
+    std::fprintf(stderr, "Done.\n");
 
-    std::printf("Freeing the int map.\n");
+    std::fprintf(stderr, "Freeing the int map.\n");
     int_map_.reset();
-    std::printf("Done.\n");
+    std::fprintf(stderr, "Done.\n");
 
-    std::printf("Freeing the double map.\n");
+    std::fprintf(stderr, "Freeing the double map.\n");
     double_map_.reset();
-    std::printf("Done.\n");
+    std::fprintf(stderr, "Done.\n");
 
-    std::printf("Freeing the bool map.\n");
+    std::fprintf(stderr, "Freeing the bool map.\n");
     bool_map_.reset();
-    std::printf("Done.\n");
+    std::fprintf(stderr, "Done.\n");
 }
 
 GlobalConfigMap::GlobalConfigMap()

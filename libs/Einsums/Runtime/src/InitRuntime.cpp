@@ -158,17 +158,19 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     run(f, *rt, params);
 
     // pointer to runtime is stored in TLS
-    Runtime *p = rt.release();
+    auto     deleter = rt.get_deleter();
+    Runtime *p       = rt.release();
 
-    detail::register_free_pointer([p]() {
-        std::printf("Finalizing the runtime.\n");
-        delete p;
-        std::printf("Done.\n");
+    detail::register_free_pointer([p, deleter]() {
+        std::fprintf(stderr, "Finalizing the runtime.\n");
+        deleter(p);
+        std::fprintf(stderr, "Done.\n");
     });
 
     return 0;
 }
 
+namespace {
 int run_impl(std::function<int()> const &f, std::vector<std::string> const &argv, InitParams const &params, bool blocking) {
     std::vector<std::string> const *pass_argv = &argv;
     if (argv.size() == 0) {
@@ -184,6 +186,7 @@ int run_impl(std::function<int()> const &f, std::vector<std::string> const &argv
 
     return run(f, *pass_argv, params, blocking);
 }
+} // namespace
 
 } // namespace detail
 
