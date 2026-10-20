@@ -7,6 +7,7 @@
 #include <Einsums/Logging.hpp>
 
 #if defined(EINSUMS_HAVE_MALLOC_MIMALLOC)
+#    include <mimalloc-new-delete.h>
 #    include <mimalloc.h>
 #elif defined(EINSUMS_WINDOWS)
 #    include <malloc.h>
