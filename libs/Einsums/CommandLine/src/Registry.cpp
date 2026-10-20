@@ -27,7 +27,7 @@ Registry::~Registry() {
         std::fprintf(stderr, "Nothing to do.\n");
     }
 
-    std::printf("Clearing categories.\n");
+    std::fprintf(stderr, "Clearing categories.\n");
     if (categories) {
         delete categories;
         categories = nullptr;
