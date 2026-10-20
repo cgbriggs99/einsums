@@ -31,20 +31,6 @@ using namespace std::chrono_literals;
 #include <catch2/catch_all.hpp>
 namespace {
 
-void signal_handler(int signal) {
-    std::fprintf(stderr, "Received signal %d.\n", signal);
-
-    einsums::util::print_backtrace(std::cout);
-
-    std::_Exit(1);
-}
-
-void waiter() {
-    std::this_thread::sleep_for(30s);
-
-    std::raise(SIGABRT);
-}
-
 int einsums_main(int argc, char *const *const argv) {
     int result = 0;
 
@@ -81,11 +67,6 @@ int einsums_main(int argc, char *const *const argv) {
 } // namespace
 
 int main(int argc, char **argv) {
-    std::signal(SIGABRT, signal_handler);
-
-    std::thread thread(waiter);
-
-    thread.detach();
 
     return einsums::start(einsums_main, argc, argv);
 }
