@@ -160,7 +160,11 @@ int run(std::function<int()> const &f, std::vector<std::string> const &argv, Ini
     // pointer to runtime is stored in TLS
     Runtime *p = rt.release();
 
-    detail::register_free_pointer([p]() { delete p; });
+    detail::register_free_pointer([p]() {
+        std::printf("Finalizing the runtime.\n");
+        delete p;
+        std::printf("Done.\n");
+    });
 
     return 0;
 }

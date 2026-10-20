@@ -294,7 +294,7 @@ void register_pre_startup_function(StartupFunctionType f) {
             EINSUMS_THROW_EXCEPTION(invalid_runtime_state, "Too late to register a pre-startup function");
             return;
         }
-        runtime->add_pre_startup_function(std::move(f));
+        runtime->add_pre_startup_function(f);
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
@@ -309,7 +309,7 @@ void register_startup_function(StartupFunctionType f) {
             EINSUMS_THROW_EXCEPTION(invalid_runtime_state, "Too late to register a startup function");
             return;
         }
-        runtime->add_startup_function(std::move(f));
+        runtime->add_startup_function(f);
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
@@ -324,7 +324,7 @@ void register_pre_shutdown_function(ShutdownFunctionType f) {
             EINSUMS_THROW_EXCEPTION(invalid_runtime_state, "Too late to register a pre-shutdown function");
             return;
         }
-        runtime->add_pre_shutdown_function(std::move(f));
+        runtime->add_pre_shutdown_function(f);
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
