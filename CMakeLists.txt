@@ -27,7 +27,9 @@ endif()
 
 cmake_policy(SET CMP0091 NEW)
 # Needs 4.0
-# cmake_policy(SET CMP0184 NEW)
+if(CMAKE_MAJOR_VERSION GREATER_EQUAL 4)
+  cmake_policy(SET CMP0184 NEW)
+endif()
 
 project(Einsums LANGUAGES C CXX ASM)
 
