@@ -22,8 +22,79 @@ namespace detail {
 
 EINSUMS_SINGLETON_IMPL(RuntimeVars)
 
+RuntimeVars::RuntimeVars() {
+    global_pre_startup_functions_  = new std::list<StartupFunctionType>();
+    global_startup_functions_      = new std::list<StartupFunctionType>();
+    global_pre_shutdown_functions_ = new std::list<ShutdownFunctionType>();
+    global_shutdown_functions_     = new std::list<ShutdownFunctionType>();
+}
+
 RuntimeVars::~RuntimeVars() {
     std::printf("Finalizing the RuntimeVars.\n");
+
+    std::printf("Freeing pre-startup functions.\n");
+    if (global_pre_startup_functions_) {
+        delete global_pre_startup_functions_;
+        std::printf("Done.\n");
+    } else {
+        std::printf("No work to do.\n");
+    }
+
+    std::printf("Freeing startup functions.\n");
+    if (global_startup_functions_) {
+        delete global_startup_functions_;
+        std::printf("Done.\n");
+    } else {
+        std::printf("No work to do.\n");
+    }
+
+    std::printf("Freeing pre-shutdown functions.\n");
+    if (global_pre_shutdown_functions_) {
+        delete global_pre_shutdown_functions_;
+        std::printf("Done.\n");
+    } else {
+        std::printf("No work to do.\n");
+    }
+
+    std::printf("Freeing shutdown functions.\n");
+    if (global_shutdown_functions_) {
+        delete global_shutdown_functions_;
+        std::printf("Done.\n");
+    } else {
+        std::printf("No work to do.\n");
+    }
+}
+
+void RuntimeVars::add_pre_startup_function(StartupFunctionType const &func) {
+    global_pre_startup_functions_->push_back(func);
+}
+
+void RuntimeVars::add_startup_function(StartupFunctionType const &func) {
+    global_startup_functions_->push_back(func);
+}
+
+void RuntimeVars::add_pre_shutdown_function(ShutdownFunctionType const &func) {
+    global_pre_shutdown_functions_->push_back(func);
+}
+
+void RuntimeVars::add_shutdown_function(ShutdownFunctionType const &func) {
+    global_shutdown_functions_->push_back(func);
+}
+
+std::list<StartupFunctionType> const &RuntimeVars::global_pre_startup_functions() const {
+    return *global_pre_startup_functions_;
+}
+
+std::list<StartupFunctionType> const &RuntimeVars::global_startup_functions() const {
+    return *global_startup_functions_;
+}
+
+std::list<ShutdownFunctionType> const &RuntimeVars::global_pre_shutdown_functions() const {
+    return *global_pre_shutdown_functions_;
+}
+
+std::list<ShutdownFunctionType> const &RuntimeVars::global_shutdown_functions() const {
+    return *global_shutdown_functions_;
 }
 
 static std::atomic_bool exit_called = false;
@@ -72,19 +143,19 @@ void Runtime::init() {
         std::lock_guard const vars_guard(runtime_vars); // Lock the variables.
 
         // Copy over all startup functions registered so far.
-        for (StartupFunctionType const &f : runtime_vars.global_pre_startup_functions) {
+        for (StartupFunctionType const &f : runtime_vars.global_pre_startup_functions()) {
             add_pre_startup_function(f);
         }
 
-        for (StartupFunctionType const &f : runtime_vars.global_startup_functions) {
+        for (StartupFunctionType const &f : runtime_vars.global_startup_functions()) {
             add_startup_function(f);
         }
 
-        for (ShutdownFunctionType const &f : runtime_vars.global_pre_shutdown_functions) {
+        for (ShutdownFunctionType const &f : runtime_vars.global_pre_shutdown_functions()) {
             add_pre_shutdown_function(f);
         }
 
-        for (ShutdownFunctionType const &f : runtime_vars.global_shutdown_functions) {
+        for (ShutdownFunctionType const &f : runtime_vars.global_shutdown_functions()) {
             add_shutdown_function(f);
         }
     } catch (std::exception const &e) {
@@ -109,25 +180,25 @@ void Runtime::deinit_global_data() {
     runtime_ = nullptr;
 }
 
-void Runtime::add_pre_shutdown_function(ShutdownFunctionType f) {
+void Runtime::add_pre_shutdown_function(ShutdownFunctionType const &f) {
     LabeledSectionInternal("Runtime::add_pre_shutdown_function");
     std::lock_guard const l(this->lock_);
     _pre_shutdown_functions.push_back(f);
 }
 
-void Runtime::add_shutdown_function(ShutdownFunctionType f) {
+void Runtime::add_shutdown_function(ShutdownFunctionType const &f) {
     LabeledSectionInternal("Runtime::add_shutdown_function");
     std::lock_guard const l(this->lock_);
     _shutdown_functions.push_back(f);
 }
 
-void Runtime::add_pre_startup_function(StartupFunctionType f) {
+void Runtime::add_pre_startup_function(StartupFunctionType const &f) {
     LabeledSectionInternal("Runtime::add_pre_startup_function");
     std::lock_guard const l(this->lock_);
     _pre_startup_functions.push_back(f);
 }
 
-void Runtime::add_startup_function(StartupFunctionType f) {
+void Runtime::add_startup_function(StartupFunctionType const &f) {
     LabeledSectionInternal("Runtime::add_startup_function");
     std::lock_guard const l(this->lock_);
     _startup_functions.push_back(f);
@@ -227,7 +298,7 @@ void register_pre_startup_function(StartupFunctionType f) {
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
-        runtime_vars.global_pre_startup_functions.emplace_back(std::move(f));
+        runtime_vars.add_pre_startup_function(f);
     }
 }
 
@@ -242,7 +313,7 @@ void register_startup_function(StartupFunctionType f) {
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
-        runtime_vars.global_startup_functions.emplace_back(std::move(f));
+        runtime_vars.add_startup_function(f);
     }
 }
 
@@ -257,7 +328,7 @@ void register_pre_shutdown_function(ShutdownFunctionType f) {
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
-        runtime_vars.global_pre_shutdown_functions.emplace_back(std::move(f));
+        runtime_vars.add_pre_shutdown_function(f);
     }
 }
 
@@ -272,7 +343,7 @@ void register_shutdown_function(ShutdownFunctionType f) {
     } else {
         auto                                &runtime_vars = detail::RuntimeVars::get_singleton();
         std::lock_guard<detail::RuntimeVars> guard(runtime_vars);
-        runtime_vars.global_shutdown_functions.emplace_back(std::move(f));
+        runtime_varsadd_shutdown_function(f);
     }
 }
 

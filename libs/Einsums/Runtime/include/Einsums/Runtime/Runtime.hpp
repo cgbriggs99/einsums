@@ -61,13 +61,24 @@ class EINSUMS_EXPORT RuntimeVars final : public design_pats::Lockable<std::recur
 
   public:
     ~RuntimeVars();
-    std::list<StartupFunctionType>  global_pre_startup_functions;
-    std::list<StartupFunctionType>  global_startup_functions;
-    std::list<ShutdownFunctionType> global_pre_shutdown_functions;
-    std::list<ShutdownFunctionType> global_shutdown_functions;
+
+    void add_pre_startup_function(StartupFunctionType const &);
+    void add_startup_function(StartupFunctionType const &);
+    void add_pre_shutdown_function(ShutdownFunctionType const &);
+    void add_shutdown_function(ShutdownFunctionType const &);
+
+    std::list<StartupFunctionType> const  &global_pre_startup_functions() const;
+    std::list<StartupFunctionType> const  &global_startup_functions() const;
+    std::list<ShutdownFunctionType> const &global_pre_shutdown_functions() const;
+    std::list<ShutdownFunctionType> const &global_shutdown_functions() const;
 
   private:
-    explicit RuntimeVars() = default;
+    std::list<StartupFunctionType>  *global_pre_startup_functions_{nullptr};
+    std::list<StartupFunctionType>  *global_startup_functions_{nullptr};
+    std::list<ShutdownFunctionType> *global_pre_shutdown_functions_{nullptr};
+    std::list<ShutdownFunctionType> *global_shutdown_functions_{nullptr};
+
+    explicit RuntimeVars();
 };
 
 struct EINSUMS_EXPORT Runtime : public design_pats::Lockable<std::recursive_mutex> {
@@ -100,7 +111,7 @@ struct EINSUMS_EXPORT Runtime : public design_pats::Lockable<std::recursive_mute
     ///             pre-startup functions will be (system-wide) executed
     ///             before any startup function.
     /// @versionadded{1.0.0}
-    virtual void add_pre_startup_function(StartupFunctionType f);
+    virtual void add_pre_startup_function(StartupFunctionType const &f);
 
     /// Add a function to be executed before einsums_main
     ///
@@ -108,7 +119,7 @@ struct EINSUMS_EXPORT Runtime : public design_pats::Lockable<std::recursive_mute
     ///             to setup the runtime environment of the application
     ///             (install performance counters, etc.)
     /// @versionadded{1.0.0}
-    virtual void add_startup_function(StartupFunctionType f);
+    virtual void add_startup_function(StartupFunctionType const &f);
 
     /// Add a function to be executed during
     /// einsums::finalize, but guaranteed before any of the shutdown functions
@@ -122,7 +133,7 @@ struct EINSUMS_EXPORT Runtime : public design_pats::Lockable<std::recursive_mute
     ///             pre-shutdown functions will be (system-wide) executed
     ///             before any shutdown function.
     /// @versionadded{1.0.0}
-    virtual void add_pre_shutdown_function(ShutdownFunctionType f);
+    virtual void add_pre_shutdown_function(ShutdownFunctionType const &f);
 
     /// Add a function to be executed during einsums::finalize
     ///
@@ -130,7 +141,7 @@ struct EINSUMS_EXPORT Runtime : public design_pats::Lockable<std::recursive_mute
     ///             useful to tear down the runtime environment of the
     ///             application (uninstall performance counters, etc.)
     /// @versionadded{1.0.0}
-    virtual void add_shutdown_function(ShutdownFunctionType f);
+    virtual void add_shutdown_function(ShutdownFunctionType const &f);
 
     virtual int run(std::function<EinsumsMainFunctionType> const &func);
     virtual int run();
