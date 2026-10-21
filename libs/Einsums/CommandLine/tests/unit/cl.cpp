@@ -48,14 +48,14 @@ TEST_CASE("Defaults and explicit override", "[opt][defaults]") {
         REQUIRE(Threads.get() == 4);
         REQUIRE(threads_bound == 4);
     }
-//
-//    SECTION("Explicit CLI override -> 8") {
-//        auto args = to_args({"prog", "--t1-threads", "8"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE(Threads.get() == 8);
-//        REQUIRE(threads_bound == 8);
-//    }
+
+    SECTION("Explicit CLI override -> 8") {
+        auto args = to_args({"prog", "--t1-threads", "8"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE(Threads.get() == 8);
+        REQUIRE(threads_bound == 8);
+    }
 }
 
 //TEST_CASE("Implicit value when present without argument", "[opt][implicit]") {
