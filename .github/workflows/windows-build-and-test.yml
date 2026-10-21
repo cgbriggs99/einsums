@@ -48,7 +48,7 @@ jobs:
           restore-keys: einsums-${{ runner.os }}-${{ matrix.build_type }}-${{ inputs.build_cache_suffix }}-
 
       - name: Install winget
-        run: Cyberboss/install-winget@v1
+        uses: Cyberboss/install-winget@v1
             
       - name: Get WinDBG
         run: winget install Microsoft.WinDbg
