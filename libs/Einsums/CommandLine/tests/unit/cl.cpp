@@ -98,14 +98,14 @@ TEST_CASE("Flag default and implicit override", "[flag]") {
         REQUIRE_FALSE(verbose_bound);
     }
 
-//    SECTION("Presence -> true") {
-//        auto args = to_args({"prog", "-v"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE(Verbose.get());
-//        REQUIRE(verbose_bound);
-//    }
-//
+    SECTION("Presence -> true") {
+        auto args = to_args({"prog", "-v"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE(Verbose.get());
+        REQUIRE(verbose_bound);
+    }
+
 //    SECTION("Explicit false via value") {
 //        auto args = to_args({"prog", "--t3-verbose=false"});
 //        auto pr   = parse(args);
