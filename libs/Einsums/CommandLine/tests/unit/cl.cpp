@@ -121,14 +121,14 @@ TEST_CASE("Flag default and implicit override", "[flag]") {
         REQUIRE(yes_no_test);
     }
 
-//    SECTION("No flags") {
-//        auto args2 = to_args({"prog", "--no"});
-//
-//        auto pr = parse(args2);
-//        REQUIRE(pr.ok);
-//        REQUIRE(!yes_no_test);
-//    }
-//
+    SECTION("No flags") {
+        auto args2 = to_args({"prog", "--no"});
+
+        auto pr = parse(args2);
+        REQUIRE(pr.ok);
+        REQUIRE(!yes_no_test);
+    }
+
 //    SECTION("Both flags") {
 //        auto args3 = to_args({"prog", "--yes", "--no"});
 //
