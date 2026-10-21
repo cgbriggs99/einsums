@@ -106,13 +106,13 @@ TEST_CASE("Flag default and implicit override", "[flag]") {
         REQUIRE(verbose_bound);
     }
 
-//    SECTION("Explicit false via value") {
-//        auto args = to_args({"prog", "--t3-verbose=false"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE_FALSE(Verbose.get());
-//    }
-//
+    SECTION("Explicit false via value") {
+        auto args = to_args({"prog", "--t3-verbose=false"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE_FALSE(Verbose.get());
+    }
+
 //    SECTION("Yes flags") {
 //        auto args1 = to_args({"prog", "--yes"});
 //
