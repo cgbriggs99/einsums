@@ -374,7 +374,7 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
     }
 
     // Validate exclusions.
-    for (auto *exc : Registry::get_singleton().get_exclusions()) {
+    for (auto const *exc : Registry::get_singleton().get_exclusions()) {
         if (!exc->verify_exclusions()) {
             auto found = exc->found_options();
 
