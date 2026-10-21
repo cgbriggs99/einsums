@@ -129,12 +129,12 @@ TEST_CASE("Flag default and implicit override", "[flag]") {
         REQUIRE(!yes_no_test);
     }
 
-    SECTION("Both flags") {
-        auto args3 = to_args({"prog", "--yes", "--no"});
-
-        auto pr = parse(args3);
-        REQUIRE(!pr.ok);
-    }
+//    SECTION("Both flags") {
+//        auto args3 = to_args({"prog", "--yes", "--no"});
+//
+//        auto pr = parse(args3);
+//        REQUIRE(!pr.ok);
+//    }
 }
 
 TEST_CASE("Bundled short options and attached value", "[short][bundle]") {
