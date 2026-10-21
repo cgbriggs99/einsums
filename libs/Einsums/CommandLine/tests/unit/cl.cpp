@@ -58,27 +58,27 @@ TEST_CASE("Defaults and explicit override", "[opt][defaults]") {
     }
 }
 
-//TEST_CASE("Implicit value when present without argument", "[opt][implicit]") {
-//    CLITestFixture _;
-//
-//    OptionCategory Cat{"T2"};
-//    Opt<int>       Level{"t2-level", {'l'}, "level", Cat, ImplicitValue(7), ValueName("N")};
-//
-//    SECTION("Appears without value -> implicit 7") {
-//        auto args = to_args({"prog", "--t2-level"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE(Level.get() == 7);
-//    }
-//
-//    SECTION("Appears with value -> explicit wins (9)") {
-//        auto args = to_args({"prog", "--t2-level=9"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE(Level.get() == 9);
-//    }
-//}
-//
+TEST_CASE("Implicit value when present without argument", "[opt][implicit]") {
+    CLITestFixture _;
+
+    OptionCategory Cat{"T2"};
+    Opt<int>       Level{"t2-level", {'l'}, "level", Cat, ImplicitValue(7), ValueName("N")};
+
+    SECTION("Appears without value -> implicit 7") {
+        auto args = to_args({"prog", "--t2-level"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE(Level.get() == 7);
+    }
+
+    SECTION("Appears with value -> explicit wins (9)") {
+        auto args = to_args({"prog", "--t2-level=9"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE(Level.get() == 9);
+    }
+}
+
 //TEST_CASE("Flag default and implicit override", "[flag]") {
 //    CLITestFixture _;
 //    OptionCategory Cat{"T3"};
