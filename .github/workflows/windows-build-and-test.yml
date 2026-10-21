@@ -51,7 +51,7 @@ jobs:
         uses: Cyberboss/install-winget@v1
             
       - name: Get WinDBG
-        run: winget install Microsoft.WinDbg
+        run: winget install Microsoft.WinDbg --source winget
 
       # ---- Conda environment setup ----
       - name: Setup Miniforge
