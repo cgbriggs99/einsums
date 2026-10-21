@@ -79,64 +79,64 @@ TEST_CASE("Implicit value when present without argument", "[opt][implicit]") {
     }
 }
 
-//TEST_CASE("Flag default and implicit override", "[flag]") {
-//    CLITestFixture _;
-//    OptionCategory Cat{"T3"};
-//    bool           verbose_bound = false;
-//    bool           yes_no_test   = false;
-//    Flag           Verbose{"t3-verbose", {'v'}, "verbose logging", Cat, Default(false), ImplicitValue(true)};
-//    Flag           YesFlag{"yes", {}, "yes flag", Cat, Location(yes_no_test)};
-//    Flag           NoFlag{"no", {}, "no flag", Cat, Location(yes_no_test), ImplicitValue(false)};
-//    Verbose.on_set([&](bool on) { verbose_bound = on; });
-//    auto exclusion = make_yes_no(YesFlag, NoFlag);
-//
-//    SECTION("Default false") {
-//        auto args = to_args({"prog"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE_FALSE(Verbose.get());
-//        REQUIRE_FALSE(verbose_bound);
-//    }
-//
-//    SECTION("Presence -> true") {
-//        auto args = to_args({"prog", "-v"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE(Verbose.get());
-//        REQUIRE(verbose_bound);
-//    }
-//
-//    SECTION("Explicit false via value") {
-//        auto args = to_args({"prog", "--t3-verbose=false"});
-//        auto pr   = parse(args);
-//        REQUIRE(pr.ok);
-//        REQUIRE_FALSE(Verbose.get());
-//    }
-//
-//    SECTION("Yes flags") {
-//        auto args1 = to_args({"prog", "--yes"});
-//
-//        auto pr = parse(args1);
-//        REQUIRE(pr.ok);
-//        REQUIRE(yes_no_test);
-//    }
-//
-//    SECTION("No flags") {
-//        auto args2 = to_args({"prog", "--no"});
-//
-//        auto pr = parse(args2);
-//        REQUIRE(pr.ok);
-//        REQUIRE(!yes_no_test);
-//    }
-//
-//    SECTION("Both flags") {
-//        auto args3 = to_args({"prog", "--yes", "--no"});
-//
-//        auto pr = parse(args3);
-//        REQUIRE(!pr.ok);
-//    }
-//}
-//
+TEST_CASE("Flag default and implicit override", "[flag]") {
+    CLITestFixture _;
+    OptionCategory Cat{"T3"};
+    bool           verbose_bound = false;
+    bool           yes_no_test   = false;
+    Flag           Verbose{"t3-verbose", {'v'}, "verbose logging", Cat, Default(false), ImplicitValue(true)};
+    Flag           YesFlag{"yes", {}, "yes flag", Cat, Location(yes_no_test)};
+    Flag           NoFlag{"no", {}, "no flag", Cat, Location(yes_no_test), ImplicitValue(false)};
+    Verbose.on_set([&](bool on) { verbose_bound = on; });
+    auto exclusion = make_yes_no(YesFlag, NoFlag);
+
+    SECTION("Default false") {
+        auto args = to_args({"prog"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE_FALSE(Verbose.get());
+        REQUIRE_FALSE(verbose_bound);
+    }
+
+    SECTION("Presence -> true") {
+        auto args = to_args({"prog", "-v"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE(Verbose.get());
+        REQUIRE(verbose_bound);
+    }
+
+    SECTION("Explicit false via value") {
+        auto args = to_args({"prog", "--t3-verbose=false"});
+        auto pr   = parse(args);
+        REQUIRE(pr.ok);
+        REQUIRE_FALSE(Verbose.get());
+    }
+
+    SECTION("Yes flags") {
+        auto args1 = to_args({"prog", "--yes"});
+
+        auto pr = parse(args1);
+        REQUIRE(pr.ok);
+        REQUIRE(yes_no_test);
+    }
+
+    SECTION("No flags") {
+        auto args2 = to_args({"prog", "--no"});
+
+        auto pr = parse(args2);
+        REQUIRE(pr.ok);
+        REQUIRE(!yes_no_test);
+    }
+
+    SECTION("Both flags") {
+        auto args3 = to_args({"prog", "--yes", "--no"});
+
+        auto pr = parse(args3);
+        REQUIRE(!pr.ok);
+    }
+}
+
 //TEST_CASE("Bundled short options and attached value", "[short][bundle]") {
 //    CLITestFixture _;
 //
