@@ -113,14 +113,14 @@ TEST_CASE("Flag default and implicit override", "[flag]") {
         REQUIRE_FALSE(Verbose.get());
     }
 
-//    SECTION("Yes flags") {
-//        auto args1 = to_args({"prog", "--yes"});
-//
-//        auto pr = parse(args1);
-//        REQUIRE(pr.ok);
-//        REQUIRE(yes_no_test);
-//    }
-//
+    SECTION("Yes flags") {
+        auto args1 = to_args({"prog", "--yes"});
+
+        auto pr = parse(args1);
+        REQUIRE(pr.ok);
+        REQUIRE(yes_no_test);
+    }
+
 //    SECTION("No flags") {
 //        auto args2 = to_args({"prog", "--no"});
 //
