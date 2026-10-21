@@ -47,6 +47,9 @@ jobs:
           key: einsums-${{ runner.os }}-${{ matrix.build_type }}-${{ inputs.build_cache_suffix }}-${{ github.sha }}
           restore-keys: einsums-${{ runner.os }}-${{ matrix.build_type }}-${{ inputs.build_cache_suffix }}-
 
+            
+      - name: Get WinDBG
+        run: winget install Microsoft.WinDbg
 
       # ---- Conda environment setup ----
       - name: Setup Miniforge
@@ -135,6 +138,13 @@ jobs:
           rem DLL search path: Einsums, spdlog, conda, mingw64 runtime
           set "PATH=%GITHUB_WORKSPACE%\build\${{ matrix.build_type }}\bin;%GITHUB_WORKSPACE%\build\_deps\spdlog-build;%CONDA_PREFIX%\Library\bin;%CONDA_PREFIX%\Library\mingw64\bin;%PATH%"
           ctest -j4 --output-on-failure --timeout 60
+          
+      - name: Debug
+        uses: owenthereal/action-upterm@v2
+        if: ${{ failure() }}
+        with:
+          wait-timeout-minutes: 5
+                    
       - name: Install
         shell: cmd
         working-directory: "${{github.workspace}}/build"
