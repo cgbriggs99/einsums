@@ -380,7 +380,7 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
 
             auto it = found.begin();
 
-            fmt::print(stderr, "error: incompatible arguments found: \n");
+            std::fprintf(stderr, "error: incompatible arguments found: \n");
 
             for (int i = 0; i < found.size(); i++, it++) {
                 fmt::print(stderr, "--{}\n", (*it)->get_long_name());
