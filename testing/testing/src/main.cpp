@@ -25,8 +25,6 @@
 #include <iostream>
 #include <thread>
 
-using namespace std::chrono_literals;
-
 #define CATCH_CONFIG_RUNNER
 #include <catch2/catch_all.hpp>
 namespace {

@@ -339,9 +339,9 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
                 if (!o->parse_token(std::string_view(&c, 1), val, "error: ")) {
                     return {.ok = false, .exit_code = 1};
                 }
-                if (o->get_impl()->on_seen_) {
-                    o->get_impl()->on_seen_();
-                }
+                //                if (o->get_impl()->on_seen_) {
+                //                    o->get_impl()->on_seen_();
+                //                }
                 if (o->get_long_name() == "help") {
                     print_help(prog);
                     return {.ok = false, .exit_code = 0};
@@ -380,14 +380,10 @@ ParseResult parse_internal(std::vector<std::string> const &args, char const *pro
 
             auto it = found.begin();
 
-            fmt::print(stderr, "error: incompatible arguments found: ");
+            fmt::print(stderr, "error: incompatible arguments found: \n");
 
             for (int i = 0; i < found.size(); i++, it++) {
-                if (i != found.size() - 1) {
-                    fmt::print(stderr, "--{}, ", (*it)->get_long_name());
-                } else {
-                    fmt::print(stderr, "--{}\n", (*it)->get_long_name());
-                }
+                fmt::print(stderr, "--{}\n", (*it)->get_long_name());
             }
             return {.ok = false, .exit_code = 1};
         }
